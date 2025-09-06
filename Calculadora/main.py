@@ -1,4 +1,4 @@
-import Calculadora.calculadora as calculadora
+import  calculadora
 if __name__ =="__main__":
     num=float(input("Ingrese un número: "))
     otro_numero=float(input("Ingrese otro número: "))
