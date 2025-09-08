@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "web"
+version = "1.0.0"
+description = ""
+authors = ["Adrián A. Sambido <113736411+AdrianASambido@users.noreply.github.com>"]
+readme = "README.md"
+packages = [{include = "web", from = "src"}]
+
+[tool.poetry.dependencies]
+python = ">=3.12"
+flask = ">=3.1.2,<4.0.0"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.4.2"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
