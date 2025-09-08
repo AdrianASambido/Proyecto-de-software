@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [tool.poetry]
 name = "web"
 version = "1.0.0"
@@ -12,6 +13,25 @@ flask = ">=3.1.2,<4.0.0"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^8.4.2"
+=======
+[project]
+name = "web"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Ulises Rabasa",email = "rabasaulises@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "flask (>=3.1.2,<4.0.0)",
+    "pytest (>=8.4.2,<9.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "web", from = "src"}]
+
+>>>>>>> 8110621793eaf7c3ef186897ba5952e7f53094f0
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
