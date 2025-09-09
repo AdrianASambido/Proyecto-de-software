@@ -1,1 +1,5 @@
 # Grupo01
+
+# ----- PARTICIPANTES ----- 
+
+# SAMBIDO ADRIÁN ALEJANDRO
