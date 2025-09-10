@@ -1,8 +1,8 @@
 from flask import Flask, render_template, abort 
 
 
-def create_app(env="development", static_folder="static"): #../../static
-    app = Flask(__name__) #, static_folder=static_folder
+def create_app(static_folder="static"):
+    app = Flask(__name__, static_folder=static_folder)
 
     @app.route("/")
     def home():
