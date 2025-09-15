@@ -1,8 +1,10 @@
 from flask import Flask, render_template, abort 
-
+from src.web.config import config
 
 def create_app(env="development", static_folder="../../static"): #../../static
     app = Flask(__name__, static_folder=static_folder)
+    app.config.from_object(config[env])
+
 
     @app.route("/")
     def home():
