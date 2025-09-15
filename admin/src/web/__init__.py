@@ -8,7 +8,7 @@ def create_app(env="development", static_folder="../../static"): #../../static
 
     @app.route("/")
     def home():
-        return render_template("home.html")
+        return render_template("home.html"), 200
     
     @app.errorhandler(401)
     def unauthorizedError(error):
