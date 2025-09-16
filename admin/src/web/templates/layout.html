@@ -1,10 +1,11 @@
+{% include "basic-structure-w-sidebar.html" %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}My App{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}"> -->
 </head>
 <body>
     <div style="width: 100%; height: 100%;flex-grow: 1; display: flex; flex-direction: column;">
