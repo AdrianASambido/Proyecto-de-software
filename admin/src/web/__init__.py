@@ -10,6 +10,10 @@ def create_app(env="development", static_folder="../../static"): #../../static
     def home():
         return render_template("home.html"), 200
     
+    @app.route("/tabla")
+    def tabla():
+        return render_template("tables_base.html"), 200
+    
     @app.errorhandler(401)
     def unauthorizedError(error):
         return render_template('errores/401.html'), 401
