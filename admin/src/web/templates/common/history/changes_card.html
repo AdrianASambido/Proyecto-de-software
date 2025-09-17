@@ -1,0 +1,94 @@
+<div class="w-full rounded-lg border border-gray-600 bg-neutral-900 text-neutral-200 shadow-sm">
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-gray-700 px-4 py-3">
+        <div class="flex items-center gap-3">
+            <!-- Optional avatar slot (hidden if not provided) -->
+            {% if change.user_avatar_url %}
+            <img src="{{ change.user_avatar_url }}" alt="avatar" class="h-9 w-9 rounded-full object-cover" />
+            {% endif %}
+            <div class="flex flex-col">
+                <div class="text-sm tracking-widest text-neutral-300">ACCION</div>
+                <div class="text-base font-semibold">
+                    {% if change.accion == 'crear' %}Creación
+                    {% elif change.accion == 'editar' %}Edición
+                    {% elif change.accion == 'eliminar' %}Eliminación
+                    {% elif change.accion == 'cambiar_tags' %}Cambio de etiquetas
+                    {% elif change.accion == 'cambiar_imagenes' %}Cambio de imágenes
+                    {% else %}Acción
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-1 items-start justify-center">
+            <div class="flex flex-col text-center">
+                <div class="text-sm tracking-widest text-neutral-300">USUARIO QUE LA REALIZÓ</div>
+                <div class="text-base font-semibold">
+                    {% if change.user_name %}
+                    {{ change.user_name }}
+                    {% else %}
+                    Usuario #{{ change.usuario_modificador_id }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="flex flex-col items-end">
+            <div class="text-sm tracking-widest text-neutral-300">FECHA DE REALIZACIÓN</div>
+            <div class="text-base font-semibold">
+                {% if change.fecha_modificacion %}
+                {{ change.fecha_modificacion.strftime('%d/%m/%Y %H:%M') if change.fecha_modificacion.strftime else
+                change.fecha_modificacion }}
+                {% else %}
+                —
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Body: changes list -->
+    <div class="px-4 py-4">
+        {% if change.cambios and change.cambios|length > 0 %}
+        <div class="space-y-4">
+            {% for c in change.cambios %}
+            <div class="grid grid-cols-1 gap-2 sm:grid-cols-12">
+                <!-- Campo label -->
+                <div class="sm:col-span-2">
+                    <div class="text-xs uppercase tracking-widest text-neutral-400">Campo</div>
+                    <div class="font-semibold">{{ c.campo | default('—') }}</div>
+                </div>
+
+                <!-- Valor anterior -->
+                <div class="sm:col-span-4">
+                    <div class="text-xs uppercase tracking-widest text-neutral-400">Valor viejo</div>
+                    <div class="truncate">{{ c.valor_anterior if c.valor_anterior is not none and c.valor_anterior != ''
+                        else 'Sin valor' }}</div>
+                </div>
+
+                <!-- Arrow -->
+                <div class="hidden items-center justify-center sm:col-span-1 sm:flex">
+                    <svg class="h-5 w-5 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14" />
+                        <path d="m13 5 7 7-7 7" />
+                    </svg>
+                </div>
+
+                <!-- Valor nuevo -->
+                <div class="sm:col-span-5">
+                    <div class="text-xs uppercase tracking-widest text-neutral-400">Valor nuevo</div>
+                    <div class="truncate font-semibold text-emerald-300">{{ c.valor_nuevo if c.valor_nuevo is not none
+                        and c.valor_nuevo != '' else 'Sin valor' }}</div>
+                </div>
+            </div>
+
+            {% if not loop.last %}
+            <div class="border-b border-gray-800"></div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-sm italic text-neutral-400">Sin cambios detallados</div>
+        {% endif %}
+    </div>
+</div>

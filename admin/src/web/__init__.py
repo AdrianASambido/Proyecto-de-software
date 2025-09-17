@@ -3,6 +3,7 @@ from src.web.config import config
 from src.core import database, seeds
 
 # ACA controladores
+from src.web.controllers.sites_history import bp as sites_history_bp
 from src.web.controllers.sites import bp as sites_bp
 
 def create_app(env="development", static_folder="../../static"): #../../static
@@ -58,6 +59,7 @@ def create_app(env="development", static_folder="../../static"): #../../static
 
     # definir todos los blueprints
     app.register_blueprint(sites_bp)
+    app.register_blueprint(sites_history_bp)
     
     #comandos para el CLI
     @app.cli.command(name="resetdb")
@@ -68,4 +70,5 @@ def create_app(env="development", static_folder="../../static"): #../../static
     def seeddb():
         seeds.seeds_db()
 
+    
     return app
