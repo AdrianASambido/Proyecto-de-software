@@ -1,0 +1,23 @@
+{% macro render_form(action, method="post", fields=[], submit_text="Enviar") %}
+<form action="{{ action }}" method="{{ method }}" class="bg-white shadow-md rounded-lg p-6 max-w-md">
+  {% for field in fields %}
+    <div class="mb-4">
+      <label for="{{ field.name }}" class="block text-sm font-medium text-gray-700 mb-1">
+        {{ field.label }}
+      </label>
+      <input 
+        type="{{ field.type }}" 
+        id="{{ field.name }}" 
+        name="{{ field.name }}" 
+        placeholder="{{ field.placeholder }}" 
+        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+        {% if field.required %}required{% endif %}
+      >
+    </div>
+  {% endfor %}
+  
+  <button type="submit" class="w-full bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-700">
+    {{ submit_text }}
+  </button>
+</form>
+{% endmacro %}
