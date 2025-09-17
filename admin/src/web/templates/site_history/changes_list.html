@@ -3,10 +3,10 @@
 {% block title %}Historial de cambios de {{ sitio.nombre }}{% endblock %}
 
 {% block content %}
-<div class="mx-auto max-w-6xl px-4 py-6">
+<div class="mx-auto min-w-[60%] w-auto px-4 py-2">
     <!-- Header with title and back link -->
     <div class="mb-6 flex items-center justify-between">
-        <h1 class="text-2xl font-bold text-neutral-100">Historial de cambios de {{ sitio.nombre }}</h1>
+        <h1 class="text-2xl font-bold text-neutral-600">Historial de cambios de {{ sitio.nombre }}</h1>
         <a href="#"
             class="inline-flex items-center gap-2 rounded-md border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm font-medium text-neutral-200 transition hover:bg-neutral-700 hover:text-white"
             title="Volver al sitio">
@@ -17,15 +17,16 @@
             Volver al sitio
         </a>
     </div>
+    <div class="border-b border-neutral-700 w-auto h-1 mx-auto"></div>
 
     {% if lista_de_cambios and lista_de_cambios|length > 0 %}
-    <div class="space-y-4">
+    <div class="space-y-16 mt-8">
         {% for change in lista_de_cambios %}
         {% include 'common/history/changes_card.html' %}
         {% endfor %}
     </div>
     {% else %}
-    <div class="rounded-lg border border-gray-700 bg-neutral-900 p-6 text-neutral-400">
+    <div class="text-2xl text-center p-6 text-neutral-700">
         No hay cambios registrados para este sitio.
     </div>
     {% endif %}

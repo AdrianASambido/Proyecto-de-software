@@ -20,6 +20,4 @@ def index(sitio_id):
     """
     # sitio=sites_history.get_site(sitio_id)
     datos_historial=sites_history.list_site_history(sitio_id)
-    if datos_historial is None:
-        abort(404)
     return render_template("site_history/changes_list.html", lista_de_cambios=datos_historial["historial"], sitio=datos_historial["sitio"]), 200
