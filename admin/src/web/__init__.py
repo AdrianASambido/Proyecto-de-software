@@ -1,5 +1,6 @@
 from flask import Flask, render_template, abort, request, redirect, url_for
 from src.web.config import config
+from src.web.controllers.sites import bp as sites_bp
 
 def create_app(env="development", static_folder="../../static"): #../../static
     app = Flask(__name__, static_folder=static_folder)
@@ -28,6 +29,7 @@ def create_app(env="development", static_folder="../../static"): #../../static
     def tags():
         return render_template("/tags/tags.html"), 200
     
+    
     @app.errorhandler(401)
     def unauthorizedError(error):
         return render_template('errores/401.html'), 401
@@ -48,5 +50,7 @@ def create_app(env="development", static_folder="../../static"): #../../static
     def throw_500_error_for_test():
         abort(500)
         return render_template("throw_500_error_for_test.html")
+    
+    app.register_blueprint(sites_bp)
     
     return app

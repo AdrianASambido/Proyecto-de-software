@@ -1,0 +1,22 @@
+{% extends "basic-structure-w-sidebar.html" %}
+{% from "common/_form.html" import render_form %}
+{% block title %}Agregar Sitio | Mi Aplicación{% endblock %}
+
+{% block content %}
+  <h2 class="text-xl font-bold mb-4">Agregar sitio histórico</h2>
+  {{ render_form(
+      action=url_for('sites.add_site'),
+      fields=[
+        {"name": "nombre", "label": "Nombre", "type": "text", "placeholder": "Nombre del sitio", "required": True},
+        {"name": "descripcion_breve", "label": "Descripción breve", "type": "text", "placeholder": "Breve descripción", "required": False},
+        {"name": "descripcion_completa", "label": "Descripción completa", "type": "text", "placeholder": "Descripción completa", "required": False},
+        {"name": "ciudad", "label": "Ciudad", "type": "text", "placeholder": "Ciudad", "required": True},
+        {"name": "provincia", "label": "Provincia", "type": "text", "placeholder": "Provincia", "required": True},
+        {"name": "latitud", "label": "Latitud", "type": "number", "placeholder": "Latitud", "required": False},
+        {"name": "longitud", "label": "Longitud", "type": "number", "placeholder": "Longitud", "required": False},
+        
+      ],
+      submit_text="Agregar sitio"
+    )
+  }}
+{% endblock %}

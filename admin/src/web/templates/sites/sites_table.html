@@ -1,0 +1,22 @@
+{% extends "common/tables_base.html" %}
+
+{% block table_title %}Sitios Históricos{% endblock %}
+
+{% block add_url %}{{ url_for('sites.add_form') }}{% endblock %}
+{% block add_label %}Agregar sitio{% endblock %}
+
+{% block table_headers %}
+  <th>Nombre</th>
+  <th>Ciudad</th>
+  <th>Acciones</th>
+{% endblock %}
+
+{% block table_rows %}
+  {% for sitio in sites %}
+    <tr>
+      <td>{{ sitio.nombre }}</td>
+      <td>{{ sitio.ciudad }}</td>
+      <td><!-- Acciones --></td>
+    </tr>
+  {% endfor %}
+{% endblock %}
