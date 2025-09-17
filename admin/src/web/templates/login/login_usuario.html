@@ -1,0 +1,10 @@
+{% extends "basic-structure-w-sidebar.html" %}
+{% from "common/_form.html" import render_form %}
+
+{% block title %}Login Usuario{% endblock %}
+
+{% block content %}
+    <h1>Login Usuario</h1>
+    <p>Por favor, ingrese correo y contraseña para iniciar sesión.</p>
+    {{ render_form(form) }}
+{% endblock %}
