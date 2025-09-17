@@ -1,6 +1,6 @@
 from flask import Flask, render_template, abort, request, redirect, url_for
 from src.web.config import config
-from src.web.controllers.sites import bp as sites_bp
+from src.web.controllers.sites_history import bp as sites_history_bp
 
 def create_app(env="development", static_folder="../../static"): #../../static
     app = Flask(__name__, static_folder=static_folder)
@@ -51,6 +51,6 @@ def create_app(env="development", static_folder="../../static"): #../../static
         abort(500)
         return render_template("throw_500_error_for_test.html")
     
-    app.register_blueprint(sites_bp)
+    app.register_blueprint(sites_history_bp)
     
     return app
