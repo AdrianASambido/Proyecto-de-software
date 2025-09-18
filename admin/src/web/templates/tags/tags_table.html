@@ -1,0 +1,23 @@
+{% extends "common/tables_base.html" %}
+
+{% block table_title %}Etiquetas{% endblock %}
+
+{% block add_url %}{{ url_for('tags.add_form') }}{% endblock %}
+{% block add_label %}Agregar etiqueta{% endblock %}
+
+{% block table_headers %}
+  <th>Nombre</th>
+  <th>Slug</th>
+  <th>Fecha de creación</th>
+{% endblock %}
+
+{% block table_rows %}
+  {% for tag in tags %}
+    <tr>
+      <td>{{ tag.nombre }}</td>
+      <td>{{ tag.slug }}</td>
+      <td>{{ tag.fecha_creacion }}</td>
+      <td><!-- Acciones --></td>
+    </tr>
+  {% endfor %}
+{% endblock %}

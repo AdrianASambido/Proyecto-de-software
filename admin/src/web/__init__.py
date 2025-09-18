@@ -1,6 +1,7 @@
-from flask import Flask, render_template, abort, request, redirect, url_for
+from flask import Flask, render_template, abort, redirect, url_for
 from src.web.config import config
 from src.web.controllers.sites import bp as sites_bp
+from src.web.controllers.tags import bp as tags_bp
 
 def create_app(env="development", static_folder="../../static"): #../../static
     app = Flask(__name__, static_folder=static_folder)
@@ -10,25 +11,10 @@ def create_app(env="development", static_folder="../../static"): #../../static
     @app.route("/")
     def home():
         return render_template("home.html"), 200
-
-    @app.route("/crear_tag", methods=["POST"])
-    def crear_tag():
-        name = request.form.get("name")
-        slug = request.form.get("slug")
-
-        # 👉 Guardar en DB o lo que necesites
-        print("Nuevo tag:", name, slug)
-
-        return redirect(url_for("tags"))  # o a donde quieras volver
     
     @app.route("/tabla")
     def tabla():
         return render_template("tables_base.html"), 200
-
-    @app.route("/tags")
-    def tags():
-        return render_template("/tags/tags.html"), 200
-    
     
     @app.errorhandler(401)
     def unauthorizedError(error):
@@ -52,5 +38,6 @@ def create_app(env="development", static_folder="../../static"): #../../static
         return render_template("throw_500_error_for_test.html")
     
     app.register_blueprint(sites_bp)
+    app.register_blueprint(tags_bp)
     
     return app
