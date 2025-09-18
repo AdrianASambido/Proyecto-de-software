@@ -4,7 +4,7 @@
 
 
 from flask import Blueprint
-from flask import render_template, request
+from flask import render_template, request,redirect, url_for
 from src.core import board_sites
 
 
@@ -27,11 +27,11 @@ def add_form():
     """
     return render_template("sites/add_site.html"), 200
 
-@bp.post("/add")
+@bp.post("/agregar")
 def add_site():
     """
     Procesa el formulario y agrega el sitio, luego redirige a la lista.
     """
     site_data = dict(request.form)
     board_sites.add_site(site_data)
-    return render_template("sites_table.html", sites=board_sites.list_sites()), 200
+    return redirect(url_for("sites.index"))
