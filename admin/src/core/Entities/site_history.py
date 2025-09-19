@@ -2,7 +2,6 @@ from datetime import datetime, timezone
 from src.core.database import db
 import enum
 
-# Define a Python Enum
 class HistoryAction(enum.Enum):
     CREAR = "crear"
     EDITAR = "editar"

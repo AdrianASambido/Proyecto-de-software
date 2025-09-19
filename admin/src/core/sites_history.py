@@ -15,42 +15,6 @@ def _serialize_value(val):
         return val.isoformat()
     return val
 
-site_1_history= [
-    {
-        "id": 1,
-        "sitio_id": 1,
-        "usuario_modificador_id": 1,
-        "fecha_modificacion": datetime.now(timezone.utc),
-        "accion": "crear",  # crear, editar, eliminar, cambiar_tags, cambiar_imagenes
-        "cambios": [
-            {
-                "campo": "nombre",
-                "valor_anterior": None,
-                "valor_nuevo": "Chicho itza"
-            },
-            {
-                "campo": "descripcion",
-                "valor_anterior": None,
-                "valor_nuevo": "Sitio ubicado en........"
-            }
-            # ... más cambios
-        ]
-    },
-    {
-        "id": 2,
-        "sitio_id": 1,
-        "usuario_modificador_id": 2,
-        "fecha_modificacion": datetime.now(timezone.utc),
-        "accion": "editar",  # crear, editar, eliminar, cambiar_tags, cambiar_imagenes
-        "cambios": [
-            {
-                "campo": "nombre",
-                "valor_anterior": "Chicho itza",
-                "valor_nuevo": "Chichen Itza"
-            }
-        ]
-    }
-]
 
 usuario_1={
     "id": 1,
@@ -58,39 +22,25 @@ usuario_1={
     "apellido": "Apellido 1",
 }
 
-usuario_2={
-    "id": 2,
-    "nombre": "Usuario 2",
-    "apellido": "Apellido 2",
-}
-sitio_1={
-    "id": 1,
-    "nombre": "Chichen Itza",
-}
-sitio_2={
-    "id": 2,
-    "nombre": "Machu Picchu",
-}
-
 def list_site_history(sitio_id):
     """
     Retorna una lista de todos los cambios de un sitio historico.
     """
-    if (sitio_id != 1):
-        return {
-        "sitio": sitio_2,
-        "historial": []
-    }
     
-    for cambios in site_1_history:
-        if(cambios["usuario_modificador_id"] == 1):
-            cambios["datos_usuario"] = usuario_1
-        else:
-            cambios["datos_usuario"] = usuario_2
+    sitio = db.session.query(Site).filter_by(id=sitio_id).first()
+
+    if (sitio is None):
+        return None
+    
+    # agregar paginacion luego
+    site_history = db.session.query(SiteHistory).filter_by(sitio_id=sitio_id).all()
+    
+    for cambios in site_history:
+        cambios.datos_usuario = usuario_1
 
     return {
-        "sitio": sitio_1,
-        "historial": site_1_history
+        "sitio": sitio,
+        "historial": site_history
     }
 
 def add_site_history(site_id,accion,usuario_modificador_id, sitio_cambiado):
@@ -107,7 +57,7 @@ def add_site_history(site_id,accion,usuario_modificador_id, sitio_cambiado):
     # obtener sitio original desde la DB si no es creacion o eliminacion
     sitio_original = None
     if accion not in (HistoryAction.CREAR, HistoryAction.ELIMINAR):
-        sitio_original = Site.query.get(site_id)
+        sitio_original = db.session.query(Site).filter_by(id=site_id).first()
 
     # campos a considerar en el historial (excluimos claves y timestamps)
     campos_site = [c.name for c in Site.__table__.columns

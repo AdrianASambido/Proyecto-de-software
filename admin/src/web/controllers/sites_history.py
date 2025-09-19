@@ -5,9 +5,9 @@
 
 from flask import Blueprint
 from flask import render_template, request
-from src.core import sites_history
+from src.core.sites_history import list_site_history
 from flask import abort
-
+from src.core.Entities.site_history import HistoryAction
 
 bp = Blueprint("site_history", __name__, url_prefix=("/historial/<int:sitio_id>"))
 
@@ -18,6 +18,13 @@ def index(sitio_id):
 
     Renderiza la plantilla con la lista de sitios.
     """
-    # sitio=sites_history.get_site(sitio_id)
-    datos_historial=sites_history.list_site_history(sitio_id)
-    return render_template("site_history/changes_list.html", lista_de_cambios=datos_historial["historial"], sitio=datos_historial["sitio"]), 200
+    datos_historial=list_site_history(sitio_id)
+    print(datos_historial)
+
+    if (datos_historial is None):
+        return abort(404)
+    return render_template("site_history/changes_list.html", 
+        HistoryAction=HistoryAction,
+        lista_de_cambios=datos_historial["historial"], 
+        sitio=datos_historial["sitio"]
+    ), 200

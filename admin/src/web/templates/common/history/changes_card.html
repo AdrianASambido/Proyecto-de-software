@@ -3,12 +3,12 @@
     <div class="flex items-center justify-between border-b border-gray-700 px-4 py-6">
         <div class="flex items-center gap-3">
             <div class="text-lg font-bold">
-                {% if change.accion == 'crear' %}Creación
-                {% elif change.accion == 'editar' %}Edición
-                {% elif change.accion == 'eliminar' %}Eliminación
-                {% elif change.accion == 'cambiar_tags' %}Cambio de etiquetas
-                {% elif change.accion == 'cambiar_imagenes' %}Cambio de imágenes
-                {% else %}Acción
+                {% if change.accion == HistoryAction.CREAR %}Creación
+                {% elif change.accion == HistoryAction.EDITAR %}Edición
+                {% elif change.accion == HistoryAction.ELIMINAR %}Eliminación
+                {% elif change.accion == HistoryAction.CAMBIAR_TAGS %}Cambio de etiquetas
+                {% elif change.accion == HistoryAction.CAMBIAR_IMAGENES %}Cambio de imágenes
+                {% else %} {{ change.accion }}
                 {% endif %}
             </div>
 
