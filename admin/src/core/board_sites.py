@@ -2,7 +2,7 @@
     Este modelo representa las operaciones relacionadas con los sitios historicos.
 """
 from core.Entities.site import Site,db
-
+from datetime import datetime
 sites= [
     {
         "id": 1,
@@ -16,7 +16,7 @@ sites= [
         "longitud": -88.5678,
         "categoria": "Arqueológico",
         "estado_conservacion": "Bueno",
-        "fecha_registro": None,
+        "fecha_registro": datetime(2023, 1, 15, 10, 0, 0),
         "visible": True,
     }
 ]
@@ -44,10 +44,11 @@ def add_site(site_data):
         "longitud": site_data.get("longitud"),
         "categoria": site_data.get("categoria"),
         "estado_conservacion": site_data.get("estado_conservacion"),
-        "fecha_registro": site_data.get("fecha_registro"),
+        "fecha_registro": datetime.now(),
         "visible": site_data.get("visible", True),
 
     }
+
     #db.session.add(nuevo_sitio) cuando exista la base de datos
     #db.session.commit() cuando exista la base de datos
     sites.append(nuevo_sitio)
