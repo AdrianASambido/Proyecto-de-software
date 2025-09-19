@@ -4,6 +4,8 @@
 from src.core.database import db
 from src.core.Entities.site import Site
 from datetime import datetime
+from src.core.sites_history import add_site_history
+from src.core.Entities.site_history import HistoryAction
 
 def list_sites():
     """
@@ -32,4 +34,8 @@ def add_site(site_data):
 
     db.session.add(nuevo_sitio)
     db.session.commit()
+
+    # aca agregar a la tabla de historial
+    add_site_history(nuevo_sitio.id, HistoryAction.CREAR, 1, nuevo_sitio)
+
     return nuevo_sitio

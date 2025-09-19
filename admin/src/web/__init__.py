@@ -3,7 +3,7 @@ from src.web.config import config
 from src.core import database, seeds
 
 # ACA controladores
-from src.web.controllers.sites_history import bp as site_history_bp
+from src.web.controllers.sites_history import bp as sites_history_bp
 from src.web.controllers.sites import bp as sites_bp
 
 def before_my_blueprint():
@@ -14,6 +14,7 @@ def create_app(env="development", static_folder="../../static"): #../../static
     app.config.from_object(config[env])
 
     database.init_app(app)
+    
     app.before_request_funcs = {
         'site_history': [before_my_blueprint]
     }
