@@ -23,6 +23,10 @@ def create_app(env="development", static_folder="../../static"): #../../static
     @app.route("/tabla")
     def tabla():
         return render_template("tables_base.html"), 200
+    
+    @app.route("/tabla_usuarios")
+    def tabla_usuarios():
+        return render_template("/usuarios/tabla_usuarios.html"), 200
 
     @app.route("/tags")
     def tags():
