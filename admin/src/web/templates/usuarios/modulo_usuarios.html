@@ -1,0 +1,12 @@
+{% extends "basic-structure-w-sidebar.html" %}
+{% from "common/_form.html" import render_form %}
+
+{% block title %} Modulo Usuarios {% endblock %}
+    <h1>Modulo Usuarios</h1>
+    {{ render_form(
+        action=url_for('admin_usuarios'), 
+        method='POST',
+        form=usuario_form,
+        submit_label='Guardar Cambios'
+        ) }}
+{%endblock%}
