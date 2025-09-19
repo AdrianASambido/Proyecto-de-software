@@ -2,8 +2,76 @@
 
 {% block table_title %}Sitios Históricos{% endblock %}
 
+
 {% block add_url %}{{ url_for('sites.add_form') }}{% endblock %}
 {% block add_label %}Agregar sitio{% endblock %}
+{% block table_filters %}
+<form method="get" class="mb-3 flex flex-wrap items-center gap-2 text-sm">
+  <!-- Búsqueda -->
+  <input type="text" name="search" placeholder="Buscar..."
+         value="{{ request.args.get('search','') }}"
+         class="h-8 w-40 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200"/>
+
+  <!-- Ciudad -->
+  <input type="text" name="ciudad" placeholder="Ciudad"
+         value="{{ request.args.get('ciudad','') }}"
+         class="h-8 w-28 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200"/>
+
+  <!-- Provincia -->
+  <select name="provincia"
+          class="h-8 w-32 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200">
+    <option value="">Provincia</option>
+    {% for prov in provincias %}
+      <option value="{{ prov }}" {% if request.args.get('provincia') == prov %}selected{% endif %}>{{ prov }}</option>
+    {% endfor %}
+  </select>
+
+  <!-- Estado -->
+  <select name="estado_conservacion"
+          class="h-8 w-40 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200">
+    <option value="">Estado</option>
+    {% for estado in ['Bueno','Regular','Malo'] %}
+      <option value="{{ estado }}" {% if request.args.get('estado_conservacion') == estado %}selected{% endif %}>{{ estado }}</option>
+    {% endfor %}
+  </select>
+
+  <!-- Fecha registro -->
+  <input type="date" name="fecha_desde"
+         value="{{ request.args.get('fecha_desde','') }}"
+         class="h-8 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200"/>
+  <span class="text-neutral-400">a</span>
+  <input type="date" name="fecha_hasta"
+         value="{{ request.args.get('fecha_hasta','') }}"
+         class="h-8 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200"/>
+
+  <!-- Visibilidad -->
+  <label class="flex items-center gap-1 text-black-300">
+    <input type="checkbox" name="visible" value="1"
+           {% if request.args.get('visible') %}checked{% endif %}
+           class="h-4 w-4 rounded border-neutral-600"/>
+    Visible
+  </label>
+
+  <!-- Orden -->
+  <select name="orden"
+          class="h-8 w-28 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200">
+    <option value="fecha_desc" {% if request.args.get('orden')=='fecha_desc' %}selected{% endif %}>Fecha ↓</option>
+    <option value="fecha_asc" {% if request.args.get('orden')=='fecha_asc' %}selected{% endif %}>Fecha ↑</option>
+    <option value="nombre_asc" {% if request.args.get('orden')=='nombre_asc' %}selected{% endif %}>Nombre ↑</option>
+    <option value="nombre_desc" {% if request.args.get('orden')=='nombre_desc' %}selected{% endif %}>Nombre ↓</option>
+    <option value="ciudad_asc" {% if request.args.get('orden')=='ciudad_asc' %}selected{% endif %}>Ciudad ↑</option>
+    <option value="ciudad_desc" {% if request.args.get('orden')=='ciudad_desc' %}selected{% endif %}>Ciudad ↓</option>
+  </select>
+
+  <!-- Botones -->
+  <button type="submit"
+          class="h-8 rounded bg-blue-600 px-3 text-white hover:bg-blue-500">Aplicar</button>
+  
+      <a 
+     class="h-8 rounded bg-blue-600 px-3 text-white hover:bg-blue-500">Limpiar</a>
+</form>
+{% endblock %}
+
 
 {% block table_headers %}
   <th>Nombre</th>
@@ -39,7 +107,7 @@
       <!-- Columna de acciones con botón Modificar -->
       <td class="flex gap-2">
         <a 
-           class="rounded bg-blue-500 px-2 py-1 text-white hover:bg-white-600">
+           class="rounded bg-blue-500 px-2 py-1 text-white hover:bg-blue-600">
           Modificar
         </a>
       </td>
