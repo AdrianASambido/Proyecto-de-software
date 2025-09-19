@@ -16,7 +16,7 @@ sites= [
         "longitud": -88.5678,
         "categoria": "Arqueológico",
         "estado_conservacion": "Bueno",
-        "fecha_registro": None,
+        
         "visible": True,
     }
 ]
@@ -44,10 +44,11 @@ def add_site(site_data):
         "longitud": site_data.get("longitud"),
         "categoria": site_data.get("categoria"),
         "estado_conservacion": site_data.get("estado_conservacion"),
-        "fecha_registro": site_data.get("fecha_registro"),
+     
         "visible": site_data.get("visible", True),
 
     }
+
     #db.session.add(nuevo_sitio) cuando exista la base de datos
     #db.session.commit() cuando exista la base de datos
     sites.append(nuevo_sitio)

@@ -37,4 +37,18 @@
     </table>
   </div>
 </div>
+
+<!-- Paginación -->
+  <div class="flex justify-center mt-4">
+    {% block pagination %}
+    <!-- Botones de ejemplo, sobrescribibles en la plantilla hija -->
+    <nav class="inline-flex rounded-md shadow-sm" role="navigation" aria-label="Pagination">
+      <a href="#" class="px-3 py-1 rounded-l-lg bg-neutral-700 text-white hover:bg-neutral-600">Anterior</a>
+      <a href="#" class="px-3 py-1 bg-neutral-800 text-white hover:bg-neutral-700">1</a>
+      <a href="#" class="px-3 py-1 bg-neutral-800 text-white hover:bg-neutral-700">2</a>
+      <a href="#" class="px-3 py-1 bg-neutral-800 text-white hover:bg-neutral-700">3</a>
+      <a href="#" class="px-3 py-1 rounded-r-lg bg-neutral-700 text-white hover:bg-neutral-600">Siguiente</a>
+    </nav>
+    {% endblock %}
+  </div>
 {% endblock %}

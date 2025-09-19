@@ -6,11 +6,12 @@
   {% call render_form(
         action=url_for('sites.add_site'),
         fields=[
-          {"name": "nombre","label": "Nombre","type":"text","placeholder":"Nombre del sitio","required":True},
+          {"name": "nombre","label": "Nombre","type":"text","placeholder":"Nombre del sitio","required":True },
           {"name": "descripcion_breve","label":"Descripción breve","type":"text","placeholder":"Breve descripción","required":true},
           {"name": "descripcion_completa","label":"Descripción completa","type":"text","placeholder":"Descripción completa","required":true},
           {"name": "ciudad","label":"Ciudad","type":"text","placeholder":"Ciudad","required":True},
           {"name": "provincia","label":"Provincia","type":"text","placeholder":"Provincia","required":True},
+          {"name": "inauguracion","label":"Año de inauguración","type":"number","placeholder":"Año de inauguración","max":2024,"required":True},
           {"name": "Estado de conservacion","label":"Estado de conservación","type":"select","options":[{"value":"Bueno","label":"Bueno"},{"value":"Regular","label":"Regular"},{"value":"Malo","label":"Malo"}],"required":True},
           {"name": "categoria","label":"Categoría","type":"text","placeholder":"Categoría del sitio","required":True},
           {"name": "visible" ,"label":"Visible","type":"checkbox","checked":True}
