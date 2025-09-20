@@ -18,13 +18,17 @@ def index(sitio_id):
 
     Renderiza la plantilla con la lista de sitios.
     """
-    datos_historial=list_site_history(sitio_id)
-    print(datos_historial)
+
+    page = request.args.get("page", default=1, type=int)
+    datos_historial=list_site_history(sitio_id, page, request.args.get("filtros", None))
 
     if (datos_historial is None):
         return abort(404)
+        
     return render_template("site_history/changes_list.html", 
         HistoryAction=HistoryAction,
         lista_de_cambios=datos_historial["historial"], 
-        sitio=datos_historial["sitio"]
+        sitio=datos_historial["sitio"],
+        has_more=datos_historial["has_more"],
+        page=datos_historial["page"]
     ), 200

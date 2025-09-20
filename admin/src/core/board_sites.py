@@ -8,7 +8,7 @@ from src.core.sites_history import add_site_history
 from src.core.Entities.site_history import HistoryAction
 
 def list_sites():
-    """
+    """[c.name for c in
     Retorna una lista de todos los sitios historicos.
     """
     sites=Site.query.all()
@@ -35,7 +35,36 @@ def add_site(site_data):
     db.session.add(nuevo_sitio)
     db.session.commit()
 
-    # aca agregar a la tabla de historial
-    add_site_history(nuevo_sitio.id, HistoryAction.CREAR, 1, nuevo_sitio)
+    add_site_history(
+        nuevo_sitio.id,
+        HistoryAction.CREAR,
+        1,
+        site_data,  
+        None,
+        list(site_data.keys())
+    )
 
     return nuevo_sitio
+
+def update_site(site_id, site_data):
+
+    sitio_original = db.session.query(Site).filter_by(id=site_id).first()
+    if sitio_original is None:
+        return None
+
+    # tomar un snapshot dict de los valores originales ANTES de actualizar
+    campos_site = Site.__table__.columns
+    original_snapshot = {campo.name: getattr(sitio_original, campo.name, None) for campo in campos_site}
+
+    db.session.query(Site).filter_by(id=site_id).update(site_data)
+    db.session.commit()    
+    
+    # aca agregar a la tabla de historial
+    add_site_history(
+        site_id, 
+        HistoryAction.EDITAR, 
+        1, 
+        site_data,           
+        original_snapshot,  
+        list(site_data.keys())
+    )

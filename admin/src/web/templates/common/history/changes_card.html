@@ -48,8 +48,9 @@
             <div class="grid grid-cols-1 gap-2 sm:grid-cols-12">
                 <!-- Valor anterior -->
                 <div class="sm:col-span-5 flex flex-col">
-                    <div class="text-xs uppercase tracking-widest text-neutral-400">Valor viejo</div>
-                    <div class="truncate">{{ c.valor_anterior if c.valor_anterior is not none and c.valor_anterior != ''
+                    <div class="text-xs uppercase tracking-widest text-neutral-400">{{ c.campo }}</div>
+                    <div class="truncate text-neutral-300">{{ c.valor_anterior if c.valor_anterior is not none and
+                        c.valor_anterior != ''
                         else 'Sin valor' }}</div>
                 </div>
 
@@ -64,7 +65,9 @@
 
                 <!-- Valor nuevo -->
                 <div class="sm:col-span-5 flex items-end">
-                    <div class="truncate font-semibold text-emerald-300">{{ c.valor_nuevo if c.valor_nuevo is not none
+                    <div
+                        class="truncate font-semibold {% if change.accion == HistoryAction.ELIMINAR %} text-red-500 {% elif change.accion == HistoryAction.CREAR %} text-emerald-300 {% else %} text-neutral-200 {% endif %}">
+                        {{ c.valor_nuevo if c.valor_nuevo is not none
                         and c.valor_nuevo != '' else 'Sin valor' }}</div>
                 </div>
             </div>
