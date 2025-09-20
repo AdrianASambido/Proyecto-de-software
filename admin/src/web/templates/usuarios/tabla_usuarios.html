@@ -1,0 +1,64 @@
+{% extends "tables_base.html" %}
+
+{% block table_title %}Lista de Usuarios{% endblock %}
+{% block add_label %}Agregar Usuario{% endblock %}
+
+{% block table_filters %}
+<form method="get" class="mb-3 flex flex-wrap items-center gap-2 text-sm">
+    <!-- Búsqueda -->
+    <input type="text" name="search" placeholder="Buscar..."
+         value="{{ request.args.get('search','') }}"
+         class="h-8 w-40 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200"/>
+    <!-- Rol -->
+    <select name="rol"
+            class="h-8 w-32 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200">
+        <option value="">Rol</option>
+        {% for role in ["Público", "Editor", "Administrador"] %}
+            <option value="{{ role }}" {% if request.args.get('rol') == role %}selected{% endif %}>{{ role }}</option>
+        {% endfor %}
+    </select>
+    <!-- Activo-->
+    <label class="flex items-center gap-1 text-black-300">
+        <input type="checkbox" name="activo" value="1"
+           {% if request.args.get('activo') %}checked{% endif %}
+           class="h-4 w-4 rounded border-neutral-600"/>
+        Activo
+    </label>
+
+    <!-- Botones -->
+    <button type="submit" class="h-8 rounded bg-blue-600 px-3 text-white hover:bg-blue-500">Aplicar</button>
+    <a class="h-8 rounded bg-blue-600 px-3 text-white hover:bg-blue-500">Limpiar</a>
+
+    <!-- Orden -->
+    <select name="orden"
+          class="h-8 w-28 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200">
+        <option value="fecha_desc" {% if request.args.get('orden')=='fecha_desc' %}selected{% endif %}>Fecha ↓</option>
+        <option value="fecha_asc" {% if request.args.get('orden')=='fecha_asc' %}selected{% endif %}>Fecha ↑</option>
+</form>
+{% endblock %}
+
+{% block table_headers %}
+    <th>Email</th>
+    <th>Nombre</th>
+    <th>Apellido|s|</th>
+    <th>Contraseña</th>
+    <th>Activo</th>
+    <th>Rol</th>
+{% endblock %}
+
+{% block table_row %}
+    {% for user in usuarios %}
+      <td>{{ user.email }}</td>
+      <td>{{ user.nombre }}</td>
+      <td>{{ user.apellido }}</td>
+      <td>********</td>
+      <td>
+          {% if user.activo %}
+              <span class="text-green-500 font-semibold">Sí</span>
+          {% else %}
+              <span class="text-red-500 font-semibold">No</span>
+          {% endif %}
+      </td>
+      <td>{{ user.rol }}</td>
+    {% endfor %}
+{% endblock %}

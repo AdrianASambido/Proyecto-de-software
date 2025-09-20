@@ -1,5 +1,5 @@
 from src.core.board_sites import add_site
-
+# pra agregar datos de prueba a la base de datos se usa "flask seeddb"
 def seeds_db():
     print("\n\n==== SEEDING BASE DE DATOS ====")
     site_data = {
