@@ -1,0 +1,18 @@
+{% extends "basic-structure-w-sidebar.html" %}
+{% from "common/_form.html" import render_form %}
+
+{% block title %}Login Usuario{% endblock %}
+
+{% block content %}
+    <h1>Login Usuario</h1>
+    <p>Por favor, ingrese correo y contraseña para iniciar sesión.</p>
+    {{ render_form(
+        action=url_for('login'), 
+        fields=[
+            {'name': 'email', 'type': 'email', 'label': 'Correo Electrónico', 'placeholder': 'Ingrese su correo', 'required': True},
+            {'name': 'password', 'type': 'password', 'label': 'Contraseña', 'placeholder': 'Ingrese su contraseña', 'required': True}
+        ],
+        submit_text='Iniciar Sesión'
+    ) }}
+    <p class="mt-3">¿No tiene cuenta? ¡Póngase en contacto con nuestro administrador!</p>
+{% endblock %}
