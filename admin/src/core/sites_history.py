@@ -42,6 +42,7 @@ def list_site_history(sitio_id, page: int = 1, filtros: dict | None = None):
     
     # por usuario, por tipo de acción, por rango de fechas.
     query_filters = db.session.query(SiteHistory).filter_by(sitio_id=sitio_id)
+    print(filtros)
     if filtros is not None:
         # por usuario
         if filtros.get("usuario") is not None:

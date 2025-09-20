@@ -21,28 +21,51 @@
 
     <nav class="my-2 flex items-center justify-between">
         <div class="flex items-center gap-2">
-            <form action="{{ url_for('site_history.index', sitio_id=sitio.id) }}" method="get">
+            <form
+                action="{{ url_for('site_history.index', sitio_id=sitio.id, page=page, accion=filtros.accion, fecha_desde=filtros.fecha_desde, fecha_hasta=filtros.fecha_hasta) }}"
+                method="get">
 
                 <select name="accion" id="accion">
-                    <option value="">Todos</option>
-                    <option value="{{ HistoryAction.CREAR.value }}">{{ HistoryAction.CREAR.value }}</option>
-                    <option value="{{ HistoryAction.EDITAR.value }}">{{ HistoryAction.EDITAR.value }}</option>
-                    <option value="{{ HistoryAction.ELIMINAR.value }}">{{ HistoryAction.ELIMINAR.value }}</option>
-                    <option value="{{ HistoryAction.CAMBIAR_TAGS.value }}">{{ HistoryAction.CAMBIAR_TAGS.value }}
+                    <option value="">Todas las acciones</option>
+                    <option value="{{ HistoryAction.CREAR.value }}" {% if filtros.accion==HistoryAction.CREAR.value
+                        %}selected{% endif %}>{{ HistoryAction.CREAR.value }}</option>
+                    <option value="{{ HistoryAction.EDITAR.value }}" {% if filtros.accion==HistoryAction.EDITAR.value
+                        %}selected{% endif %}>{{ HistoryAction.EDITAR.value }}</option>
+                    <option value="{{ HistoryAction.ELIMINAR.value }}" {% if
+                        filtros.accion==HistoryAction.ELIMINAR.value %}selected{% endif %}>{{
+                        HistoryAction.ELIMINAR.value }}</option>
+                    <option value="{{ HistoryAction.CAMBIAR_TAGS.value }}" {% if
+                        filtros.accion==HistoryAction.CAMBIAR_TAGS.value %}selected{% endif %}>{{
+                        HistoryAction.CAMBIAR_TAGS.value }}
                     </option>
                     <option value="{{ HistoryAction.CAMBIAR_IMAGENES.value }}">{{ HistoryAction.CAMBIAR_IMAGENES.value
                         }}
                     </option>
                 </select>
+                <select name="usuario" id="usuario">
+                    <option value="">Todos los usuarios</option>
+                    {% for usuario in usuarios_en_historial %}
+                    <option value="{{ usuario.id }}">{{ usuario.nombre }} {{ usuario.apellido }}</option>
+                    {% endfor %}
+                </select>
+                <input type="date" name="fecha_desde" id="fecha_desde" {% if filtros.fecha_desde
+                    %}value="{{ filtros.fecha_desde }}" {% endif %}>
+                <input type="date" name="fecha_hasta" id="fecha_hasta" {% if filtros.fecha_hasta
+                    %}value="{{ filtros.fecha_hasta }}" {% endif %}>
                 <button type="submit"
                     class="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm font-medium text-neutral-200 transition hover:bg-neutral-700 hover:text-white">
                     Filtrar
                 </button>
+                <a href="{{ url_for('site_history.index', sitio_id=sitio.id) }}"
+                    class="rounded-md border border-neutral-900 bg-neutral-600 px-3 py-2 text-sm font-medium text-neutral-200 transition hover:bg-neutral-400 hover:text-white">
+                    Resetear
+                </a>
             </form>
         </div>
         <div class="flex items-center gap-2">
             {% if page > 1 %}
-            <a alt="Anterior" href="{{ url_for('site_history.index', sitio_id=sitio.id, page=page - 1) }}"
+            <a alt="Anterior" href="{{ url_for('site_history.index', sitio_id=sitio.id, page=page - 1, 
+                accion=filtros.accion or 'Todos', fecha_desde=filtros.fecha_desde, fecha_hasta=filtros.fecha_hasta) }}"
                 class="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm font-medium text-neutral-200 transition hover:bg-neutral-700 hover:text-white">
                 <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -62,7 +85,8 @@
             <!-- <span>{{ page }}</span> -->
 
             {% if has_more %}
-            <a alt="Siguiente" href="{{ url_for('site_history.index', sitio_id=sitio.id, page=page + 1) }}"
+            <a alt="Siguiente"
+                href="{{ url_for('site_history.index', sitio_id=sitio.id, page=page + 1, accion=filtros.accion or 'Todos', fecha_desde=filtros.fecha_desde, fecha_hasta=filtros.fecha_hasta) }}"
                 class="rounded-md border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm font-medium text-neutral-200 transition hover:bg-neutral-700 hover:text-white">
                 <svg class="h-4 w-4 rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
