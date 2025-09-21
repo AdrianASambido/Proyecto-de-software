@@ -3,7 +3,7 @@ from src.core.database import db
 from src.core.Entities import FeatureFlag
 from datetime import datetime, timezone, date
 
-# pra agregar datos de prueba a la base de datos se usa "flask seeddb"
+# para agregar datos de prueba a la base de datos se usa "flask seeddb"
 def seeds_db():
     print("\n\n==== SEEDING BASE DE DATOS ====")
     
