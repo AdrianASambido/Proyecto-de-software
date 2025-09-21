@@ -14,7 +14,7 @@ class Site(db.Model):
     descripcion_completa=db.Column(db.Text, nullable=True)
     ciudad=db.Column(db.String(100), nullable=False)
     provincia=db.Column(db.String(100), nullable=False)
-    inauguracion=db.Column(db.Date, nullable=True)
+    inauguracion=db.Column(db.Integer, nullable=True)
     visible=db.Column(db.Boolean, default=True)
     latitud=db.Column(db.Float, nullable=True)
     longitud=db.Column(db.Float, nullable=True)

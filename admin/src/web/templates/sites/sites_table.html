@@ -3,7 +3,7 @@
 {% block table_title %}Sitios Históricos{% endblock %}
 
 
-{% block add_url %}{{ url_for('sites.add_form') }}{% endblock %}
+{% block add_url %}{{ url_for('sites.add_site') }}{% endblock %}
 {% block add_label %}Agregar sitio{% endblock %}
 {% block table_filters %}
 <form method="get" class="mb-3 flex flex-wrap items-center gap-2 text-sm">
@@ -103,10 +103,11 @@
       <td>{{ sitio.latitud }}</td>
       <td>{{ sitio.longitud }}</td>
       <td>{{ 'Sí' if sitio.visible else 'No' }}</td>
-      <td>{{ sitio.fecha_registro }}</td>
+      <td>{{ sitio.created_at }}</td>
       <!-- Columna de acciones con botón Modificar -->
       <td class="flex gap-2">
         <a 
+          href="{{ url_for('sites.modify', site_id=sitio.id) }}"
            class="rounded bg-blue-500 px-2 py-1 text-white hover:bg-blue-600">
           Modificar
         </a>
