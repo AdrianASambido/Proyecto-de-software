@@ -5,12 +5,9 @@
 {% block content %}
 <div class="container mt-4">
     <h2 class="mb-4">Administración de Feature Flags</h2>
-
-    <!-- Botón Crear -->
-    <div class="d-flex justify-content-between mb-3">
-        <a href="{{ url_for('create_feature_flag') }}" class="btn btn-primary">
-            <i class="bi bi-plus-circle"></i> Crear Feature Flag
-        </a>
+    
+    <div class="alert alert-info">
+        <strong>Nota:</strong> Solo los System Admins pueden gestionar estos flags. Los cambios afectan inmediatamente a toda la aplicación.
     </div>
 
     <!-- Tabla de Flags -->
@@ -18,60 +15,187 @@
         <table class="table table-striped table-hover align-middle">
             <thead class="table-dark">
                 <tr>
-                    <th>Clave</th>
                     <th>Nombre</th>
                     <th>Descripción</th>
-                    <th>Entornos</th>
-                    <th>Scope</th>
-                    <th>Rollout %</th>
                     <th>Estado</th>
-                    <th>Última Modificación</th>                  
+                    <th>Mensaje de Mantenimiento</th>
+                    <th>Última Modificación</th>
+                    <th>Modificado por</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 {% for flag in flags %}
-                <tr>
-                    <td><code>{{ flag.key }}</code></td>
-                    <td>{{ flag.name }}</td>
-                    <td>{{ flag.description or "-" }}</td>
-                    <td>{{ flag.environments }}</td>
-                    <td>{{ flag.scope }}</td>
-                    <td>{{ flag.rollout_percent }}%</td>
+                <tr id="flag-row-{{ flag.id }}">
+                    <td><strong>{{ flag.name }}</strong></td>
+                    <td>{{ flag.description }}</td>
                     <td>
-                        {% if flag.is_active %}
-                            <span class="badge bg-success">ON</span>
-                        {% else %}
-                            <span class="badge bg-danger">OFF</span>
-                        {% endif %}
+                        <span class="badge {% if flag.is_enabled %}bg-success{% else %}bg-danger{% endif %}" id="status-{{ flag.id }}">
+                            {% if flag.is_enabled %}ON{% else %}OFF{% endif %}
+                        </span>
                     </td>
-                    <td>{{ flag.updated_at.strftime("%Y-%m-%d %H:%M") }}</td>
                     <td>
-                        <!-- Toggle -->
-                        <form action="{{ url_for('toggle_feature_flag', id=flag.id) }}" method="post" class="d-inline">
-                            <button type="submit" class="btn btn-sm {% if flag.is_active %}btn-warning{% else %}btn-success{% endif %}">
-                                {% if flag.is_active %}Desactivar{% else %}Activar{% endif %}
-                            </button>
-                        </form>
-
-                        <!-- Editar -->
-                        <a href="{{ url_for('edit_feature_flag', id=flag.id) }}" class="btn btn-sm btn-secondary">
-                            Editar
-                        </a>
-
-                        <!-- Ver Historial -->
-                        <a href="{{ url_for('view_feature_flag', id=flag.id) }}" class="btn btn-sm btn-info">
-                            Log
-                        </a>
+                        <span id="message-{{ flag.id }}">
+                            {{ flag.maintenance_message or "-" }}
+                        </span>
+                    </td>
+                    <td>{{ flag.last_modified_at or "-" }}</td>
+                    <td>{{ flag.last_modified_by or "-" }}</td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <!-- Toggle Switch -->
+                            <div class="form-check form-switch">
+                                <input class="form-check-input flag-toggle" 
+                                       type="checkbox" 
+                                       id="toggle-{{ flag.id }}"
+                                       data-flag-id="{{ flag.id }}"
+                                       data-flag-name="{{ flag.name }}"
+                                       {% if flag.is_enabled %}checked{% endif %}>
+                                <label class="form-check-label" for="toggle-{{ flag.id }}">
+                                    {% if flag.is_enabled %}Desactivar{% else %}Activar{% endif %}
+                                </label>
+                            </div>
+                        </div>
                     </td>
                 </tr>
                 {% else %}
                 <tr>
-                    <td colspan="9" class="text-center text-muted">No hay feature flags definidas.</td>
+                    <td colspan="7" class="text-center text-muted">No hay feature flags definidas.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+<!-- Modal para mensaje de mantenimiento -->
+<div class="modal fade" id="maintenanceModal" tabindex="-1" aria-labelledby="maintenanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="maintenanceModalLabel">Configurar Mensaje de Mantenimiento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="maintenanceForm">
+                    <div class="mb-3">
+                        <label for="maintenanceMessage" class="form-label">Mensaje de Mantenimiento</label>
+                        <textarea class="form-control" id="maintenanceMessage" rows="3" maxlength="500" 
+                                  placeholder="Ingrese el mensaje que se mostrará durante el mantenimiento..."></textarea>
+                        <div class="form-text">Máximo 500 caracteres</div>
+                    </div>
+                    <input type="hidden" id="currentFlagId">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveMaintenanceMessage">Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const toggles = document.querySelectorAll('.flag-toggle');
+    const maintenanceModal = new bootstrap.Modal(document.getElementById('maintenanceModal'));
+    
+    toggles.forEach(toggle => {
+        toggle.addEventListener('change', function() {
+            const flagId = this.dataset.flagId;
+            const flagName = this.dataset.flagName;
+            const isEnabled = this.checked;
+            
+            // Si se está activando un modo de mantenimiento, pedir mensaje
+            if (isEnabled && (flagName.includes('maintenance_mode'))) {
+                document.getElementById('currentFlagId').value = flagId;
+                document.getElementById('maintenanceMessage').value = '';
+                maintenanceModal.show();
+            } else {
+                updateFlag(flagId, isEnabled, '');
+            }
+        });
+    });
+    
+    document.getElementById('saveMaintenanceMessage').addEventListener('click', function() {
+        const flagId = document.getElementById('currentFlagId').value;
+        const message = document.getElementById('maintenanceMessage').value;
+        const toggle = document.getElementById('toggle-' + flagId);
+        
+        if (message.trim() === '') {
+            alert('El mensaje de mantenimiento es obligatorio');
+            return;
+        }
+        
+        updateFlag(flagId, true, message);
+        maintenanceModal.hide();
+    });
+    
+    function updateFlag(flagId, isEnabled, maintenanceMessage) {
+        fetch(`/admin/feature-flags/toggle/${flagId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                is_enabled: isEnabled,
+                maintenance_message: maintenanceMessage,
+                modified_by: 'System Admin' // Por ahora hardcodeado
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Actualizar la interfaz
+                const statusBadge = document.getElementById('status-' + flagId);
+                const messageSpan = document.getElementById('message-' + flagId);
+                const toggle = document.getElementById('toggle-' + flagId);
+                
+                statusBadge.textContent = isEnabled ? 'ON' : 'OFF';
+                statusBadge.className = `badge ${isEnabled ? 'bg-success' : 'bg-danger'}`;
+                
+                if (maintenanceMessage) {
+                    messageSpan.textContent = maintenanceMessage;
+                }
+                
+                toggle.checked = isEnabled;
+                
+                // Mostrar mensaje de éxito
+                showAlert('Feature flag actualizado correctamente', 'success');
+            } else {
+                showAlert('Error al actualizar el feature flag: ' + data.message, 'danger');
+                // Revertir el toggle
+                const toggle = document.getElementById('toggle-' + flagId);
+                toggle.checked = !isEnabled;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('Error al actualizar el feature flag', 'danger');
+            // Revertir el toggle
+            const toggle = document.getElementById('toggle-' + flagId);
+            toggle.checked = !isEnabled;
+        });
+    }
+    
+    function showAlert(message, type) {
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        `;
+        
+        const container = document.querySelector('.container');
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (alertDiv.parentNode) {
+                alertDiv.remove();
+            }
+        }, 5000);
+    }
+});
+</script>
 {% endblock %}
