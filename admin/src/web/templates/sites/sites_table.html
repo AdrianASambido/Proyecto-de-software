@@ -8,8 +8,8 @@
 {% block table_filters %}
 <form method="get" class="mb-3 flex flex-wrap items-center gap-2 text-sm">
   <!-- Búsqueda -->
-  <input type="text" name="search" placeholder="Buscar..."
-         value="{{ request.args.get('search','') }}"
+  <input type="text" name="busqueda" placeholder="Buscar..."
+         value="{{ request.args.get('busqueda','') }}"
          class="h-8 w-40 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200"/>
 
   <!-- Ciudad -->
@@ -19,13 +19,12 @@
 
   <!-- Provincia -->
   <select name="provincia"
-          class="h-8 w-32 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200">
-    <option value="">Provincia</option>
-    {% for prov in provincias %}
-      <option value="{{ prov }}" {% if request.args.get('provincia') == prov %}selected{% endif %}>{{ prov }}</option>
-    {% endfor %}
-  </select>
-
+        class="h-8 w-32 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200">
+  <option value="">Provincia</option>
+  {% for prov in provincias %}
+    <option value="{{ prov }}" {% if request.args.get('provincia') == prov %}selected{% endif %}>{{ prov }}</option>
+  {% endfor %}
+</select>
   <!-- Estado -->
   <select name="estado_conservacion"
           class="h-8 w-40 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200">
@@ -67,9 +66,12 @@
   <button type="submit"
           class="h-8 rounded bg-blue-600 px-3 text-white hover:bg-blue-500">Aplicar</button>
   
-      <a 
+      <a href="{{ url_for('sites.index') }}"
      class="h-8 rounded bg-blue-600 px-3 text-white hover:bg-blue-500">Limpiar</a>
 </form>
+<p class="mb-2 text-sm text-black-400">
+  Mostrando {{ sites|length }} resultado{{ 's' if sites|length != 1 else '' }}
+</p>
 {% endblock %}
 
 

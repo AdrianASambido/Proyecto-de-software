@@ -4,13 +4,63 @@
 from src.core.database import db
 from src.core.Entities.site import Site
 from datetime import datetime
+from sqlalchemy import or_,and_
 
-def list_sites():
+
+def list_sites(filtros: dict):
     """
-    Retorna una lista de todos los sitios historicos.
+    Retorna una lista de sitios históricos aplicando filtros dinámicos.
+    Filtros soportados:
+      - ciudad (texto o selector)
+      - provincia (selector)
+      - tags (lista)
+      - estado_conservacion (Bueno | Regular | Malo)
+      - fecha_desde / fecha_hasta
+      - visible (checkbox)
     """
-    sites=Site.query.all()
-    return sites
+    query = Site.query
+
+    busqueda= filtros.get("busqueda")
+    if busqueda:
+        query=query.filter(
+            or_(
+                Site.nombre.ilike(f"%{busqueda}%"),
+                Site.descripcion_breve.ilike(f"%{busqueda}%"),
+            
+            )
+        )
+    # Ciudad (texto parcial o exacto)
+    ciudad = filtros.get("ciudad")
+    if ciudad:
+        query = query.filter(Site.ciudad.ilike(f"%{ciudad}%"))
+
+    # Provincia (igualdad)
+    provincia = filtros.get("provincia")
+    if provincia:
+        query = query.filter(Site.provincia == provincia)
+
+   
+    # Estado de conservación
+    estado = filtros.get("estado_conservacion")
+    if estado:
+        query = query.filter(Site.estado_conservacion == estado)
+
+    # Rango de fechas
+    fecha_desde = filtros.get("fecha_desde")
+    if fecha_desde:
+        query = query.filter(Site.created_at >= fecha_desde)
+
+    fecha_hasta = filtros.get("fecha_hasta")
+    if fecha_hasta:
+        query = query.filter(Site.created_at <= fecha_hasta)
+
+    # Visibilidad (checkbox → "on" o "1")
+    visible = filtros.get("visible")
+    if visible:
+        query = query.filter(Site.visible == True)
+
+    return query
+
 
 def get_site(site_id):
     """

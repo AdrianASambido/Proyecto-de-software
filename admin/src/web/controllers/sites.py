@@ -6,10 +6,11 @@
 from flask import Blueprint
 from flask import render_template, request,redirect, url_for
 from src.core import sites as board_sites
-
+import pycountry
 
 bp = Blueprint("sites", __name__, url_prefix=("/sitios"))
 
+provincias_arg=[sub.name for sub in pycountry.subdivisions.get(country_code="AR")]
 @bp.get("/")
 def index():
     """
@@ -17,8 +18,10 @@ def index():
 
     Renderiza la plantilla con la lista de sitios.
     """
-    sitios=board_sites.list_sites()
-    return render_template("sites/sites_table.html", sites=sitios), 200
+
+    filtros=request.args.to_dict()
+    sitios = board_sites.list_sites(filtros).all()  # <-- ejecuta la query y devuelve lista
+    return render_template("sites/sites_table.html", sites=sitios, provincias=provincias_arg)
 
 @bp.route("/nuevo", methods=["GET", "POST"])
 def add_site():
