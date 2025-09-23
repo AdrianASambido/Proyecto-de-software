@@ -31,12 +31,11 @@ def create_app(env="development", static_folder="../../static"): #../../static
 
     database.init_app(app)
 
-<<<<<<< admin/src/web/__init__.py
     app.before_request_funcs = {
         'users_bp': [pre_request_logging]
     }
-=======
- # Middleware para verificar flags de mantenimiento
+
+    # Middleware para verificar flags de mantenimiento
     @app.before_request
     def check_maintenance_mode():
         # Rutas que siempre están disponibles (login y feature flags para system admin)
@@ -57,7 +56,6 @@ def create_app(env="development", static_folder="../../static"): #../../static
             return render_template('errores/maintenance.html', 
                                  message=message, 
                                  title="Portal en Mantenimiento"), 503
->>>>>>> admin/src/web/__init__.py
 
     @app.route("/")
     def home():
@@ -98,9 +96,7 @@ def create_app(env="development", static_folder="../../static"): #../../static
     app.register_blueprint(users_bp)
     app.register_blueprint(sites_bp)
     app.register_blueprint(sites_history_bp)
-
     app.register_blueprint(tags_bp)
-
     app.register_blueprint(feature_flags_bp)
     
     #comandos para el CLI

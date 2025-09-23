@@ -4,13 +4,13 @@
 
 from flask import Blueprint
 from flask import render_template, request, redirect, url_for
-from src.core import board_usuarios
+from src.core.services.users import list_users, add_user
 
 bp = Blueprint("users", __name__, url_prefix=("/usuarios"))
 
 @bp.get("/")
 def index():
-    usuarios = board_usuarios.list_users()
+    usuarios = list_users()
     return render_template("usuarios/tabla_usuarios.html", users=usuarios), 200
 
 @bp.get("/nuevo_usuario")
@@ -20,5 +20,5 @@ def add_form():
 @bp.post("/agregar_usuario")
 def add_user():
     user_data = dict(request.form)
-    board_usuarios.add_user(user_data)
+    add_user(user_data)
     return redirect(url_for("users.index"))
