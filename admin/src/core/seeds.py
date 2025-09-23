@@ -9,8 +9,8 @@ from src.core.services.sites import add_site, modify_site
 from src.core.services.history import add_site_history
 
 # entidades
-from src.core.entities import FeatureFlag
-from src.core.entities.site_history import HistoryAction
+from src.core.Entities import FeatureFlag
+from src.core.Entities.site_history import HistoryAction
 
 # para agregar datos de prueba a la base de datos se usa "flask seeddb"
 def seeds_db():

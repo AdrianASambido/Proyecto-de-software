@@ -7,7 +7,7 @@ from flask import render_template, request
 from flask import abort
 
 from src.core.services.history import list_site_history
-from src.core.entities.site_history import HistoryAction
+from src.core.Entities.site_history import HistoryAction
 
 bp = Blueprint("site_history", __name__, url_prefix=("/historial/<int:sitio_id>"))
 

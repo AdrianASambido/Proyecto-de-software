@@ -2,8 +2,8 @@
     Este modelo representa las operaciones relacionadas con los sitios historicos.
 """
 from src.core.database import db
-from src.core.entities.site import Site
-from src.core.entities.site_history import HistoryAction
+from src.core.Entities.site import Site
+from src.core.Entities.site_history import HistoryAction
 
 from src.core.services.history import add_site_history
 from datetime import datetime
