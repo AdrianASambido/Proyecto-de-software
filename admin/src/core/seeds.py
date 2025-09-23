@@ -1,14 +1,88 @@
+
+from datetime import datetime, timezone, date
+from time import sleep
+
 from src.core.sites import add_site
 
+# db
+from src.core.database import db
+
+# servicios
+from src.core.services.sites import add_site, modify_site
+from src.core.services.history import add_site_history
+
+# entidades
+from src.core.Entities import FeatureFlag
+from src.core.Entities.site_history import HistoryAction
+
+# para agregar datos de prueba a la base de datos se usa "flask seeddb"
 def seeds_db():
     print("\n\n==== SEEDING BASE DE DATOS ====")
+
+    # Seed para Feature Flags
+    print("\n==== CREANDO FEATURE FLAGS ====")
+    
+    feature_flags_data = [
+        {
+            "name": "admin_maintenance_mode",
+            "description": "Modo mantenimiento de administración. Cuando está activo, bloquea todas las rutas de administración excepto login y feature flags.",
+            "is_enabled": False,
+            "maintenance_message": "",
+            "last_modified_by": "System",
+            "last_modified_at": datetime.now(timezone.utc)
+        },
+        {
+            "name": "portal_maintenance_mode", 
+            "description": "Modo mantenimiento del portal web. Cuando está activo, pone el portal público en modo mantenimiento.",
+            "is_enabled": False,
+            "maintenance_message": "",
+            "last_modified_by": "System",
+            "last_modified_at": datetime.now(timezone.utc)
+        },
+        {
+            "name": "reviews_enabled",
+            "description": "Permitir nuevas reseñas. Cuando está desactivado, oculta/deshabilita la creación de reseñas en el portal.",
+            "is_enabled": True,
+            "maintenance_message": "",
+            "last_modified_by": "System", 
+            "last_modified_at": datetime.now(timezone.utc)
+        }
+    ]
+    
+    for flag_data in feature_flags_data:
+        # Verificar si el flag ya existe
+        existing_flag = FeatureFlag.query.filter_by(name=flag_data["name"]).first()
+        if not existing_flag:
+            flag = FeatureFlag(**flag_data)
+            db.session.add(flag)
+            print(f"✓ Feature flag '{flag_data['name']}' creado")
+        else:
+            print(f"⚠ Feature flag '{flag_data['name']}' ya existe")
+    
+    try:
+        db.session.commit()
+        print("✓ Feature flags guardados en la base de datos")
+    except Exception as e:
+        db.session.rollback()
+        print(f"✗ Error al guardar feature flags: {e}")
+
+
+
+    site_data1 = {
+        "nombre":"Chicho Itsa",
+
     site_data1 = {
         "nombre":"Chichen Itza",
+
         "descripcion_breve":"Ciudad maya antigua",
         "descripcion_completa":"Chichen Itza fue una gran ciudad precolombina...",
         "ciudad":"Yucatan",
         "provincia":"Yucatan",
+
+        "inauguracion": 2022,
+
         "inauguracion":2022,
+
         "latitud":18.9712,
         "longitud":-88.9856,
         "categoria":"Arqueológico",
@@ -54,9 +128,45 @@ def seeds_db():
         "estado_conservacion":"Malo",
         "visible":True
     }
+
+    result = add_site(site_data1)
+    add_site(site_data2)
+    add_site(site_data4)
+    add_site(site_data3)
     
+
+    # sleep(5)
+    modify_site(result.id, {
+        "nombre":"Chichen Itza",
+        "estado_conservacion":"Malo",
+        "visible":False
+    })
+
+    # sleep(5)
+    modify_site(result.id, {
+        "estado_conservacion":"Bueno",
+        "visible":True
+    })
+
+    # sleep(5)
+    modify_site(result.id, {
+        "latitud":19.8712,
+        "longitud":-87.2856,
+    })
+
+    # sleep(5)
+    modify_site(result.id, {
+        "ciudad":"Tuxtla Gutiérrez",
+        "provincia":"Chiapas",
+    })
+
+    # eliminar efectivamente el site con la funcion que lo maneje al eliminado 
+    add_site_history(result.id, HistoryAction.ELIMINAR, 1, None, result, None)
+
+
     result = add_site(site_data4)
     
     
     print(result)
+
     print(f"\n==== SEEDING LISTO ====\n\n")

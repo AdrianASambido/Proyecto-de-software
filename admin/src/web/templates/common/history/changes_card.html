@@ -1,0 +1,84 @@
+<div class="w-full rounded-lg border border-gray-600 bg-neutral-900 text-neutral-200 shadow-sm">
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-gray-700 px-4 py-6">
+        <div class="flex items-center gap-3">
+            <div class="text-lg font-bold">
+                {% if change.accion == HistoryAction.CREAR %}Creación
+                {% elif change.accion == HistoryAction.EDITAR %}Edición
+                {% elif change.accion == HistoryAction.ELIMINAR %}Eliminación
+                {% elif change.accion == HistoryAction.CAMBIAR_TAGS %}Cambio de etiquetas
+                {% elif change.accion == HistoryAction.CAMBIAR_IMAGENES %}Cambio de imágenes
+                {% else %} {{ change.accion }}
+                {% endif %}
+            </div>
+
+        </div>
+
+        <div class="flex flex-1 items-start justify-center">
+
+
+            <div class="text-base font-semibold">
+                {% if change.datos_usuario %}
+                {{ change.datos_usuario.nombre }} {{ change.datos_usuario.apellido }}
+                {% else %}
+                Usuario #{{ change.usuario_modificador_id }}
+                {% endif %}
+            </div>
+
+        </div>
+
+        <div class="flex flex-col items-end">
+
+            <div class="text-base font-semibold">
+                {% if change.fecha_modificacion %}
+                {{ change.fecha_modificacion.strftime('%d/%m/%Y %H:%M') if change.fecha_modificacion.strftime else
+                change.fecha_modificacion }}
+                {% else %}
+                —
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Body: changes list -->
+    <div class="px-4 py-4">
+        {% if change.cambios and change.cambios|length > 0 %}
+        <div class="space-y-2">
+            {% for c in change.cambios %}
+            <div class="grid grid-cols-1 gap-2 sm:grid-cols-12">
+                <!-- Valor anterior -->
+                <div class="sm:col-span-5 flex flex-col">
+                    <div class="text-xs uppercase tracking-widest text-neutral-400">{{ c.campo }}</div>
+                    <div class="truncate text-neutral-300">{{ c.valor_anterior if c.valor_anterior is not none and
+                        c.valor_anterior != ''
+                        else 'Sin valor' }}</div>
+                </div>
+
+                <!-- Arrow -->
+                <div class="hidden items-center justify-start sm:col-span-2 sm:flex">
+                    <svg class="h-5 w-5 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14" />
+                        <path d="m13 5 7 7-7 7" />
+                    </svg>
+                </div>
+
+                <!-- Valor nuevo -->
+                <div class="sm:col-span-5 flex items-end">
+                    <div
+                        class="truncate font-semibold {% if change.accion == HistoryAction.ELIMINAR %} text-red-500 {% elif change.accion == HistoryAction.CREAR %} text-emerald-300 {% else %} text-neutral-200 {% endif %}">
+                        {{ c.valor_nuevo if c.valor_nuevo is not none
+                        and c.valor_nuevo != '' else 'Sin valor' }}</div>
+                </div>
+            </div>
+
+            {% if not loop.last %}
+            <div class="border-b border-gray-800"></div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-sm italic text-neutral-400">Sin cambios detallados</div>
+        {% endif %}
+    </div>
+</div>
