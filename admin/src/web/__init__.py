@@ -3,13 +3,22 @@ from src.web.config import config
 from src.core import database, seeds
 
 # ACA controladores
+from src.web.controllers.users import bp as users_bp
 from src.web.controllers.sites import bp as sites_bp
+
+def pre_request_logging():
+    #Revisar si está logueado
+    print("Pre-request logging: Verificando si el usuario está logueado...")
 
 def create_app(env="development", static_folder="../../static"): #../../static
     app = Flask(__name__, static_folder=static_folder)
     app.config.from_object(config[env])
 
     database.init_app(app)
+
+    app.before_request_funcs = {
+        'users_bp': [pre_request_logging]
+    }
 
     @app.route("/")
     def home():
@@ -61,7 +70,7 @@ def create_app(env="development", static_folder="../../static"): #../../static
     
 
     # definir todos los blueprints
-    app.register_blueprint(sites_bp)
+    app.register_blueprint(users_bp, sites_bp)
     
     #comandos para el CLI
     @app.cli.command(name="resetdb")
