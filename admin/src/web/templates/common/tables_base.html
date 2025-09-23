@@ -11,44 +11,50 @@
       + {% block add_label %}Agregar{% endblock %}
     </a>
   </div>
-{% block table_filters %}{% endblock %}
+
+  {% block table_filters %}{% endblock %}
+
   <div class="overflow-x-auto rounded-lg bg-neutral-800 shadow">
     <table class="min-w-full divide-y divide-neutral-700 text-sm text-neutral-300">
-      <thead class="bg-neutral-900 text-neutral-400">
-        <tr>
-          {% block table_headers %}
-          <!-- Ejemplo de encabezados -->
-          <th class="px-4 py-2 text-left">Columna 1</th>
-          <th class="px-4 py-2 text-left">Columna 2</th>
-          <th class="px-4 py-2 text-left">Acciones</th>
+      {% if items|length > 0 %}
+        <thead class="bg-neutral-900 text-neutral-400">
+          <tr>
+            {% block table_headers %}
+            <th class="px-4 py-2 text-left">Columna 1</th>
+            <th class="px-4 py-2 text-left">Columna 2</th>
+            <th class="px-4 py-2 text-left">Acciones</th>
+            {% endblock %}
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-neutral-700">
+          {% block table_rows %}
+          <!-- Filas se definen en la tabla hija -->
           {% endblock %}
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-neutral-700">
-        {% block table_rows %}
-        <!-- Ejemplo de fila vacía -->
-        <tr>
-          <td colspan="3" class="px-4 py-4 text-center text-neutral-500">
-            No hay datos para mostrar.
-          </td>
-        </tr>
-        {% endblock %}
-      </tbody>
+        </tbody>
+      {% else %}
+        <tbody>
+          <tr>
+            <td colspan="100%" class="px-4 py-6 text-center text-neutral-500">
+              No se encontraron resultados.
+            </td>
+          </tr>
+        </tbody>
+      {% endif %}
     </table>
   </div>
-</div>
 
-<!-- Paginación -->
-  <div class="flex justify-center mt-4">
-    {% block pagination %}
-    <!-- Botones de ejemplo, sobrescribibles en la plantilla hija -->
-    <nav class="inline-flex rounded-md shadow-sm" role="navigation" aria-label="Pagination">
-      <a href="#" class="px-3 py-1 rounded-l-lg bg-neutral-700 text-white hover:bg-neutral-600">Anterior</a>
-      <a href="#" class="px-3 py-1 bg-neutral-800 text-white hover:bg-neutral-700">1</a>
-      <a href="#" class="px-3 py-1 bg-neutral-800 text-white hover:bg-neutral-700">2</a>
-      <a href="#" class="px-3 py-1 bg-neutral-800 text-white hover:bg-neutral-700">3</a>
-      <a href="#" class="px-3 py-1 rounded-r-lg bg-neutral-700 text-white hover:bg-neutral-600">Siguiente</a>
-    </nav>
-    {% endblock %}
-  </div>
+  {% if items|length > 0 %}
+    <div class="flex justify-center mt-4">
+      {% block pagination %}
+      <!-- Paginación por defecto -->
+      <nav class="inline-flex rounded-md shadow-sm" role="navigation" aria-label="Pagination">
+        <a href="#" class="px-3 py-1 rounded-l-lg bg-neutral-700 text-white hover:bg-neutral-600">Anterior</a>
+        <a href="#" class="px-3 py-1 bg-neutral-800 text-white hover:bg-neutral-700">1</a>
+        <a href="#" class="px-3 py-1 bg-neutral-800 text-white hover:bg-neutral-700">2</a>
+        <a href="#" class="px-3 py-1 rounded-r-lg bg-neutral-700 text-white hover:bg-neutral-600">Siguiente</a>
+      </nav>
+      {% endblock %}
+    </div>
+  {% endif %}
+</div>
 {% endblock %}
