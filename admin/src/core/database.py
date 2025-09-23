@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-
+# esto se ejecuta e la terminal con "flask resetdb"
 db = SQLAlchemy()
 
 def init_app(app):

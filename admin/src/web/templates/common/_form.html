@@ -19,12 +19,14 @@
         id="{{ field.name }}" 
         name="{{ field.name }}" 
         placeholder="{{ field.placeholder | default('') }}" 
+        value="{{ field.value | default('') }}"
         class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
         {% if field.required %}required{% endif %}
       >
     {% endif %}
     </div>
   {% endfor %}
+
   {% if caller %}{{ caller() }}{% endif %}
   
   <button type="submit" class="w-full bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-700">
