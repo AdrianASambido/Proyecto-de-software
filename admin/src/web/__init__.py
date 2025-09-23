@@ -5,19 +5,37 @@ from src.core import database, seeds
 from src.core.services.feature_flags import is_admin_maintenance_mode, get_admin_maintenance_message, is_portal_maintenance_mode, get_portal_maintenance_message
 
 # ACA controladores
+from src.web.controllers.users import bp as users_bp
 from src.web.controllers.sites_history import bp as sites_history_bp
 from src.web.controllers.sites import bp as sites_bp
 from src.web.controllers.tags import bp as tags_bp
 from src.web.controllers.feature_flags import bp as feature_flags_bp
 
 
+def pre_request_logging():
+    #Revisar si está logueado
+    print("Pre-request logging: Verificando si el usuario está logueado...")
+
 def create_app(env="development", static_folder="../../static"): #../../static
     app = Flask(__name__, static_folder=static_folder)
     app.config.from_object(config[env])
 
+    # Validar configuración de base de datos antes de inicializar SQLAlchemy
+    if not app.config.get("SQLALCHEMY_DATABASE_URI") and not app.config.get("SQLALCHEMY_BINDS"):
+        raise RuntimeError(
+            "Falta configuración de base de datos. Definí GRUPO01_DATABASE_URL o las variables "
+            "GRUPO01_DATABASE_USERNAME, GRUPO01_DATABASE_PASSWORD, GRUPO01_DATABASE_HOST, "
+            "GRUPO01_DATABASE_PORT y GRUPO01_DATABASE_NAME en el entorno de producción."
+            "GRUPO01_COMMON_DEBUG: " + app.config.get("DEBUG_VARIABLE")
+        )
+
     database.init_app(app)
 
- # Middleware para verificar flags de mantenimiento
+    app.before_request_funcs = {
+        'users_bp': [pre_request_logging]
+    }
+
+    # Middleware para verificar flags de mantenimiento
     @app.before_request
     def check_maintenance_mode():
         # Rutas que siempre están disponibles (login y feature flags para system admin)
@@ -75,13 +93,11 @@ def create_app(env="development", static_folder="../../static"): #../../static
     
 
     # definir todos los blueprints
+    app.register_blueprint(users_bp)
     app.register_blueprint(sites_bp)
     app.register_blueprint(sites_history_bp)
-
     app.register_blueprint(tags_bp)
-
     app.register_blueprint(feature_flags_bp)
-
     
     #comandos para el CLI
     @app.cli.command(name="resetdb")

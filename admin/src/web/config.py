@@ -8,6 +8,7 @@ class Config:
     TESTING=False
     SECRET_KEY=os.getenv("GRUPO01_COMMON_SECRET", "dev-secret-change-me")
     SESSION_TYPE=os.getenv("GRUPO01_COMMON_SESSION_TYPE", "filesystem")
+    DEBUG_VARIABLE=os.getenv("GRUPO01_COMMON_DEBUG")
 
 class ProductionConfig(Config):
     DB_USER=os.getenv("GRUPO01_DATABASE_USERNAME")
