@@ -1,11 +1,11 @@
 from flask import render_template, Blueprint, request, redirect, url_for    
-from src.core import board_tags
+from src.core.services.tags import list_tags, add_tag, get_tag_by_id, update_tag, delete_tag
 
 bp = Blueprint("tags", __name__, url_prefix="/tags")
 
 @bp.get("/")
 def index():
-    tags = board_tags.get_tags()
+    tags = list_tags()
 
     return render_template("tags/tags_table.html", tags=tags), 200
 
@@ -18,24 +18,24 @@ def add_form():
 @bp.post("/create")
 def add_tag():
     tag_data = dict(request.form)
-    board_tags.add_tag(tag_data)
+    add_tag(tag_data)
     
     return redirect(url_for("tags.index"))
 
 @bp.get("/editar/<int:tag_id>")
 def edit_form(tag_id):
-    tag = board_tags.get_tag_by_id(tag_id)
+    tag = get_tag_by_id(tag_id)
     return render_template("tags/edit_tag.html", tag=tag)
 
 @bp.post("/editar/<int:tag_id>")
 def edit_tag(tag_id):
     tag_data = dict(request.form)
-    board_tags.update_tag(tag_id, tag_data)
+    update_tag(tag_id, tag_data)
     
     return redirect(url_for("tags.index"))
 
 
 @bp.post("/eliminar/<int:tag_id>")
 def delete_tag(tag_id):
-    board_tags.delete_tag(tag_id)
+    delete_tag(tag_id)
     return redirect(url_for("tags.index"))

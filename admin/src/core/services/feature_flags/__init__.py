@@ -2,7 +2,7 @@
     Este modelo representa las operaciones relacionadas con los feature flags.
 """
 from src.core.database import db
-from src.core.Entities.feature_flag import FeatureFlag
+from src.core.entities.feature_flag import FeatureFlag
 from datetime import datetime, timezone
 
 def list_feature_flags():
