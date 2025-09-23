@@ -3,8 +3,8 @@ Controlador para Feature Flags
 Maneja las rutas relacionadas con la gestión de feature flags
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
-from src.core import board_feature_flags
+from flask import Blueprint, render_template, request, jsonify
+from src.core.services.feature_flags import list_feature_flags, update_feature_flag, get_feature_flag_by_name
 
 bp = Blueprint("feature_flags", __name__, url_prefix="/admin/feature-flags")
 
@@ -13,7 +13,7 @@ def index():
     """
     Muestra la lista de feature flags
     """
-    flags = board_feature_flags.list_feature_flags()
+    flags = list_feature_flags()
     return render_template("administration/feature_flags.html", flags=flags), 200
 
 @bp.post("/toggle/<int:flag_id>")
@@ -26,7 +26,7 @@ def toggle_flag(flag_id):
     maintenance_message = data.get('maintenance_message', '')
     modified_by = data.get('modified_by', 'System Admin')  # Por ahora hardcodeado
     
-    success = board_feature_flags.update_feature_flag(
+    success = update_feature_flag(
         flag_id=flag_id,
         is_enabled=is_enabled,
         maintenance_message=maintenance_message,
@@ -43,7 +43,7 @@ def get_flags_status():
     """
     Obtiene el estado actual de todos los flags (API endpoint)
     """
-    flags = board_feature_flags.list_feature_flags()
+    flags = list_feature_flags()
     status = {}
     
     for flag in flags:

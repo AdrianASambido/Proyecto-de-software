@@ -1,71 +1,29 @@
-from src.core.board_sites import add_site
-from src.core.database import db
-from src.core.Entities import FeatureFlag
+
 from datetime import datetime, timezone, date
+from time import sleep
+
+
+from src.core.sites import add_site
+
+from datetime import datetime, timezone, date
+from time import sleep
+
+
+# db
+from src.core.database import db
+
+# servicios
+from src.core.services.sites import add_site, modify_site
+from src.core.services.history import add_site_history
+
+# entidades
+from src.core.Entities import FeatureFlag
+from src.core.Entities.site_history import HistoryAction
 
 # para agregar datos de prueba a la base de datos se usa "flask seeddb"
 def seeds_db():
     print("\n\n==== SEEDING BASE DE DATOS ====")
-    
-    # Seed para sitios
-    site_data = {
-        "nombre":"Chichen Itza",
-        "descripcion_breve":"Ciudad maya antigua",
-        "descripcion_completa":"Chichen Itza fue una gran ciudad precolombina...",
-        "ciudad":"Yucatan",
-        "provincia":"Yucatan",
-        "inauguracion": date(2022, 1, 1),
-        "latitud":18.9712,
-        "longitud":-88.9856,
-        "categoria":"Arqueológico",
-        "estado_conservacion":"Bueno",
-        "visible":True
-    }
-    site_data2 = {
-        "nombre":"Machu Picchu",
-        "descripcion_breve":"Ciudad inca antigua",
-        "descripcion_completa":"Machu Picchu es una ciudadela inca situada en las montañas...",
-        "ciudad":"Cusco",
-        "provincia":"Cusco",
-        "inauguracion":2022,
-        "latitud":-13.1631,
-        "longitud":-72.5450,
-        "categoria":"Arqueológico",
-        "estado_conservacion":"Bueno",
-        "visible":True
-    }
-    site_data3 = {
-        "nombre":"Gran Muralla China",
-        "descripcion_breve":"Estructura defensiva antigua",
-        "descripcion_completa":"La Gran Muralla China es una serie de fortificaciones...",
-        "ciudad":"Beijing",
-        "provincia":"Beijing",
-        "inauguracion":2022,
-        "latitud":40.4319,
-        "longitud":116.5704,
-        "categoria":"Histórico",
-        "estado_conservacion":"Bueno",
-        "visible":True
-    }
-    site_data4={
-        "nombre":"Taj Mahal",
-        "descripcion_breve":"Mausoleo de mármol blanco",
-        "descripcion_completa":"El Taj Mahal es un mausoleo ubicado en Agra, India...",
-        "ciudad":"Agra",
-        "provincia":"Uttar Pradesh",
-        "inauguracion":2022,
-        "latitud":27.1751,
-        "longitud":78.0421,
-        "categoria":"Arquitectónico",
-        "estado_conservacion":"Malo",
-        "visible":True
-    }
-    
-    result = add_site(site_data4)
-    
-    
-    print(result)
-    
+
     # Seed para Feature Flags
     print("\n==== CREANDO FEATURE FLAGS ====")
     
@@ -112,5 +70,129 @@ def seeds_db():
     except Exception as e:
         db.session.rollback()
         print(f"✗ Error al guardar feature flags: {e}")
+
+
+    # Seed para sitios
+   
+   
+    print("\n==== CREANDO SITES ====")
+
+
+    sites_data = [{
+        "nombre":"Machu Picchu",
+        "descripcion_breve":"Ciudad inca antigua",
+        "descripcion_completa":"Machu Picchu es una ciudadela inca situada en las montañas...",
+        "ciudad":"Cusco",
+        "provincia":"Cusco",
+        "inauguracion":2022,
+        "latitud":-13.1631,
+        "longitud":-72.5450,
+        "categoria":"Arqueológico",
+        "estado_conservacion":"Bueno",
+        "visible":True
+    },
+   {
+        "nombre":"Gran Muralla China",
+        "descripcion_breve":"Estructura defensiva antigua",
+        "descripcion_completa":"La Gran Muralla China es una serie de fortificaciones...",
+        "ciudad":"Beijing",
+        "provincia":"Beijing",
+        "inauguracion":2022,
+        "latitud":40.4319,
+        "longitud":116.5704,
+        "categoria":"Histórico",
+        "estado_conservacion":"Bueno",
+        "visible":True
+    },
+   {
+        "nombre":"Taj Mahal",
+        "descripcion_breve":"Mausoleo de mármol blanco",
+        "descripcion_completa":"El Taj Mahal es un mausoleo ubicado en Agra, India...",
+        "ciudad":"Agra",
+        "provincia":"Uttar Pradesh",
+        "inauguracion":2022,
+        "latitud":27.1751,
+        "longitud":78.0421,
+        "categoria":"Arquitectónico",
+        "estado_conservacion":"Malo",
+        "visible":True
+    }
+    ]
+
+    add_site(sites_data[0])
+    result = add_site(sites_data[1])
+
+    add_site(sites_data[2])
+
+   
+
+
+    # sleep(5)
+    modify_site(result.id, {
+        "nombre":"Chichen Itza",
+        "estado_conservacion":"Malo",
+        "visible":False
+    })
+
+    # sleep(5)
+    modify_site(result.id, {
+        "estado_conservacion":"Bueno",
+        "visible":True
+    })
+
+    # sleep(5)
+    modify_site(result.id, {
+        "latitud":19.8712,
+        "longitud":-87.2856,
+    })
+
+    # sleep(5)
+    modify_site(result.id, {
+        "ciudad":"Tuxtla Gutiérrez",
+        "provincia":"Chiapas",
+    })
+
+    # eliminar efectivamente el site con la funcion que lo maneje al eliminado 
+    add_site_history(result.id, HistoryAction.ELIMINAR, 1, None, result, None)
+
+
+
     
+    
+    
+    
+    
+    
+
+    # sleep(5)
+    modify_site(result.id, {
+        "nombre":"Chichen Itza",
+        "estado_conservacion":"Malo",
+        "visible":False
+    })
+
+    # sleep(5)
+    modify_site(result.id, {
+        "estado_conservacion":"Bueno",
+        "visible":True
+    })
+
+    # sleep(5)
+    modify_site(result.id, {
+        "latitud":19.8712,
+        "longitud":-87.2856,
+    })
+
+    # sleep(5)
+    modify_site(result.id, {
+        "ciudad":"Tuxtla Gutiérrez",
+        "provincia":"Chiapas",
+    })
+
+    # eliminar efectivamente el site con la funcion que lo maneje al eliminado 
+    add_site_history(result.id, HistoryAction.ELIMINAR, 1, None, result, None)
+
+
+
+
     print(f"\n==== SEEDING LISTO ====\n\n")
