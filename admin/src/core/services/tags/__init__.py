@@ -1,4 +1,4 @@
-from core.Entities.tag import Tag, db
+from core.entities.tag import Tag, db
 from datetime import date
 
 tags= [

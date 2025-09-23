@@ -2,7 +2,7 @@
     Este modelo representa las operaciones relacionadas con los sitios historicos.
 """
 from src.core.database import db
-from src.core.Entities.site import Site
+from src.core.entities.site import Site
 from datetime import datetime
 from sqlalchemy import or_,and_
 
@@ -76,6 +76,11 @@ def modify_site(site_id, site_data):
     sitio = Site.query.get(site_id)
     if not sitio:
         return None
+
+    # tomar un snapshot dict de los valores originales ANTES de actualizar
+    campos_site = Site.__table__.columns
+    original_snapshot = {campo.name: getattr(sitio, campo.name, None) for campo in campos_site}
+  
     visible_value = site_data.get("visible")  
     visible = True if visible_value == "on" else False
 
@@ -92,6 +97,17 @@ def modify_site(site_id, site_data):
     sitio.visible = visible
 
     db.session.commit()
+
+    # aca agregar a la tabla de historial
+    add_site_history(
+        site_id, 
+        HistoryAction.EDITAR, 
+        1, 
+        site_data,           
+        original_snapshot,  
+        list(site_data.keys())
+    )
+
     return sitio
 
 def add_site(site_data):
@@ -116,4 +132,14 @@ def add_site(site_data):
 
     db.session.add(nuevo_sitio)
     db.session.commit()
+
+    add_site_history(
+        nuevo_sitio.id,
+        HistoryAction.CREAR,
+        1,
+        site_data,  
+        None,
+        list(site_data.keys())
+    )
+
     return nuevo_sitio
