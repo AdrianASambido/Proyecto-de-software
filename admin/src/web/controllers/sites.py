@@ -4,12 +4,7 @@
 
 from flask import Blueprint
 from flask import render_template, request,redirect, url_for
-<<<<<<< admin/src/web/controllers/sites.py
-
-from src.core.services.sites import list_sites, add_site, get_site, modify_site
-=======
 from src.core import sites as board_sites
->>>>>>> admin/src/web/controllers/sites.py
 import pycountry
 
 bp = Blueprint("sites", __name__, url_prefix=("/sitios"))
@@ -25,9 +20,7 @@ def index():
 
     filtros=request.args.to_dict()
 
-    sitios = list_sites(filtros).all()  # <-- ejecuta la query y devuelve lista
-
-    sitios = board_sites.list_sites(filtros).all()  # <-- ejecuta la query y devuelve lista
+    sitios = board_sites.list_sites(filtros).all()  # ejecuta la query y devuelve lista
 
     return render_template("sites/sites_table.html", items=sitios, provincias=provincias_arg)
 
