@@ -1,16 +1,42 @@
 from flask import Flask, render_template, abort, redirect, url_for
 from src.web.config import config
-from src.core import database, seeds
+from src.core import database, seeds, board_feature_flags
 
 # ACA controladores
 from src.web.controllers.sites import bp as sites_bp
+<<<<<<< admin/src/web/__init__.py
 from src.web.controllers.tags import bp as tags_bp
+=======
+from src.web.controllers.feature_flags import bp as feature_flags_bp
+>>>>>>> admin/src/web/__init__.py
 
 def create_app(env="development", static_folder="../../static"): #../../static
     app = Flask(__name__, static_folder=static_folder)
     app.config.from_object(config[env])
 
     database.init_app(app)
+
+    # Middleware para verificar flags de mantenimiento
+    @app.before_request
+    def check_maintenance_mode():
+        # Rutas que siempre están disponibles (login y feature flags para system admin)
+        exempt_routes = ['login', 'feature_flags.index', 'feature_flags.toggle_flag', 'feature_flags.get_flags_status']
+        
+        # Si es una ruta de administración y está en modo mantenimiento
+        if request.endpoint and request.endpoint.startswith('sites') and board_feature_flags.is_admin_maintenance_mode():
+            # Permitir acceso a feature flags para system admin
+            if request.endpoint not in exempt_routes:
+                message = board_feature_flags.get_admin_maintenance_message()
+                return render_template('errores/maintenance.html', 
+                                     message=message, 
+                                     title="Sistema en Mantenimiento"), 503
+        
+        # Si es una ruta del portal y está en modo mantenimiento
+        if request.endpoint == 'home' and board_feature_flags.is_portal_maintenance_mode():
+            message = board_feature_flags.get_portal_maintenance_message()
+            return render_template('errores/maintenance.html', 
+                                 message=message, 
+                                 title="Portal en Mantenimiento"), 503
 
     @app.route("/")
     def home():
@@ -49,8 +75,12 @@ def create_app(env="development", static_folder="../../static"): #../../static
 
     # definir todos los blueprints
     app.register_blueprint(sites_bp)
+
     app.register_blueprint(tags_bp)
     
+
+    app.register_blueprint(feature_flags_bp)
+
     
     #comandos para el CLI
     @app.cli.command(name="resetdb")
