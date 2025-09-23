@@ -7,6 +7,27 @@
       </label>
 <<<<<<< HEAD
 
+     {% if field.type == "select" %}
+      <select id="{{ field.name }}" name="{{ field.name }}"
+              class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              {% if field.required %}required{% endif %}>
+        {% for option in field.options %}
+          <option value="{{ option.value }}">{{ option.label }}</option>
+        {% endfor %}
+      </select>
+    {% else %}
+      <input 
+        type="{{ field.type }}" 
+        id="{{ field.name }}" 
+        name="{{ field.name }}" 
+        placeholder="{{ field.placeholder | default('') }}" 
+        value="{{ field.value | default('') }}"
+        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+        {% if field.required %}required{% endif %}
+      >
+    {% endif %}
+
+
       {% if field.type == "select" %}
         <select id="{{ field.name }}" name="{{ field.name }}"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
@@ -39,6 +60,7 @@
           {% if field.required %}required{% endif %}
         >
       {% endif %}
+<<<<<<< HEAD
 =======
      {% if field.type == "select" %}
       <select id="{{ field.name }}" name="{{ field.name }}"
@@ -60,6 +82,9 @@
       >
     {% endif %}
 >>>>>>> dev
+=======
+
+>>>>>>> e2679686250ece3c02cada26eaf4e63eabe7eafd
     </div>
   {% endfor %}
 
