@@ -1,8 +1,8 @@
 """
     Este modelo representa las operaciones relacionadas con los sitios historicos.
 """
-from src.core.entities.site_history import SiteHistory, HistoryAction
-from src.core.entities.site import Site
+from src.core.Entities.site_history import SiteHistory, HistoryAction
+from src.core.Entities.site import Site
 from src.core.database import db
 from datetime import datetime, timezone, date
 import enum
