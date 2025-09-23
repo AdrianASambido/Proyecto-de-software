@@ -73,12 +73,9 @@ def add_site():
 @bp.route("/modificar/<int:site_id>", methods=["GET", "POST"])
 def modify(site_id):
 
-    sitio = board_sites.get_site(site_id)
-
-    sitio = get_site(site_id)
 
 
-    sitio = get_site(site_id)
+    
 
     sitio = board_sites.get_site(site_id)
 
@@ -89,12 +86,7 @@ def modify(site_id):
     if request.method == "POST":
         site_data = dict(request.form)
 
-        board_sites.modify_site(site_id, site_data)
-
-        modify_site(site_id, site_data)
-
-
-        modify_site(site_id, site_data)
+        
 
         board_sites.modify_site(site_id, site_data)
 
