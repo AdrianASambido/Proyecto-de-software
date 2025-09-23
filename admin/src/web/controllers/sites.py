@@ -12,11 +12,6 @@ from src.core import sites as board_sites
 from src.core.services.sites import list_sites, add_site, get_site, modify_site
 
 
-
-from src.core.services.sites import list_sites, add_site, get_site, modify_site
-
-from src.core import sites as board_sites
-
 import pycountry
 
 bp = Blueprint("sites", __name__, url_prefix=("/sitios"))
@@ -32,11 +27,7 @@ def index():
 
     filtros=request.args.to_dict()
 
-    sitios = board_sites.list_sites(filtros).all()  # <-- ejecuta la query y devuelve lista
-
-    sitios = list_sites(filtros).all()  # <-- ejecuta la query y devuelve lista
-
-
+   
 
     sitios = list_sites(filtros).all()  # <-- ejecuta la query y devuelve lista
 
@@ -54,13 +45,7 @@ def add_site():
     if request.method == "POST":
         site_data = dict(request.form)
 
-        board_sites.add_site(site_data)
-
-        add_site(site_data)
-
-
-
-        add_site(site_data)
+      
 
         board_sites.add_site(site_data)
 
