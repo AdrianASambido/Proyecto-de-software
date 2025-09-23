@@ -19,6 +19,7 @@
         id="{{ field.name }}" 
         name="{{ field.name }}" 
         placeholder="{{ field.placeholder | default('') }}" 
+        value="{{ field.value | default('') }}"
         class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
         {% if field.required %}required{% endif %}
       >

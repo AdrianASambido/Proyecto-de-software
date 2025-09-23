@@ -6,6 +6,7 @@ tags= [
         "id": 1,
         "nombre": "Maravillas del Mundo",
         "slug": "maravillas-del-mundo",
+        "fecha_creacion": date(2023, 10, 1),
     }
 ]
 def get_tags():
@@ -29,6 +30,25 @@ def add_tag(tag_data):
     return nuevo_tag
 
 
+def update_tag(tag_id, tag_data):
+    for tag in tags:
+        if tag["id"] == tag_id:
+            tag["nombre"] = tag_data.get("nombre", tag["nombre"])
+            tag["slug"] = generate_slug(tag_data.get("nombre", tag["nombre"]))
+            tag["fecha_creacion"] = tag.get("fecha_creacion", tag["fecha_creacion"])
+            tag["fecha_modificacion"] = date.today()
+            return tag
+    return None
+
+
+def delete_tag(tag_id):
+    global tags
+    tags = [tag for tag in tags if tag["id"] != tag_id]
+    #db.session.delete(tag) cuando exista la base de datos
+    #db.session.commit() cuando exista la base de datos
+    return True
+
+
 import unicodedata
 import re
 
@@ -42,3 +62,10 @@ def generate_slug(name):
     # Quitar guiones al inicio y fin
     slug = slug.strip('-')
     return slug
+
+
+def get_tag_by_id(tag_id):
+    for tag in tags:
+        if tag["id"] == tag_id:
+            return tag
+    return None
