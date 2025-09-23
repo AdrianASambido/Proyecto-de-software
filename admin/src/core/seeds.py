@@ -2,7 +2,12 @@
 from datetime import datetime, timezone, date
 from time import sleep
 
+
 from src.core.sites import add_site
+
+from datetime import datetime, timezone, date
+from time import sleep
+
 
 # db
 from src.core.database import db
@@ -66,25 +71,14 @@ def seeds_db():
         db.session.rollback()
         print(f"✗ Error al guardar feature flags: {e}")
 
-    site_data1 = {
-        "nombre":"Chichen Itza",
 
-        "descripcion_breve":"Ciudad maya antigua",
-        "descripcion_completa":"Chichen Itza fue una gran ciudad precolombina...",
-        "ciudad":"Yucatan",
-        "provincia":"Yucatan",
+    # Seed para sitios
+   
+   
+    print("\n==== CREANDO SITES ====")
 
-        "inauguracion": 2022,
 
-        "inauguracion":2022,
-
-        "latitud":18.9712,
-        "longitud":-88.9856,
-        "categoria":"Arqueológico",
-        "estado_conservacion":"Bueno",
-        "visible":True
-    }
-    site_data2 = {
+    sites_data = [{
         "nombre":"Machu Picchu",
         "descripcion_breve":"Ciudad inca antigua",
         "descripcion_completa":"Machu Picchu es una ciudadela inca situada en las montañas...",
@@ -96,8 +90,8 @@ def seeds_db():
         "categoria":"Arqueológico",
         "estado_conservacion":"Bueno",
         "visible":True
-    }
-    site_data3 = {
+    },
+   {
         "nombre":"Gran Muralla China",
         "descripcion_breve":"Estructura defensiva antigua",
         "descripcion_completa":"La Gran Muralla China es una serie de fortificaciones...",
@@ -109,8 +103,8 @@ def seeds_db():
         "categoria":"Histórico",
         "estado_conservacion":"Bueno",
         "visible":True
-    }
-    site_data4={
+    },
+   {
         "nombre":"Taj Mahal",
         "descripcion_breve":"Mausoleo de mármol blanco",
         "descripcion_completa":"El Taj Mahal es un mausoleo ubicado en Agra, India...",
@@ -123,11 +117,51 @@ def seeds_db():
         "estado_conservacion":"Malo",
         "visible":True
     }
+    ]
 
-    result = add_site(site_data1)
-    add_site(site_data2)
-    add_site(site_data4)
-    add_site(site_data3)
+    add_site(sites_data[0])
+    result = add_site(sites_data[1])
+
+    add_site(sites_data[2])
+
+   
+
+
+    # sleep(5)
+    modify_site(result.id, {
+        "nombre":"Chichen Itza",
+        "estado_conservacion":"Malo",
+        "visible":False
+    })
+
+    # sleep(5)
+    modify_site(result.id, {
+        "estado_conservacion":"Bueno",
+        "visible":True
+    })
+
+    # sleep(5)
+    modify_site(result.id, {
+        "latitud":19.8712,
+        "longitud":-87.2856,
+    })
+
+    # sleep(5)
+    modify_site(result.id, {
+        "ciudad":"Tuxtla Gutiérrez",
+        "provincia":"Chiapas",
+    })
+
+    # eliminar efectivamente el site con la funcion que lo maneje al eliminado 
+    add_site_history(result.id, HistoryAction.ELIMINAR, 1, None, result, None)
+
+
+
+    
+    
+    
+    
+    
     
 
     # sleep(5)
@@ -159,9 +193,6 @@ def seeds_db():
     add_site_history(result.id, HistoryAction.ELIMINAR, 1, None, result, None)
 
 
-    result = add_site(site_data4)
-    
-    
-    print(result)
+
 
     print(f"\n==== SEEDING LISTO ====\n\n")
