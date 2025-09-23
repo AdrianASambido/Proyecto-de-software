@@ -6,12 +6,9 @@ from src.core import database, seeds, board_feature_flags
 # ACA controladores
 from src.web.controllers.sites_history import bp as sites_history_bp
 from src.web.controllers.sites import bp as sites_bp
-<<<<<<< admin/src/web/__init__.py
 from src.web.controllers.tags import bp as tags_bp
-=======
 
 from src.web.controllers.feature_flags import bp as feature_flags_bp
->>>>>>> admin/src/web/__init__.py
 
 
 def create_app(env="development", static_folder="../../static"): #../../static
