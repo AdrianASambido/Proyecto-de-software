@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import enum
 from src.core.database import db
 from sqlalchemy import Enum
@@ -25,3 +26,22 @@ class User(db.Model):
 
     def __repr__(self):
         return f"<User {self.username}>"
+=======
+from src.core.database import db
+from datetime import datetime, timezone
+
+class User(db.Model):
+    """
+    Modelo que representa un usuario en la base de datos
+    """
+    
+    __tablename__ = "users"
+    
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
+    
+    def __repr__(self):
+        return f"<User {self.username}>"
+>>>>>>> d5f1a584e4301061d18a900ee37d722303212c78
