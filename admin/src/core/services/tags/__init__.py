@@ -1,4 +1,3 @@
-from core.entities.tag import Tag, db
 from datetime import date
 
 tags= [
@@ -9,7 +8,7 @@ tags= [
         "fecha_creacion": date(2023, 10, 1),
     }
 ]
-def get_tags():
+def list_tags():
     """
     Retorna una lista de todos los tags.
     """
