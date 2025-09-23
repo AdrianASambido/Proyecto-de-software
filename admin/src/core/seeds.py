@@ -66,11 +66,6 @@ def seeds_db():
         db.session.rollback()
         print(f"✗ Error al guardar feature flags: {e}")
 
-
-
-    site_data1 = {
-        "nombre":"Chicho Itsa",
-
     site_data1 = {
         "nombre":"Chichen Itza",
 
