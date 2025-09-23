@@ -1,7 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-
-db = SQLAlchemy()
+from datetime import datetime, timezone
+from src.core.database import db
 
 # Tabla intermedia para muchos-a-muchos
 sitio_tags = db.Table(
@@ -16,13 +14,14 @@ class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False, unique=True)
     slug = db.Column(db.String(50), nullable=False, unique=True)
-    fecha_creacion = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    fecha_creacion = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
 
     # Relación muchos-a-muchos con sitios
     sitios = db.relationship(
         "Site",  # Nombre del modelo de sitios
         secondary=sitio_tags,
-        back_populates="tags"
+        backref="tags",
+        # back_populates="tags"
     )
 
     def __repr__(self):

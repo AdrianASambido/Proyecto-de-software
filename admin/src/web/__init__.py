@@ -1,13 +1,13 @@
-from flask import Flask, render_template, abort, redirect, url_for
-from flask import Flask, render_template, abort, redirect, url_for
+from flask import Flask, render_template, abort, redirect, url_for, request
 from src.web.config import config
-from src.core import database, seeds, board_feature_flags
+
+from src.core import database, seeds
+from src.core.services.feature_flags import is_admin_maintenance_mode, get_admin_maintenance_message, is_portal_maintenance_mode, get_portal_maintenance_message
 
 # ACA controladores
 from src.web.controllers.sites_history import bp as sites_history_bp
 from src.web.controllers.sites import bp as sites_bp
 from src.web.controllers.tags import bp as tags_bp
-
 from src.web.controllers.feature_flags import bp as feature_flags_bp
 
 
@@ -17,46 +17,24 @@ def create_app(env="development", static_folder="../../static"): #../../static
 
     database.init_app(app)
 
-    # Middleware para verificar flags de mantenimiento
+ # Middleware para verificar flags de mantenimiento
     @app.before_request
     def check_maintenance_mode():
         # Rutas que siempre están disponibles (login y feature flags para system admin)
         exempt_routes = ['login', 'feature_flags.index', 'feature_flags.toggle_flag', 'feature_flags.get_flags_status']
         
         # Si es una ruta de administración y está en modo mantenimiento
-        if request.endpoint and request.endpoint.startswith('sites') and board_feature_flags.is_admin_maintenance_mode():
+        if request.endpoint and request.endpoint.startswith('sites') and is_admin_maintenance_mode():
             # Permitir acceso a feature flags para system admin
             if request.endpoint not in exempt_routes:
-                message = board_feature_flags.get_admin_maintenance_message()
+                message = get_admin_maintenance_message()
                 return render_template('errores/maintenance.html', 
                                      message=message, 
                                      title="Sistema en Mantenimiento"), 503
         
         # Si es una ruta del portal y está en modo mantenimiento
-        if request.endpoint == 'home' and board_feature_flags.is_portal_maintenance_mode():
-            message = board_feature_flags.get_portal_maintenance_message()
-            return render_template('errores/maintenance.html', 
-                                 message=message, 
-                                 title="Portal en Mantenimiento"), 503
-
-    # Middleware para verificar flags de mantenimiento
-    @app.before_request
-    def check_maintenance_mode():
-        # Rutas que siempre están disponibles (login y feature flags para system admin)
-        exempt_routes = ['login', 'feature_flags.index', 'feature_flags.toggle_flag', 'feature_flags.get_flags_status']
-        
-        # Si es una ruta de administración y está en modo mantenimiento
-        if request.endpoint and request.endpoint.startswith('sites') and board_feature_flags.is_admin_maintenance_mode():
-            # Permitir acceso a feature flags para system admin
-            if request.endpoint not in exempt_routes:
-                message = board_feature_flags.get_admin_maintenance_message()
-                return render_template('errores/maintenance.html', 
-                                     message=message, 
-                                     title="Sistema en Mantenimiento"), 503
-        
-        # Si es una ruta del portal y está en modo mantenimiento
-        if request.endpoint == 'home' and board_feature_flags.is_portal_maintenance_mode():
-            message = board_feature_flags.get_portal_maintenance_message()
+        if request.endpoint == 'home' and is_portal_maintenance_mode():
+            message = get_portal_maintenance_message()
             return render_template('errores/maintenance.html', 
                                  message=message, 
                                  title="Portal en Mantenimiento"), 503

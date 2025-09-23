@@ -70,7 +70,7 @@ def seeds_db():
         "descripcion_completa":"Chichen Itza fue una gran ciudad precolombina...",
         "ciudad":"Yucatan",
         "provincia":"Yucatan",
-        "inauguracion": date(2022, 1, 1),
+        "inauguracion": 2022,
         "latitud":18.9712,
         "longitud":-88.9856,
         "categoria":"Arqueológico",
@@ -123,32 +123,32 @@ def seeds_db():
     add_site(site_data3)
     
 
-    sleep(5)
+    # sleep(5)
     modify_site(result.id, {
         "nombre":"Chichen Itza",
         "estado_conservacion":"Malo",
         "visible":False
     })
 
-    sleep(5)
+    # sleep(5)
     modify_site(result.id, {
         "estado_conservacion":"Bueno",
         "visible":True
     })
 
-    sleep(5)
+    # sleep(5)
     modify_site(result.id, {
         "latitud":19.8712,
         "longitud":-87.2856,
     })
 
-    sleep(5)
+    # sleep(5)
     modify_site(result.id, {
         "ciudad":"Tuxtla Gutiérrez",
         "provincia":"Chiapas",
     })
 
-    #aeliminar efectivamente el site con la funcion que lo maneje al eliminado 
+    # eliminar efectivamente el site con la funcion que lo maneje al eliminado 
     add_site_history(result.id, HistoryAction.ELIMINAR, 1, None, result, None)
 
     print(f"\n==== SEEDING LISTO ====\n\n")

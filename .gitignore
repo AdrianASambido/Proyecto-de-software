@@ -214,4 +214,5 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-admin/src/web/config.py
+
+.env
