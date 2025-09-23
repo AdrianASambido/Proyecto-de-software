@@ -1,0 +1,14 @@
+{% extends "basic-structure-w-sidebar.html" %}
+{% from "common/_form.html" import render_form %}
+<!-- {% block title %}Nuevo Tag{% endblock %} -->
+
+{% block content %}
+  <h1 class="text-2xl font-bold mb-6">Editar Tag</h1>
+  {{ render_form(
+    action=url_for('tags.edit_tag', tag_id=tag.id),
+    fields=[
+      {"name": "nombre", "label": "Nombre del tag", "type": "text", "placeholder": "Ingrese un nombre para el tag", "value": tag.nombre, "required": True},
+    ],
+    submit_text="Guardar"
+) }}
+{% endblock %}
