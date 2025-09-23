@@ -76,8 +76,8 @@ def modify_site(site_id, site_data):
     sitio = Site.query.get(site_id)
     if not sitio:
         return None
-    visible_value = site_data.get("visible")  
-    visible = True if visible_value == "on" else False
+    visible_value = site_data.get("visible")
+    visible = visible_value is True or visible_value == "on"
 
     sitio.nombre = site_data.get("nombre", sitio.nombre)
     sitio.descripcion_breve = site_data.get("descripcion_breve", sitio.descripcion_breve)
@@ -98,8 +98,8 @@ def add_site(site_data):
     """
     Agrega un nuevo sitio historico.
     """
-    visible_value = site_data.get("visible")  
-    visible = True if visible_value == "on" else False
+    visible_value = site_data.get("visible")
+    visible = visible_value is True or visible_value == "on"
     nuevo_sitio = Site(
         nombre=site_data.get("nombre"),
         descripcion_breve=site_data.get("descripcion_breve"),
