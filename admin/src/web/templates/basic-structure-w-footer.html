@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            clifford: "#da373d"
+          }
+        }
+      }
+    }
+  </script>
+
+  <title>{% block title %}My App{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+
+<body class="relative h-auto min-h-screen w-full overflow-x-hidden">
+  <div class="flex w-full flex-row flex-wrap">
+    <!-- basic navbar -->
+    <nav class="fixed z-40 flex h-24 sm:h-16 w-full basis-full flex-col bg-neutral-800">
+      <div class="mx-auto h-24 sm:h-16 w-full px-2 sm:px-6 lg:px-8">
+        <div class="relative z-40 flex w-full items-center justify-between">
+          <div class="flex flex-1 flex-col sm:flex-row items-center justify-center sm:justify-start sm:gap-8">
+            <div class="w-fit mr-8">
+              <a href="/" class="relative flex h-16 w-56 flex-shrink-0 items-center justify-center p-2 drop-shadow-lg">
+                <img width="200" height="50" class="h-8 w-32 object-contain"
+                  src="{{ url_for('static', filename='publico/assets/logo_only.svg') }}" alt="Imagen del logo" />
+              </a>
+            </div>
+          </div>
+
+          <!-- aca puede ir un link para que el usuario genere reporte/feedback o solicite soporte -->
+        </div>
+      </div>
+    </nav>
+    <!-- aca el contenido principal de la pagina -->
+    <main
+      class="flex py-40 h-full min-h-[calc(100dvh-6rem)] sm:min-h-[calc(100vh-5rem)] basis-full w-full flex-col items-center justify-center">
+      {% block content %} {% endblock %}
+    </main>
+    <!-- <footer class="basis-full flex justify-center px-4 text-gray-800">
+      <div class="container px-6 py-6">
+
+        <div class="flex flex-col items-center justify-between md:flex-row">
+          <a href="#" class="relative w-32 h-8">
+            <image alt="logo" fill src="" class="object-scale-down" />
+          </a>
+
+          <div class="flex mt-4 md:m-0">
+            <div class="-mx-4">
+              <a href="/"
+                class="px-4 text-sm text-gray-600 transition-colors duration-300 hover:text-primary-500 hover:underline">
+                Inicio
+              </a>
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer> -->
+
+  </div>
+</body>
+
+</html>
