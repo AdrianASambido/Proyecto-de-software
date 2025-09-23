@@ -1,10 +1,14 @@
-from flask import Flask, render_template, abort, request, redirect, url_for
+from flask import Flask, render_template, abort, redirect, url_for
 from src.web.config import config
 from src.core import database, seeds, board_feature_flags
 
 # ACA controladores
 from src.web.controllers.sites import bp as sites_bp
+<<<<<<< admin/src/web/__init__.py
+from src.web.controllers.tags import bp as tags_bp
+=======
 from src.web.controllers.feature_flags import bp as feature_flags_bp
+>>>>>>> admin/src/web/__init__.py
 
 def create_app(env="development", static_folder="../../static"): #../../static
     app = Flask(__name__, static_folder=static_folder)
@@ -37,16 +41,6 @@ def create_app(env="development", static_folder="../../static"): #../../static
     @app.route("/")
     def home():
         return render_template("home.html"), 200
-
-    @app.route("/crear_tag", methods=["POST"])
-    def crear_tag():
-        name = request.form.get("name")
-        slug = request.form.get("slug")
-
-        # 👉 Guardar en DB o lo que necesites
-        print("Nuevo tag:", name, slug)
-
-        return redirect(url_for("tags"))  # o a donde quieras volver
     
     @app.route("/tabla")
     def tabla():
@@ -55,10 +49,6 @@ def create_app(env="development", static_folder="../../static"): #../../static
     @app.route("/login")
     def login():
         return render_template("/login/login_usuario.html"), 200
-
-    @app.route("/tags")
-    def tags():
-        return render_template("/tags/tags.html"), 200
     
     
     @app.errorhandler(401)
@@ -85,7 +75,12 @@ def create_app(env="development", static_folder="../../static"): #../../static
 
     # definir todos los blueprints
     app.register_blueprint(sites_bp)
+
+    app.register_blueprint(tags_bp)
+    
+
     app.register_blueprint(feature_flags_bp)
+
     
     #comandos para el CLI
     @app.cli.command(name="resetdb")
