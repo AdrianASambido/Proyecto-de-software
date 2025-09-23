@@ -21,7 +21,7 @@ def index():
 
     filtros=request.args.to_dict()
     sitios = board_sites.list_sites(filtros).all()  # <-- ejecuta la query y devuelve lista
-    return render_template("sites/sites_table.html", sites=sitios, provincias=provincias_arg)
+    return render_template("sites/sites_table.html", items=sitios, provincias=provincias_arg)
 
 @bp.route("/nuevo", methods=["GET", "POST"])
 def add_site():
@@ -33,8 +33,8 @@ def add_site():
         site_data = dict(request.form)
         board_sites.add_site(site_data)
         return redirect(url_for("sites.index"))
-    
-    return render_template("sites/add_site.html")
+    provincias_opts = [{"value": prov, "label": prov} for prov in provincias_arg]
+    return render_template("sites/add_site.html",provincias=provincias_opts)
 
 
 @bp.route("/modificar/<int:site_id>", methods=["GET", "POST"])

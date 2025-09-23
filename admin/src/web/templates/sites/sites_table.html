@@ -70,29 +70,27 @@
      class="h-8 rounded bg-blue-600 px-3 text-white hover:bg-blue-500">Limpiar</a>
 </form>
 <p class="mb-2 text-sm text-black-400">
-  Mostrando {{ sites|length }} resultado{{ 's' if sites|length != 1 else '' }}
+  Mostrando {{ items|length }} resultado{{ 's' if items|length != 1 else '' }}
 </p>
 {% endblock %}
-
 
 {% block table_headers %}
   <th>Nombre</th>
   <th>Ciudad</th>
   <th>Provincia</th>
-  <th>Descripcion breve</th>
-  <th>Descripcion Completa</th>
-  <th>Año de inauguracion</th>
-  <th>Categoria</th>
-  <th>Estado de conservacion</th>
+  <th>Descripción breve</th>
+  <th>Descripción completa</th>
+  <th>Año inauguración</th>
+  <th>Categoría</th>
+  <th>Estado de conservación</th>
   <th>Latitud</th>
   <th>Longitud</th>
   <th>Visible</th>
   <th>Fecha de registro</th>
   <th>Acciones</th>
 {% endblock %}
-
 {% block table_rows %}
-  {% for sitio in sites %}
+  {% for sitio in items %}
     <tr>
       <td>{{ sitio.nombre }}</td>
       <td>{{ sitio.ciudad }}</td>
@@ -106,13 +104,23 @@
       <td>{{ sitio.longitud }}</td>
       <td>{{ 'Sí' if sitio.visible else 'No' }}</td>
       <td>{{ sitio.created_at }}</td>
-      <!-- Columna de acciones con botón Modificar -->
       <td class="flex gap-2">
-        <a 
-          href="{{ url_for('sites.modify', site_id=sitio.id) }}"
+        <a class="rounded bg-blue-500 px-2 py-1 text-white hover:bg-blue-600">
+          Detalles
+        </a>
+        <a href="{{ url_for('sites.modify', site_id=sitio.id) }}"
            class="rounded bg-blue-500 px-2 py-1 text-white hover:bg-blue-600">
           Modificar
         </a>
+        <a class="rounded bg-red-500 px-2 py-1 text-white hover:bg-blue-600">
+          Eliminar
+        </a>
+      </td>
+    </tr>
+  {% else %}
+    <tr>
+      <td colspan="13" class="text-center text-white-500 py-4">
+        No se encontraron resultados.
       </td>
     </tr>
   {% endfor %}
