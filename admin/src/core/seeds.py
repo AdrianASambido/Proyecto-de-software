@@ -1,5 +1,8 @@
+
 from datetime import datetime, timezone, date
 from time import sleep
+
+from src.core.sites import add_site
 
 # db
 from src.core.database import db
@@ -15,6 +18,7 @@ from src.core.Entities.site_history import HistoryAction
 # para agregar datos de prueba a la base de datos se usa "flask seeddb"
 def seeds_db():
     print("\n\n==== SEEDING BASE DE DATOS ====")
+
     # Seed para Feature Flags
     print("\n==== CREANDO FEATURE FLAGS ====")
     
@@ -63,14 +67,22 @@ def seeds_db():
         print(f"✗ Error al guardar feature flags: {e}")
 
 
-    # Seed para sitios
+
     site_data1 = {
         "nombre":"Chicho Itsa",
+
+    site_data1 = {
+        "nombre":"Chichen Itza",
+
         "descripcion_breve":"Ciudad maya antigua",
         "descripcion_completa":"Chichen Itza fue una gran ciudad precolombina...",
         "ciudad":"Yucatan",
         "provincia":"Yucatan",
+
         "inauguracion": 2022,
+
+        "inauguracion":2022,
+
         "latitud":18.9712,
         "longitud":-88.9856,
         "categoria":"Arqueológico",
@@ -116,7 +128,7 @@ def seeds_db():
         "estado_conservacion":"Malo",
         "visible":True
     }
-    
+
     result = add_site(site_data1)
     add_site(site_data2)
     add_site(site_data4)
@@ -150,5 +162,11 @@ def seeds_db():
 
     # eliminar efectivamente el site con la funcion que lo maneje al eliminado 
     add_site_history(result.id, HistoryAction.ELIMINAR, 1, None, result, None)
+
+
+    result = add_site(site_data4)
+    
+    
+    print(result)
 
     print(f"\n==== SEEDING LISTO ====\n\n")
