@@ -19,7 +19,7 @@ class User(db.Model):
     contraseña_cifrada=db.Column(db.String(128), nullable=False)
     is_system_admin=db.Column(db.Boolean, default=False)
     activo=db.Column(db.Boolean, default=True)
-    rol=db.Column(Enum(rolEnum), nullable=False)
+   # rol=db.Column(Enum(rolEnum), db.String(50), nullable=False)
     created_at=db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at=db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
 
