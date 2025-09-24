@@ -14,11 +14,11 @@ bp = Blueprint("tags", __name__, url_prefix="/tags")
 def index():
     tags = svc_list_tags()
 
-    return render_template("tags/tags_table.html", tags=tags), 200
+    return render_template("tags/tags_table.html", items=tags), 200
 
 
 @bp.get("/nuevo")
-def add_form():
+def add_tag():
     return render_template("tags/add_tag.html"), 200
 
 
@@ -31,7 +31,7 @@ def add_tag_handler():
 
 
 @bp.get("/editar/<int:tag_id>")
-def edit_form(tag_id):
+def edit_tag(tag_id):
     tag = svc_get_tag_by_id(tag_id)
     return render_template("tags/edit_tag.html", tag=tag)
 
