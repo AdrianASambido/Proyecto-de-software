@@ -1,5 +1,5 @@
 """
-    Este modelo representa las operaciones relacionadas con los feature flags.
+Este modelo representa las operaciones relacionadas con los feature flags.
 """
 
 from src.core.database import db

@@ -1,5 +1,5 @@
 """
-    Este controlador maneja las rutas relacionadas con las operaciones de usuarios
+Este controlador maneja las rutas relacionadas con las operaciones de usuarios
 """
 
 from flask import Blueprint

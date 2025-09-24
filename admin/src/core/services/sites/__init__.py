@@ -1,5 +1,5 @@
 """
-    Este modelo representa las operaciones relacionadas con los sitios historicos.
+Este modelo representa las operaciones relacionadas con los sitios historicos.
 """
 
 from src.core.database import db
