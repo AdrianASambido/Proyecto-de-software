@@ -1,20 +1,3 @@
-from src.core.database import db
-from datetime import datetime, timezone
-
-class User(db.Model):
-    """
-    Modelo que representa un usuario en la base de datos
-    """
-    
-    __tablename__ = "users"
-    
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
-    
-    def __repr__(self):
-        return f"<User {self.username}>"
 import enum
 from src.core.database import db
 from sqlalchemy import Enum
@@ -29,6 +12,7 @@ class User(db.Model):
     """Modelo que representa un usuario en la base de datos"""
 
     __tablename__ = "users"
+    
     id=db.Column(db.Integer, primary_key=True)
     email=db.Column(db.String(100), unique=True, nullable=False)
     nombre=db.Column(db.String(100), nullable=False)
@@ -36,9 +20,11 @@ class User(db.Model):
     contraseña_cifrada=db.Column(db.String(128), nullable=False)
     is_system_admin=db.Column(db.Boolean, default=False)
     activo=db.Column(db.Boolean, default=True)
-   # rol=db.Column(Enum(rolEnum), db.String(50), nullable=False)
+    # rol=db.Column(Enum(rolEnum), db.String(50), nullable=False)
     created_at=db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at=db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
+
+    __table_args__ = {'extend_existing': True}
 
     def __repr__(self):
         return f"<User {self.email}>"
