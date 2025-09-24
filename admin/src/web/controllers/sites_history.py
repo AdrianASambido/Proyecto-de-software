@@ -1,5 +1,5 @@
 """
-    Este controlador maneja las rutas relacionadas con el historial de sitios.
+Este controlador maneja las rutas relacionadas con el historial de sitios.
 """
 
 from flask import Blueprint
