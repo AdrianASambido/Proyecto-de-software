@@ -1,5 +1,7 @@
 from flask import Flask, render_template, abort, redirect, url_for, request
 from src.web.config import config
+import os
+import pprint
 
 from src.core import database, seeds
 from src.core.services.feature_flags import (
@@ -26,8 +28,22 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app = Flask(__name__, static_folder=static_folder)
     app.config.from_object(config[env])
 
-    common_env = app.config.get("DEBUG_VARIABLE")
-    print(f"GRUPO01_COMMON_DEBUG:  {common_env}")
+    common_env_1 = os.getenv("GRUPO01_COMMON_DEBUG")
+    print(f"GRUPO01_COMMON_DEBUG_1:  {common_env_1}")
+
+    common_env_2 = os.getenv("GRUPO01-COMMON-DEBUG")
+    print(f"GRUPO01_COMMON_DEBUG_2:  {common_env_2}")
+    
+    common_env_3 = os.getenv("COMMON_DEBUG")
+    print(f"GRUPO01_COMMON_DEBUG_3:  {common_env_3}")
+    
+    common_env_4 = os.getenv("COMMON-DEBUG")
+    print(f"GRUPO01_COMMON_DEBUG_4:  {common_env_4}")
+
+    env_var = os.environ 
+    print("User's Environment variable:") 
+    pprint.pprint(dict(env_var), width = 1) 
+
 
     # Validar configuración de base de datos antes de inicializar SQLAlchemy
     if not app.config.get("SQLALCHEMY_DATABASE_URI") and not app.config.get(
