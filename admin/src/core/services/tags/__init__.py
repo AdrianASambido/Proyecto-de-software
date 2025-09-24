@@ -1,48 +1,41 @@
+from src.core.database import db
+from src.core.Entities.tag import Tag
 from datetime import date
 
-tags= [
-    {
-        "id": 1,
-        "nombre": "Maravillas del Mundo",
-        "slug": "maravillas-del-mundo",
-        "fecha_creacion": date(2023, 10, 1),
-    }
-]
+
 def list_tags():
-    """
-    Retorna una lista de todos los tags.
-    """
-    #tags=Tag.query.all() cuando exista la base de datos
-    
+    tags = Tag.query.all()
+    print(tags)
+
     return tags
 
 def add_tag(tag_data):
-    nuevo_tag = {
-        "id": 3,  
-        "nombre": tag_data.get("nombre"),
-        "slug": generate_slug(tag_data.get("nombre")),
-        "fecha_creacion": date.today(),
-    }
-    #db.session.add(nuevo_tag) cuando exista la base de datos
-    #db.session.commit() cuando exista la base de datos
-    tags.append(nuevo_tag)
-    return nuevo_tag
+    new_tag = Tag(
+        nombre=tag_data.get("nombre"),
+        slug=generate_slug(tag_data.get("nombre")),
+        fecha_creacion=date.today(),
+        # fecha_modificacion=date.today()
+    )
+    db.session.add(new_tag)
+    db.session.commit()
+    return new_tag
 
 
 def update_tag(tag_id, tag_data):
-    for tag in tags:
-        if tag["id"] == tag_id:
-            tag["nombre"] = tag_data.get("nombre", tag["nombre"])
-            tag["slug"] = generate_slug(tag_data.get("nombre", tag["nombre"]))
-            tag["fecha_creacion"] = tag.get("fecha_creacion", tag["fecha_creacion"])
-            tag["fecha_modificacion"] = date.today()
-            return tag
-    return None
+    tag = Tag.query.get(tag_id)
+    if not tag:
+        return None
+
+    tag.nombre = tag_data.get("nombre", tag.nombre)
+    tag.slug = generate_slug(tag_data.get("nombre", tag.nombre))
+    tag.fecha_creacion = tag.fecha_creacion
+    tag.fecha_modificacion = date.today()
+
+    db.session.commit()
+    return tag
 
 
 def delete_tag(tag_id):
-    global tags
-    tags = [tag for tag in tags if tag["id"] != tag_id]
     #db.session.delete(tag) cuando exista la base de datos
     #db.session.commit() cuando exista la base de datos
     return True
@@ -64,7 +57,4 @@ def generate_slug(name):
 
 
 def get_tag_by_id(tag_id):
-    for tag in tags:
-        if tag["id"] == tag_id:
-            return tag
-    return None
+    return Tag.query.get(tag_id)
