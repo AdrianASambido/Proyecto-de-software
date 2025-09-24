@@ -5,4 +5,4 @@ from .feature_flag import FeatureFlag
 from .site_history import SiteHistory
 from .tag import Tag
 
-__all__ = ['Site', 'User', 'Role', 'FeatureFlag', 'SiteHistory', 'Tag']
+__all__ = ["Site", "User", "Role", "FeatureFlag", "SiteHistory", "Tag"]

@@ -8,14 +8,17 @@ from src.core.services.users import list_users, add_user
 
 bp = Blueprint("users", __name__, url_prefix=("/usuarios"))
 
+
 @bp.get("/")
 def index():
     usuarios = list_users()
     return render_template("usuarios/tabla_usuarios.html", users=usuarios), 200
 
+
 @bp.get("/nuevo_usuario")
 def add_form():
     return render_template("usuarios/agregar_usuario.html"), 200
+
 
 @bp.post("/agregar_usuario")
 def add_user():
