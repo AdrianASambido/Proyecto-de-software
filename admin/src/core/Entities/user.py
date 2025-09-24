@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import enum
 from src.core.database import db
 from sqlalchemy import Enum
@@ -26,4 +25,3 @@ class User(db.Model):
 
     def __repr__(self):
         return f"<User {self.username}>"
->>>>>>>>> Temporary merge branch 2

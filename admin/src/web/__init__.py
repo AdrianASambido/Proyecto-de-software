@@ -18,11 +18,6 @@ def create_app(env="development", static_folder="../../static"): #../../static
 
     database.init_app(app)
 
-<<<<<<< admin/src/web/__init__.py
-    app.before_request_funcs = {
-        'users_bp': [pre_request_logging]
-    }
-=======
  # Middleware para verificar flags de mantenimiento
     @app.before_request
     def check_maintenance_mode():
@@ -44,7 +39,6 @@ def create_app(env="development", static_folder="../../static"): #../../static
             return render_template('errores/maintenance.html', 
                                  message=message, 
                                  title="Portal en Mantenimiento"), 503
->>>>>>> admin/src/web/__init__.py
 
     @app.route("/")
     def home():
