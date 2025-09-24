@@ -3,7 +3,7 @@
 
 {% block table_title %}Etiquetas{% endblock %}
 
-{% block add_url %}{{ url_for('tags.add_form') }}{% endblock %}
+{% block add_url %}{{ url_for('tags.add_tag') }}{% endblock %}
 {% block add_label %}Agregar etiqueta{% endblock %}
 
 {% block table_headers %}
@@ -13,14 +13,14 @@
 {% endblock %}
 
 {% block table_rows %}
-  {% for tag in tags %}
+  {% for tag in items %}
     <tr>
       <td>{{ tag.nombre }}</td>
       <td>{{ tag.slug }}</td>
       <td>{{ tag.fecha_creacion }}</td>
       
       <td class="flex gap-2">
-        <a href="{{ url_for('tags.edit_form', tag_id=tag.id) }}"
+        <a href="{{ url_for('tags.edit_tag', tag_id=tag.id) }}"
           class="rounded bg-blue-500 px-2 py-1 text-white hover:bg-blue-600 hover:cursor-pointer flex items-center gap-1">
           <img src="{{ url_for('static', filename='icons/edit.svg') }}" alt="Modificar" class="h-4 w-4 inline" />
         </a>

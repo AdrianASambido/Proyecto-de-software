@@ -1,3 +1,5 @@
+from src.core.database import db
+from src.core.Entities.tag import Tag
 from datetime import date
 
 tags = [
@@ -33,14 +35,17 @@ def add_tag(tag_data):
 
 
 def update_tag(tag_id, tag_data):
-    for tag in tags:
-        if tag["id"] == tag_id:
-            tag["nombre"] = tag_data.get("nombre", tag["nombre"])
-            tag["slug"] = generate_slug(tag_data.get("nombre", tag["nombre"]))
-            tag["fecha_creacion"] = tag.get("fecha_creacion", tag["fecha_creacion"])
-            tag["fecha_modificacion"] = date.today()
-            return tag
-    return None
+    tag = Tag.query.get(tag_id)
+    if not tag:
+        return None
+
+    tag.nombre = tag_data.get("nombre", tag.nombre)
+    tag.slug = generate_slug(tag_data.get("nombre", tag.nombre))
+    tag.fecha_creacion = tag.fecha_creacion
+    tag.fecha_modificacion = date.today()
+
+    db.session.commit()
+    return tag
 
 
 def delete_tag(tag_id):
