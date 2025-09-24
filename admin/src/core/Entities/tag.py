@@ -5,8 +5,9 @@ from src.core.database import db
 sitio_tags = db.Table(
     "sitio_tags",
     db.Column("sitio_id", db.Integer, db.ForeignKey("sites.id"), primary_key=True),
-    db.Column("tag_id", db.Integer, db.ForeignKey("tags.id"), primary_key=True)
+    db.Column("tag_id", db.Integer, db.ForeignKey("tags.id"), primary_key=True),
 )
+
 
 class Tag(db.Model):
     __tablename__ = "tags"
@@ -14,7 +15,9 @@ class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(50), nullable=False, unique=True)
     slug = db.Column(db.String(50), nullable=False, unique=True)
-    fecha_creacion = db.Column(db.DateTime, default=datetime.now(timezone.utc), nullable=False)
+    fecha_creacion = db.Column(
+        db.DateTime, default=datetime.now(timezone.utc), nullable=False
+    )
 
     # Relación muchos-a-muchos con sitios
     sitios = db.relationship(
