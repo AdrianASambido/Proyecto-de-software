@@ -9,6 +9,7 @@ def list_tags():
 
     return tags
 
+
 def add_tag(tag_data):
     new_tag = Tag(
         nombre=tag_data.get("nombre"),
@@ -44,15 +45,16 @@ def delete_tag(tag_id):
 import unicodedata
 import re
 
+
 def generate_slug(name):
     # Normalizar caracteres (quitar acentos)
-    slug = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('ascii')
+    slug = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("ascii")
     # Minusculas
     slug = slug.lower()
     # Reemplazar espacios y caracteres inválidos por guion
-    slug = re.sub(r'[^a-z0-9]+', '-', slug)
+    slug = re.sub(r"[^a-z0-9]+", "-", slug)
     # Quitar guiones al inicio y fin
-    slug = slug.strip('-')
+    slug = slug.strip("-")
     return slug
 
 
