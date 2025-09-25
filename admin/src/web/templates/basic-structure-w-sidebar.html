@@ -226,6 +226,7 @@
       {% block content %}{% endblock %}
     </main>
   </div>
+<<<<<<< HEAD
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
     <script>
@@ -246,6 +247,20 @@
   {% endif %}
 {% endwith %}
 
+=======
+
+  <script>
+    function openDeleteModal(actionUrl) {
+      console.log('modal!')
+      const modal = document.getElementById('deleteModal');
+      modal.classList.remove('hidden');
+      document.getElementById('deleteForm').action = actionUrl;
+    }
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').classList.add('hidden');
+    }
+</script>
+>>>>>>> dev
 </body>
 
 </html>
