@@ -9,11 +9,9 @@ from src.core.services.tags import (
 
 bp = Blueprint("tags", __name__, url_prefix="/tags")
 
-
 @bp.get("/")
 def index():
     tags = svc_list_tags()
-
     return render_template("tags/tags_table.html", items=tags), 200
 
 
@@ -26,7 +24,6 @@ def add_tag():
 def add_tag_handler():
     tag_data = dict(request.form)
     svc_add_tag(tag_data)
-
     return redirect(url_for("tags.index"))
 
 
@@ -40,9 +37,7 @@ def edit_tag(tag_id):
 def edit_tag_handler(tag_id):
     tag_data = dict(request.form)
     svc_update_tag(tag_id, tag_data)
-
     return redirect(url_for("tags.index"))
-
 
 @bp.post("/eliminar/<int:tag_id>")
 def delete_tag_handler(tag_id):

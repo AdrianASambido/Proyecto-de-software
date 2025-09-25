@@ -11,10 +11,8 @@ def list_tags():
 
 def add_tag(tag_data):
     new_tag = Tag(
-        nombre=tag_data.get("nombre"),
+        name=tag_data.get("nombre"),
         slug=generate_slug(tag_data.get("nombre")),
-        fecha_creacion=date.today(),
-        # fecha_modificacion=date.today()
     )
     db.session.add(new_tag)
     db.session.commit()
@@ -25,20 +23,18 @@ def update_tag(tag_id, tag_data):
     if not tag:
         return None
 
-    tag.nombre = tag_data.get("nombre", tag.nombre)
-    tag.slug = generate_slug(tag_data.get("nombre", tag.nombre))
-    tag.fecha_creacion = tag.fecha_creacion
-    tag.fecha_modificacion = date.today()
-
+    tag.name = tag_data.get("nombre", tag.name)
+    tag.slug = generate_slug(tag_data.get("nombre", tag.name))
     db.session.commit()
     return tag
 
 
 def delete_tag(tag_id):
-    global tags
-    tags = [tag for tag in tags if tag["id"] != tag_id]
-    # db.session.delete(tag) cuando exista la base de datos
-    # db.session.commit() cuando exista la base de datos
+    tag = Tag.query.get(tag_id)
+    if not tag:
+        return False
+    db.session.delete(tag)
+    db.session.commit()
     return True
 
 
