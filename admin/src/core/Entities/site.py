@@ -28,6 +28,7 @@ class Site(db.Model):
         default=datetime.now(timezone.utc),
         onupdate=datetime.now(timezone.utc),
     )
+    eliminated_at = db.Column(db.DateTime, nullable=True)
 
     def __repr__(self):
         return f"<Sitio {self.nombre}>"

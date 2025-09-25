@@ -11,7 +11,7 @@ from datetime import datetime
 from sqlalchemy import or_, and_
 
 
-def list_sites(filtros: dict):
+def list_sites(filtros: dict,page : int = 1, per_page : int = 3):
     """
     Retorna una lista de sitios históricos aplicando filtros dinámicos.
     Filtros soportados:
@@ -150,3 +150,26 @@ def add_site(site_data):
     )
 
     return nuevo_sitio
+
+def delete_site(site_id):
+    """
+    Elimina un sitio historico.
+    """
+    sitio = Site.query.get(site_id)
+    if not sitio:
+        return False
+
+    # tomar un snapshot dict de los valores originales ANTES de eliminar
+    campos_site = Site.__table__.columns
+    original_snapshot = {
+        campo.name: getattr(sitio, campo.name, None) for campo in campos_site
+    }
+
+    db.session.delete(sitio)
+    db.session.commit()
+
+    add_site_history(
+        site_id, HistoryAction.ELIMINAR, 1, None, original_snapshot, list(original_snapshot.keys())
+    )
+
+    return True
