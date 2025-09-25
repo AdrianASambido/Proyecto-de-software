@@ -7,22 +7,22 @@ import os
 
 class Config:
     TESTING = False
-    SECRET_KEY = os.getenv("GRUPO01_COMMON_SECRET", "dev-secret-change-me")
-    SESSION_TYPE = os.getenv("GRUPO01_COMMON_SESSION_TYPE", "filesystem")
-    DEBUG_VARIABLE = os.getenv("GRUPO01_COMMON_DEBUG")
+    SECRET_KEY = os.getenv("COMMON_SECRET", "dev-secret-change-me")
+    SESSION_TYPE = os.getenv("COMMON_SESSION_TYPE", "filesystem")
+    DEBUG_VARIABLE = os.getenv("COMMON_DEBUG")
 
 
 class ProductionConfig(Config):
-    DB_USER = os.getenv("GRUPO01_DATABASE_USERNAME")
-    DB_PASSWORD = os.getenv("GRUPO01_DATABASE_PASSWORD")
-    DB_HOST = os.getenv("GRUPO01_DATABASE_HOST")
-    DB_PORT = os.getenv("GRUPO01_DATABASE_PORT")
-    DB_NAME = os.getenv("GRUPO01_DATABASE_NAME")
+    DB_USER = os.getenv("DATABASE_USERNAME")
+    DB_PASSWORD = os.getenv("DATABASE_PASSWORD")
+    DB_HOST = os.getenv("DATABASE_HOST")
+    DB_PORT = os.getenv("DATABASE_PORT")
+    DB_NAME = os.getenv("DATABASE_NAME")
 
     SQLALCHEMY_TRACK_MODIFICATIONS = (
         os.getenv("SQLALCHEMY_TRACK_MODIFICATIONS", "True").lower() == "true"
     )
-    SQLALCHEMY_DATABASE_URI = os.getenv("GRUPO01_DATABASE_URL") or (
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL") or (
         f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
         if all([DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME])
         else None
