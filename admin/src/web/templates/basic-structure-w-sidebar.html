@@ -222,6 +222,18 @@
       {% block content %}{% endblock %}
     </main>
   </div>
+
+  <script>
+    function openDeleteModal(actionUrl) {
+      console.log('modal!')
+      const modal = document.getElementById('deleteModal');
+      modal.classList.remove('hidden');
+      document.getElementById('deleteForm').action = actionUrl;
+    }
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').classList.add('hidden');
+    }
+</script>
 </body>
 
 </html>
