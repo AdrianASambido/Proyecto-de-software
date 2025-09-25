@@ -1,14 +1,23 @@
 """
-    Este controlador maneja las rutas relacionadas con las operaciones de sitios históricos.
+Este controlador maneja las rutas relacionadas con las operaciones de sitios históricos.
 """
 
-
 from flask import Blueprint
-from flask import render_template, request,redirect, url_for
-from src.core import board_sites
+from flask import render_template, request, redirect, url_for
 
+
+from src.core.services import sites as board_sites
+
+
+from src.core.services.sites import list_sites, add_site, get_site, modify_site
+
+
+import pycountry
 
 bp = Blueprint("sites", __name__, url_prefix=("/sitios"))
+
+provincias_arg = [sub.name for sub in pycountry.subdivisions.get(country_code="AR")]
+
 
 @bp.get("/")
 def index():
@@ -17,21 +26,45 @@ def index():
 
     Renderiza la plantilla con la lista de sitios.
     """
-    sitios=board_sites.list_sites()
-    return render_template("sites/sites_table.html", sites=sitios), 200
 
-@bp.get("/nuevo")
-def add_form():
-    """
-    Muestra el formulario para agregar un nuevo sitio histórico.
-    """
-    return render_template("sites/add_site.html"), 200
+    filtros = request.args.to_dict()
+    sitios = board_sites.list_sites(
+        filtros
+    ).all()  # <-- ejecuta la query y devuelve lista
 
-@bp.post("/agregar")
+    return render_template(
+        "sites/sites_table.html", items=sitios, provincias=provincias_arg
+    )
+
+
+@bp.route("/nuevo", methods=["GET", "POST"])
 def add_site():
     """
-    Procesa el formulario y agrega el sitio, luego redirige a la lista.
+    GET: muestra el formulario para crear un nuevo sitio.
+    POST: procesa el formulario y crea el sitio.
     """
-    site_data = dict(request.form)
-    board_sites.add_site(site_data)
-    return redirect(url_for("sites.index"))
+    if request.method == "POST":
+        site_data = dict(request.form)
+        board_sites.add_site(site_data)
+        return redirect(url_for("sites.index"))
+
+    provincias_opts = [{"value": prov, "label": prov} for prov in provincias_arg]
+    return render_template("sites/add_site.html", provincias=provincias_opts)
+
+
+@bp.route("/modificar/<int:site_id>", methods=["GET", "POST"])
+def modify(site_id):
+
+    sitio = board_sites.get_site(site_id)
+
+    if not sitio:
+        return "Sitio no encontrado", 404
+
+    if request.method == "POST":
+        site_data = dict(request.form)
+
+        board_sites.modify_site(site_id, site_data)
+
+        return redirect(url_for("sites.index"))
+
+    return render_template("sites/modify_site.html", site=sitio)
