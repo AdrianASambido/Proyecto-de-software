@@ -1,0 +1,30 @@
+{% extends "common/tables_base.html" %}
+{% include "common/delete_modal.html" %}
+
+{% block table_title %}Etiquetas{% endblock %}
+
+{% block add_url %}{{ url_for('tags.add_tag') }}{% endblock %}
+{% block add_label %}Agregar etiqueta{% endblock %}
+
+{% block table_headers %}
+  <th>Nombre</th>
+  <th>Slug</th>
+  <th>Fecha de creación</th>
+  <th>Última modificación</th>
+  <th>Acciones</th>
+{% endblock %}
+
+{% block table_rows %}
+  {% for tag in items %}
+    <tr>
+      <td>{{ tag.name }}</td>
+      <td>{{ tag.slug }}</td>
+      <td>{{ tag.created_at }}</td>
+      <td>{{ tag.updated_at }}</td>
+      
+      {% set edit_url = url_for('tags.edit_tag', tag_id=tag.id) %}
+      {% set delete_url = url_for('tags.delete_tag_handler', tag_id=tag.id) %}
+      {% include "common/actions.html" %}
+    </tr>
+  {% endfor %}
+{% endblock %}
