@@ -110,8 +110,8 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.register_blueprint(sites_history_bp)
     app.register_blueprint(tags_bp)
     app.register_blueprint(feature_flags_bp)
-
-    # comandos para el CLI
+    
+    #comandos para el CLI
     @app.cli.command(name="resetdb")
     def resetdb():
         database.reset_db()

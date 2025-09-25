@@ -9,10 +9,10 @@
           {"name": "apellido","label":"Apellido del Usuario","type":"text","placeholder":"Apellido del Usuario","required":true},
           {"name": "email","label":"Email del usuario","type":"text","placeholder":"Email del usuario","required":true},
           {"name": "contraseña","label":"Contraseña","type":"text","placeholder":"Contraseña","required":True},
-          {"name": "Activo(?)","label":"Activo","type":"checkbox","placeholder":"Activo","required":True, "checked":False},
           {"name": "rol","label":"Rol del Usuario","type":"select","options":[{"value":"PUBLICO","label":"Usuario Público"},{"value":"EDITOR","label":"Editor"},{"value":"ADMINISTRADOR","label":"Administrador"}],"required":True},
           {"name": "categoria","label":"Categoría","type":"text","placeholder":"Categoría del sitio","required":True},
           {"name": "visible" ,"label":"Visible","type":"checkbox","checked":True}
           ],
         submit_text="Agregar Usuario") %}
+  {%endcall%}
 {%endblock%}
