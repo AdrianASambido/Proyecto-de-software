@@ -8,7 +8,7 @@ from src.core import board_usuarios
 
 bp = Blueprint("users", __name__, url_prefix=("/usuarios"))
 
-@bp.get("/")
+@bp.get("/lista_usuarios")
 def index():
     usuarios = board_usuarios.list_users()
     return render_template("usuarios/tabla_usuarios.html", users=usuarios), 200
