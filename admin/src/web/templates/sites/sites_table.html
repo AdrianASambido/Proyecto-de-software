@@ -129,7 +129,9 @@
            class="rounded bg-blue-500 px-2 py-1 text-white hover:bg-blue-600">
           Modificar
         </a>
-        <a class="rounded bg-red-500 px-2 py-1 text-white hover:bg-blue-600">
+        <a href="{{ url_for('sites.delete', site_id=sitio.id) }}"
+          onclick="return confirm('¿Estás seguro de que deseas eliminar este sitio?');"
+          class="rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600">
           Eliminar
         </a>
       </td>
@@ -141,4 +143,5 @@
       </td>
     </tr>
   {% endfor %}
+  
 {% endblock %}
