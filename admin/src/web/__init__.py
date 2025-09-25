@@ -26,17 +26,6 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app = Flask(__name__, static_folder=static_folder)
     app.config.from_object(config[env])
 
-    # Validar configuración de base de datos antes de inicializar SQLAlchemy
-    # if not app.config.get("SQLALCHEMY_DATABASE_URI") and not app.config.get(
-    #   "SQLALCHEMY_BINDS"
-    # ):
-    #   raise RuntimeError(
-    #      "Falta configuración de base de datos. Definí GRUPO01_DATABASE_URL o las variables "
-    #     "GRUPO01_DATABASE_USERNAME, GRUPO01_DATABASE_PASSWORD, GRUPO01_DATABASE_HOST, "
-    #    "GRUPO01_DATABASE_PORT y GRUPO01_DATABASE_NAME en el entorno de producción."
-    #   "GRUPO01_COMMON_DEBUG: " + app.config.get("DEBUG_VARIABLE")
-    # )
-
     database.init_app(app)
 
     app.before_request_funcs = {"users_bp": [pre_request_logging]}
