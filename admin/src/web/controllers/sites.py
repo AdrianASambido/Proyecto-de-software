@@ -27,13 +27,13 @@ def index():
     Renderiza la plantilla con la lista de sitios.
     """
     page = request.args.get("page", 1, type=int)
-    per_page = request.args.get("per_page", 3, type=int)
+    per_page = 3
 
     filtros = request.args.to_dict()
     filtros.pop("page", None)       # 👈 eliminar si existe
     filtros.pop("per_page", None)   # 👈 eliminar si existe
 
-    # devolvemos un objeto Pagination
+    
     pagination = board_sites.list_sites(filtros).paginate(
         page=page, per_page=per_page
     )

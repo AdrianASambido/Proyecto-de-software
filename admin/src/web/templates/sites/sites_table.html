@@ -2,7 +2,6 @@
 
 {% block table_title %}Sitios Históricos{% endblock %}
 
-
 {% block add_url %}{{ url_for('sites.add_site') }}{% endblock %}
 {% block add_label %}Agregar sitio{% endblock %}
 {% block table_filters %}
@@ -121,20 +120,10 @@
       <td>{{ 'Sí' if sitio.visible else 'No' }}</td>
       <td>{{ sitio.created_at }}</td>
       <td class="flex gap-2">
-        <a href="{{ url_for('site_history.index', sitio_id=sitio.id) }}" 
-        class="rounded bg-blue-500 px-2 py-1 text-white hover:bg-blue-600">
-          Detalles
-        </a>
-        <a href="{{ url_for('sites.modify', site_id=sitio.id) }}"
-           class="rounded bg-blue-500 px-2 py-1 text-white hover:bg-blue-600">
-          Modificar
-        </a>
-        <a href="{{ url_for('sites.delete', site_id=sitio.id) }}"
-          onclick="return confirm('¿Estás seguro de que deseas eliminar este sitio?');"
-          class="rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600">
-          Eliminar
-        </a>
-      </td>
+      {% set details_url = url_for('site_history.index', sitio_id=sitio.id) %}
+      {% set edit_url = url_for('sites.modify', site_id=sitio.id) %}
+  {% set delete_url = url_for('sites.delete', site_id=sitio.id) %}
+  {% include "common/actions.html" %}
     </tr>
   {% else %}
     <tr>
@@ -143,5 +132,6 @@
       </td>
     </tr>
   {% endfor %}
-  
+
+  {% include "common/delete_modal.html" %}
 {% endblock %}
