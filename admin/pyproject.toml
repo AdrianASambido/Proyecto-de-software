@@ -15,10 +15,12 @@ dependencies = [
     "pycountry (>=24.6.1,<25.0.0)",
 ]
 
-[project.optional-dependencies]
-test = [
-    "pytest",
-]
+[tool.poetry.group.test.dependencies]
+    pytest="^8.0"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
 
 [tool.poetry]
 packages = [{include = "web", from = "src"}]

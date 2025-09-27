@@ -4,11 +4,11 @@
 <!-- {% block title %}Nuevo Tag{% endblock %} -->
 
 {% block content %}
-  <h1 class="text-2xl font-bold mb-6">Crear Tag</h1>
+  <h1 class="text-2xl font-bold mb-6">Crear Etiqueta</h1>
   {{ render_form(
-      action=url_for('tags.add_tag' ),
+      action=url_for('tags.add_tag_handler' ),
       fields=[
-        {"name": "nombre", "label": "Nombre del tag", "type": "text", "placeholder": "Ingrese un nombre para el tag", "required": True},
+        {"name": "nombre", "label": "Nombre de la etiqueta", "type": "text", "placeholder": "Ingrese un nombre para la etiqueta", "required": True},
       ],
       submit_text="Crear"
   ) }}
