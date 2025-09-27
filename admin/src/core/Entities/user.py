@@ -28,5 +28,7 @@ class User(db.Model):
 
     role=db.relationship("Role", back_populates="users")
 
+    __table_args__ = {'extend_existing': True}
+
     def __repr__(self):
         return f"<User {self.email}>"

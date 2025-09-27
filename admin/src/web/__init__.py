@@ -1,7 +1,6 @@
 from flask import Flask, render_template, abort, redirect, url_for, request
 from src.web.config import config
-from src.core import database, seeds, board_feature_flags
-
+from src.core import database, seeds
 from src.core.services.feature_flags import (
     is_admin_maintenance_mode,
     get_admin_maintenance_message,
@@ -11,16 +10,23 @@ from src.core.services.feature_flags import (
 
 # ACA controladores
 from src.web.controllers.users import bp as users_bp
-from src.web.controllers.sites_history import bp as sites_history_bp
 from src.web.controllers.sites import bp as sites_bp
 from src.web.controllers.tags import bp as tags_bp
 from src.web.controllers.feature_flags import bp as feature_flags_bp
+
+
+def pre_request_logging():
+    # Revisar si está logueado
+    print("Pre-request logging: Verificando si el usuario está logueado...")
+
 
 def create_app(env="development", static_folder="../../static"):  # ../../static
     app = Flask(__name__, static_folder=static_folder)
     app.config.from_object(config[env])
 
     database.init_app(app)
+
+    app.before_request_funcs = {"users_bp": [pre_request_logging]}
 
     # Middleware para verificar flags de mantenimiento
     @app.before_request
@@ -33,6 +39,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
             "feature_flags.get_flags_status",
         ]
 
+        # Si es una ruta de administración y está en modo mantenimiento
         if (
             request.endpoint
             and request.endpoint.startswith("sites")

@@ -7,7 +7,7 @@
     <h1>Login Usuario</h1>
     <p>Por favor, ingrese correo y contraseña para iniciar sesión.</p>
     {{ render_form(
-        action=url_for('login'), 
+        action=url_for('login.login'), 
         fields=[
             {'name': 'email', 'type': 'email', 'label': 'Correo Electrónico', 'placeholder': 'Ingrese su correo', 'required': True},
             {'name': 'password', 'type': 'password', 'label': 'Contraseña', 'placeholder': 'Ingrese su contraseña', 'required': True}
