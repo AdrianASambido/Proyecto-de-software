@@ -1,11 +1,12 @@
 from flask import Blueprint
-from flask import render_template, request
-from src.core import board_usuarios
+from flask import render_template, request, redirect, url_for
 
-bp = Blueprint("users", __name__, url_prefix=("/auth"))
+bp = Blueprint("login", __name__, url_prefix=("/auth"))
 
+@bp.get("/")
 def login():
-    pass
+    return render_template("login/login_usuario.html"), 200
+
 
 def logout():
     pass
