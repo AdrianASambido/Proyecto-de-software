@@ -17,12 +17,12 @@ def add_user(user_data):
     Agrega un nuevo usuario.
     """
     nuevo_usuario = User(
-        nombre=user_data.get("nombre"),
-        apellido=user_data.get("apellido"),
         email=user_data.get("email"),
-        rol=user_data.get("rol"),
-        activo=user_data.get("activo", True),
+        nombre=user_data.get("nombre"),
+        username=user_data.get("username"),
+        apellido=user_data.get("apellido"),
         contraseña_cifrada=user_data.get("contraseña_cifrada"),
+        rol_id=user_data.get("rol_id"),
     )
 
     db.session.add(nuevo_usuario)

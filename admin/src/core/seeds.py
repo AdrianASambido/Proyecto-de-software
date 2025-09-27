@@ -14,6 +14,7 @@ from src.core.database import db
 # servicios
 from src.core.services.sites import add_site, modify_site
 from src.core.services.history import add_site_history
+from src.core.services.users import add_user
 
 # entidades
 from src.core.Entities import FeatureFlag
@@ -116,6 +117,17 @@ def seeds_db():
             "visible": True,
         },
     ]
+
+    user_data={
+        "email": "lapampa2003@gmail.com",
+        "nombre": "Juan Ignacio",
+        "username": "jics",
+        "apellido": "Coelho Soria",
+        "contraseña_cifrada": "lapampa",
+        "rol_id": "1",
+    }
+
+    add_user(user_data)
 
     add_site(sites_data[0])
     result = add_site(sites_data[1])
