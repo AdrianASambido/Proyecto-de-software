@@ -20,6 +20,6 @@ def authenticate():
         flash("Credenciales inválidas. Por favor, intente de nuevo.", "error")
         return redirect(url_for("login.login"))
     
-    #session["user_id"] = user.id
+    session["user"] = user.email
     flash("Inicio de sesión exitoso.", "success")
     return render_template("home.html"), 200

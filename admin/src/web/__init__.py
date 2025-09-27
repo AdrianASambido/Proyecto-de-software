@@ -1,4 +1,4 @@
-from flask import Flask, render_template, abort, redirect, url_for, request
+from flask import Flask, render_template, abort, redirect, url_for, request, session
 from src.web.config import config
 
 from src.core import database, seeds
@@ -71,6 +71,13 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
                 503,
             )
 
+    #@app.before_request
+    #def usuario_cargado():
+    #    if "user_id" not in session and request.endpoint != "login.login":
+    #        return redirect(url_for("login.login"))
+    #    else:
+    #        home()
+    
     @app.route("/")
     def home():
         return render_template("home.html"), 200
