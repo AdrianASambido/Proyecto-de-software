@@ -13,11 +13,7 @@ def index():
     usuarios = board_usuarios.list_users()
     return render_template("usuarios/tabla_usuarios.html", users=usuarios), 200
 
-@bp.get("/nuevo_usuario")
-def add_form():
-    return render_template("usuarios/agregar_usuario.html"), 200
-
-@bp.post("/agregar_usuario")
+@bp.route("/agregar_usuario")
 def add_user():
     if request.method=="POST":
         user_data = dict(request.form)
