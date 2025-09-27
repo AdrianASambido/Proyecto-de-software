@@ -6,11 +6,16 @@ bp = Blueprint("login", __name__, url_prefix=("/auth"))
 
 @bp.get("/")
 def login():
+    if "user" in session:
+        flash("Ya has iniciado sesión.", "warning")
+        return redirect(url_for("home"))
     return render_template("login/login_usuario.html"), 200
 
 @bp.get("/logout")
 def logout():
-    pass
+    session.clear()
+    flash("La sesion se cerró", "success")
+    return redirect(url_for("login.login"))
 
 @bp.post("/authenticate")
 def authenticate():
