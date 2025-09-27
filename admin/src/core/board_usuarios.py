@@ -11,7 +11,6 @@ def list_users():
     users = User.query.all()
     return users
 
-
 def add_user(user_data):
     """
     Agrega un nuevo usuario.
