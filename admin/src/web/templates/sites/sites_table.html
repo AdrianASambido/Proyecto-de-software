@@ -69,19 +69,18 @@
     <option value="ciudad_desc" {% if request.args.get('orden')=='ciudad_desc' %}selected{% endif %}>Ciudad ↓</option>
   </select>
 
-  <!-- Botones -->
-  <button type="submit"
-    class="h-9 rounded-md bg-blue-600 px-4 text-white font-medium shadow-sm 
-           hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1">
-    Aplicar
-  </button>
+<!-- Botones -->
+<button type="submit"
+  class="h-9 rounded-md bg-blue-600 px-4 text-white font-medium shadow-sm 
+         hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1">
+  Aplicar
+</button>
 
-  <a href="{{ url_for('sites.index') }}"
-    class="h-9 rounded-md bg-gray-300 px-4 text-gray-800 font-medium shadow-sm 
-           hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1">
-    Limpiar
-  </a>
-</form>
+<a href="{{ url_for('sites.index') }}"
+  class="h-9 inline-flex items-center justify-center rounded-md bg-gray-300 px-4 text-gray-800 font-medium shadow-sm 
+         hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1">
+  Limpiar
+</a>
 
 
 <p class="mb-2 text-sm text-black-400">
