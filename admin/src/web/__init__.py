@@ -30,7 +30,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.config.from_object(config[env])
 
     database.init_app(app)
-    sesion.init_app(app) #-1:43:47
+    sesion.init_app(app)
 
     app.before_request_funcs = {"users_bp": [pre_request_logging]}
 
