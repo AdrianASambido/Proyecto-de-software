@@ -24,7 +24,6 @@ def pre_request_logging():
     # Revisar si está logueado
     print("Pre-request logging: Verificando si el usuario está logueado...")
 
-
 def create_app(env="development", static_folder="../../static"):  # ../../static
     app = Flask(__name__, static_folder=static_folder)
     app.config.from_object(config[env])
@@ -74,13 +73,6 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
                 ),
                 503,
             )
-
-    #@app.before_request
-    #def usuario_cargado():
-    #    if "user_id" not in session and request.endpoint != "login.login":
-    #        return redirect(url_for("login.login"))
-    #    else:
-    #        home()
     
     @app.route("/")
     def home():

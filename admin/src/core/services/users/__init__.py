@@ -2,7 +2,9 @@
 
 from src.core.database import db
 from src.core.Entities.user import User
+from flask_bcrypt import Bcrypt
 
+bcrypt = Bcrypt()
 
 def list_users():
     """
@@ -21,7 +23,7 @@ def add_user(user_data):
         nombre=user_data.get("nombre"),
         username=user_data.get("username"),
         apellido=user_data.get("apellido"),
-        contraseña_cifrada=user_data.get("contraseña_cifrada"),
+        contraseña_cifrada=bcrypt.generate_password_hash(user_data.get("contraseña")).decode('utf-8'),
         rol_id=user_data.get("rol_id"),
     )
 

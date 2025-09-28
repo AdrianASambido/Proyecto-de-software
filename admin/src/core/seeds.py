@@ -123,7 +123,7 @@ def seeds_db():
         "nombre": "Juan Ignacio",
         "username": "jics",
         "apellido": "Coelho Soria",
-        "contraseña_cifrada": "lapampa",
+        "contraseña": "lapampa",
         "rol_id": "1",
     }
 

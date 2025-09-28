@@ -28,9 +28,9 @@ def add_user(user_data):
     db.session.commit()
     return nuevo_usuario
 
-def buscar_usuario(email, password):
+def buscar_usuario_por_email(email):
     """
-    Busca un usuario por email y contraseña.
+    Busca un usuario por email.
     """
-    usuario = User.query.filter_by(email=email, contraseña_cifrada=password).first()
+    usuario = User.query.filter_by(email=email).first()
     return usuario

@@ -4,6 +4,7 @@ from src.core import board_usuarios
 from flask_bcrypt import Bcrypt
 
 bp = Blueprint("login", __name__, url_prefix=("/auth"))
+bcrypt = Bcrypt()
 
 @bp.get("/")
 def login():
@@ -23,10 +24,9 @@ def authenticate():
     params = request.form
     email = params.get("email")
     password = params.get("password")
-    #hash_password = Bcrypt().generate_password_hash(password).decode('utf-8')
     
-    user = board_usuarios.buscar_usuario(email, password) #Despues cambiar por hash_password
-    if not user:
+    user = board_usuarios.buscar_usuario_por_email(email)
+    if not user or not bcrypt.check_password_hash(user.contraseña_cifrada, password):
         flash("Credenciales inválidas. Por favor, intente de nuevo.", "error")
         return redirect(url_for("login.login"))
     
