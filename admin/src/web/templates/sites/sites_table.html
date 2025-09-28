@@ -123,14 +123,18 @@
       {% set edit_url = url_for('sites.modify', site_id=sitio.id) %}
   {% set delete_url = url_for('sites.delete', site_id=sitio.id) %}
   {% include "common/actions.html" %}
+     
     </tr>
+     
   {% else %}
     <tr>
       <td colspan="13" class="text-center text-white-500 py-4">
         No se encontraron resultados.
       </td>
     </tr>
+
   {% endfor %}
 
-  {% include "common/delete_modal.html" %}
+  
 {% endblock %}
+{% include "common/delete_modal.html" %}

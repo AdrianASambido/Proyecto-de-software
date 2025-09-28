@@ -7,7 +7,7 @@ from flask import render_template, request, redirect, url_for
 
 
 from src.core.services import sites as board_sites
-
+from src.core.services import tags as board_tags
 
 from src.core.services.sites import list_sites, add_site, get_site, modify_site
 
@@ -30,20 +30,17 @@ def index():
     per_page = 3
 
     filtros = request.args.to_dict()
-    filtros.pop("page", None)       # 👈 eliminar si existe
-    filtros.pop("per_page", None)   # 👈 eliminar si existe
+    filtros.pop("page", None)
+    filtros.pop("per_page", None)
 
-    
-    pagination = board_sites.list_sites(filtros).paginate(
-        page=page, per_page=per_page
-    )
+    pagination = board_sites.list_sites(filtros).paginate(page=page, per_page=per_page)
 
     return render_template(
         "sites/sites_table.html",
         items=pagination.items,
         provincias=provincias_arg,
         pagination=pagination,
-        filtros=filtros   # 👈 pasamos los filtros "limpios"
+        filtros=filtros,
     )
 
 
@@ -58,18 +55,22 @@ def add_site():
         board_sites.add_site(site_data)
         flash("Sitio histórico creado exitosamente.", "success")
         return redirect(url_for("sites.index"))
+    tags = [{"value": tag.id, "label": tag.name} for tag in board_tags.list_tags()]
 
     provincias_opts = [{"value": prov, "label": prov} for prov in provincias_arg]
-    return render_template("sites/add_site.html", provincias=provincias_opts)
+    return render_template("sites/add_site.html", provincias=provincias_opts, tags=tags)
 
 
 @bp.route("/modificar/<int:site_id>", methods=["GET", "POST"])
 def modify(site_id):
-
+    """
+    GET: muestra el formulario para modificar un sitio histórico.
+    POST: procesa el formulario y actualiza el sitio.
+    """
     sitio = board_sites.get_site(site_id)
 
     if not sitio:
-        return "Sitio no encontrado", 404
+        return render_template("404.html"), 404
 
     if request.method == "POST":
         site_data = dict(request.form)
@@ -77,18 +78,24 @@ def modify(site_id):
         board_sites.modify_site(site_id, site_data)
         flash("Sitio histórico modificado exitosamente.", "success")
         return redirect(url_for("sites.index"))
+    tags = [{"value": tag.id, "label": tag.name} for tag in board_tags.list_tags()]
 
-    return render_template("sites/modify_site.html", site=sitio)
+    provincias_opts = [{"value": prov, "label": prov} for prov in provincias_arg]
+    return render_template(
+        "sites/modify_site.html", site=sitio, provincias=provincias_opts, tags=tags
+    )
+
 
 @bp.post("/eliminar/<int:site_id>")
 def delete(site_id):
     """
     Elimina un sitio histórico.
     """
+
     sitio = board_sites.get_site(site_id)
 
     if not sitio:
-        return "Sitio no encontrado", 404
+        return render_template("404.html"), 404
 
     board_sites.delete_site(site_id)
     flash("Sitio histórico eliminado exitosamente.", "success")

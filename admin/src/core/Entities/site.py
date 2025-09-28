@@ -2,6 +2,7 @@ from src.core.database import db
 from datetime import datetime, timezone
 from geoalchemy2.types import Geometry
 from geoalchemy2.shape import to_shape
+from src.core.Entities.tag import site_tags
 class Site(db.Model):
     """
     Modelo que representa un sitio historico en la base de datos
@@ -40,6 +41,13 @@ class Site(db.Model):
         if self.punto is None:
             return None
         return to_shape(self.punto).x
+    
+    tags = db.relationship(
+        "Tag",
+        secondary=site_tags,
+        back_populates="sites",
+        lazy="dynamic", 
+)
 
     history = db.relationship(
         "SiteHistory",

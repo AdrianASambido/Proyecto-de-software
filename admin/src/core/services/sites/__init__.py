@@ -7,12 +7,15 @@ from src.core.Entities.site import Site
 from src.core.Entities.site_history import HistoryAction
 
 from src.core.services.history import add_site_history
-from datetime import datetime,timezone
+from datetime import datetime, timezone
 from sqlalchemy import or_, and_
 from geoalchemy2.shape import to_shape
 from geoalchemy2.elements import WKTElement
 from sqlalchemy import desc, asc
-def list_sites(filtros: dict,page : int = 1, per_page : int = 3):
+from src.core.services.tags import get_tag_by_id
+
+
+def list_sites(filtros: dict, page: int = 1, per_page: int = 3):
     """
     Retorna una lista de sitios históricos aplicando filtros dinámicos.
     Filtros soportados:
@@ -61,23 +64,18 @@ def list_sites(filtros: dict,page : int = 1, per_page : int = 3):
     visible = filtros.get("visible")
     if visible:
         query = query.filter(Site.visible == True)
-        
+
     orden = filtros.get("orden", "fecha_desc")
-    if orden == "fecha_desc":
-        query = query.order_by(desc(Site.created_at))
-    elif orden == "fecha_asc":
-        query = query.order_by(asc(Site.created_at))
-    elif orden == "nombre_asc":
-        query = query.order_by(asc(Site.nombre))
-    elif orden == "nombre_desc":
-        query = query.order_by(desc(Site.nombre))
-    elif orden == "ciudad_asc":
-        query = query.order_by(asc(Site.ciudad))
-    elif orden == "ciudad_desc":
-        query = query.order_by(desc(Site.ciudad))
-    else:
-        # orden por defecto
-        query = query.order_by(desc(Site.created_at))
+    opciones_orden = {
+        "fecha_asc": Site.created_at.asc(),
+        "fecha_desc": Site.created_at.desc(),
+        "nombre_asc": Site.nombre.asc(),
+        "nombre_desc": Site.nombre.desc(),
+        "ciudad_asc": Site.ciudad.asc(),
+        "ciudad_desc": Site.ciudad.desc(),
+    }
+    query = query.order_by(opciones_orden[orden])
+
     return query
 
 
@@ -86,7 +84,7 @@ def get_site(site_id):
     Retorna un sitio historico por su ID.
     """
     sitio = Site.query.get(site_id)
-   
+
     return sitio
 
 
@@ -104,7 +102,6 @@ def modify_site(site_id, site_data):
         campo.name: getattr(sitio, campo.name, None) for campo in campos_site
     }
 
-    
     if "visible" in site_data:
         sitio.visible = True if site_data["visible"] == "on" else False
 
@@ -127,7 +124,6 @@ def modify_site(site_id, site_data):
     sitio.estado_conservacion = site_data.get(
         "estado_conservacion", sitio.estado_conservacion
     )
-    
 
     db.session.commit()
 
@@ -159,7 +155,6 @@ def add_site(site_data):
 
     punto = WKTElement(f"POINT({lng} {lat})", srid=4326)
 
-
     nuevo_sitio = Site(
         nombre=site_data.get("nombre"),
         descripcion_breve=site_data.get("descripcion_breve"),
@@ -167,11 +162,18 @@ def add_site(site_data):
         ciudad=site_data.get("ciudad"),
         provincia=site_data.get("provincia"),
         inauguracion=site_data.get("inauguracion"),
-        punto=punto,  # 🔹 ahora se construye con lat/lng
+        punto=punto,
         categoria=site_data.get("categoria"),
         estado_conservacion=site_data.get("estado_conservacion"),
         visible=visible,
     )
+
+    tags_data = site_data.get("tags", [])
+    for tag_id in tags_data:
+        tag = get_tag_by_id(tag_id)
+        if tag is None:
+            raise ValueError(f"Tag '{tag_id}' no encontrado")
+        nuevo_sitio.tags.append(tag)
 
     db.session.add(nuevo_sitio)
     db.session.commit()
@@ -181,6 +183,7 @@ def add_site(site_data):
     )
 
     return nuevo_sitio
+
 
 def delete_site(site_id):
     sitio = Site.query.get(site_id)
@@ -202,8 +205,8 @@ def delete_site(site_id):
         site_id=sitio.id,
         accion=HistoryAction.ELIMINAR,
         usuario_modificador_id=1,
-        sitio_cambiado=None,              # 🔹 porque estamos borrando
-        sitio_original=original_snapshot, # 🔹 snapshot antes del borrado
+        sitio_cambiado=None,  # 🔹 porque estamos borrando
+        sitio_original=original_snapshot,  # 🔹 snapshot antes del borrado
         campos_modificados=list(original_snapshot.keys()),
     )
 
