@@ -15,7 +15,7 @@ from src.web.controllers.sites_history import bp as sites_history_bp
 from src.web.controllers.sites import bp as sites_bp
 from src.web.controllers.tags import bp as tags_bp
 from src.web.controllers.feature_flags import bp as feature_flags_bp
-
+from src.web.controllers.login import bp as login_bp
 
 def pre_request_logging():
     # Revisar si está logueado
@@ -27,6 +27,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.config.from_object(config[env])
 
     database.init_app(app)
+
 
     app.before_request_funcs = {"users_bp": [pre_request_logging]}
 
@@ -79,10 +80,6 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     def tabla():
         return render_template("tables_base.html"), 200
 
-    @app.route("/login")
-    def login():
-        return render_template("/login/login_usuario.html"), 200
-
     @app.errorhandler(401)
     def unauthorizedError(error):
         return render_template("errores/401.html"), 401
@@ -110,8 +107,9 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.register_blueprint(sites_history_bp)
     app.register_blueprint(tags_bp)
     app.register_blueprint(feature_flags_bp)
-
-    # comandos para el CLI
+    app.register_blueprint(login_bp)
+    
+    #comandos para el CLI
     @app.cli.command(name="resetdb")
     def resetdb():
         database.reset_db()

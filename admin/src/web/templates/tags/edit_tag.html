@@ -7,7 +7,7 @@
   {{ render_form(
     action=url_for('tags.edit_tag', tag_id=tag.id),
     fields=[
-      {"name": "nombre", "label": "Nombre del tag", "type": "text", "placeholder": "Ingrese un nombre para el tag", "value": tag.nombre, "required": True},
+      {"name": "nombre", "label": "Nombre del tag", "type": "text", "placeholder": "Ingrese un nombre para el tag", "value": tag.name, "required": True},
     ],
     submit_text="Guardar"
 ) }}
