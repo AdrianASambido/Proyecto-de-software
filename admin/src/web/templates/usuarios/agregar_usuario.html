@@ -1,9 +1,10 @@
-{% extends "common/tables_base.html" %}
+{% extends "basic-structure-w-sidebar.html" %}
+{% from "common/_form.html" import render_form %}
 
 {% block content %}
  <h2 class="text-2xl font-bold mb-4">Agregar Usuario</h2>
-  {% call render_form(
-        action=url_for('usuarios.agregar_usuario'),
+  {{render_form(
+        action=url_for('users.add_user'),
         fields=[
           {"name": "nombre","label": "Nombre","type":"text","placeholder":"Nombre del usuario","required":True },
           {"name": "apellido","label":"Apellido del Usuario","type":"text","placeholder":"Apellido del Usuario","required":true},
@@ -13,6 +14,5 @@
           {"name": "categoria","label":"Categoría","type":"text","placeholder":"Categoría del sitio","required":True},
           {"name": "visible" ,"label":"Visible","type":"checkbox","checked":True}
           ],
-        submit_text="Agregar Usuario") %}
-  {%endcall%}
+        submit_text="Agregar Usuario") }}
 {%endblock%}

@@ -1,75 +1,173 @@
-{% extends "basic-structure-w-sidebar.html" %}
-{% from "common/_form.html" import render_form %}
+{% extends "basic-structure-w-sidebar.html" %} {% from "common/_form.html"
+import render_form %} {% block content %}
 
-{% block content %}
-<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-  <a href="{{ url_for('sites.index') }}" 
-     class="mb-4 inline-block rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-200">
+<a
+    href="{{ url_for('sites.index') }}"
+    class="mb-4 inline-block rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-200"
+>
     ← Volver al listado
-  </a>
+</a>
 
-  <h2 class="text-2xl font-bold mb-6">Agregar sitio histórico</h2>
+<h2 class="text-2xl font-bold mb-4">Agregar sitio histórico</h2>
 
-  {% call render_form(
-        action=url_for('sites.add_site'),
-        fields=[
-          {"name": "nombre","label": "Nombre","type":"text","placeholder":"Nombre del sitio","required":True },
-          {"name": "descripcion_breve","label":"Descripción breve","type":"text","placeholder":"Breve descripción","required":true},
-          {"name": "descripcion_completa","label":"Descripción completa","type":"text","placeholder":"Descripción completa","required":true},
-          {"name": "ciudad","label":"Ciudad","type":"text","placeholder":"Ciudad","required":True},
-          {"name": "provincia","label": "Provincia","type": "select", "options": provincias, "required": True},
-          {"name": "inauguracion","label":"Año de inauguración","type":"number","placeholder":"Año de inauguración","max":2025,"required":True},
-          {"name": "estado_conservacion","label":"Estado de conservación","type":"select","options":[{"value":"Bueno","label":"Bueno"},{"value":"Regular","label":"Regular"},{"value":"Malo","label":"Malo"}],"required":True},
-          {"name": "categoria","label":"Categoría","type":"text","placeholder":"Categoría del sitio","required":True},
-          {"name": "visible" ,"label":"Visible","type":"checkbox","checked":True}
-          ],
-        ) %}
-    
-    <div class="mt-6">
-      <label class="block font-semibold mb-2">Ubicación en el mapa</label>
-      <div id="map" class="w-full h-96 border border-gray-300 rounded-lg"></div>
+{% call render_form( action=url_for('sites.add_site'), fields=[
+{"name":"nombre","label": "Nombre","type":"text","placeholder":"Nombre del
+sitio","required":True }, {"name": "descripcion_breve","label":"Descripción
+breve","type":"text","placeholder":"Breve descripción","required":true},
+{"name": "descripcion_completa","label":"Descripción
+completa","type":"text","placeholder":"Descripción completa","required":true},
+{"name":"ciudad","label":"Ciudad","type":"text","placeholder":"Ciudad","required":True},
+{"name": "provincia","label": "Provincia","type": "select", "options":
+provincias, "required": True}, {"name":"inauguracion","label":"Año de
+inauguración","type":"number","placeholder":"Año de
+inauguración","max":2025,"required":True},
+{"name":"estado_conservacion","label":"Estado de
+conservación","type":"select","options":[{"value":"Bueno","label":"Bueno"},{"value":"Regular","label":"Regular"},{"value":"Malo","label":"Malo"}],"required":True},
+{"name":"categoria","label":"Categoría","type":"text","placeholder":"Categoría
+del sitio","required":True},
+{"name":"visible","label":"Visible","type":"checkbox","checked":True} ],
+submit_text="Agregar sitio histórico") %}
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-        <div>
-          <label for="latitud" class="block mb-1">Latitud</label>
-          <input type="number" step="any" id="latitud" name="latitud" class="border rounded p-2 w-full" readonly>
-        </div>
-        <div>
-          <label for="longitud" class="block mb-1">Longitud</label>
-          <input type="number" step="any" id="longitud" name="longitud" class="border rounded p-2 w-full" readonly>
-        </div>
-      </div>
+<!-- NUEVO CAMPO DE TAGS -->
+<div class="mb-4">
+    <label for="tag_select" class="block font-semibold mb-2">Tags</label>
+    <div class="flex gap-2">
+        <select id="tag_select" class="border rounded p-2">
+            <option value="">--Seleccionar tag--</option>
+            {% for tag in tags %}
+            <option value="{{ tag.value }}">{{ tag.label }}</option>
+            {% endfor %}
+        </select>
+        <button
+            type="button"
+            id="add_tag_btn"
+            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
+            Agregar
+        </button>
     </div>
-    <div class="flex justify-center mt-6">
-  <button type="submit"
-          class="bg-blue-600 text-white py-2 px-6 rounded-lg hover:bg-blue-800">
-    Crear Sitio Histórico
-  </button>
-</div>
-  {% endcall %}
+    <div id="tags_container" class="mt-2 flex flex-wrap gap-2"></div>
 </div>
 
+<div class="mt-4">
+    <div class="mt-6">
+        <label class="block font-semibold mb-2">Ubicación en el mapa</label>
+        <div
+            id="map"
+            class="w-full h-96 border border-gray-300 rounded-lg mt-16"
+        ></div>
 
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div>
+                <label for="latitud" class="block mb-1">Latitud</label>
+                <input
+                    type="number"
+                    step="any"
+                    id="latitud"
+                    name="latitud"
+                    class="border rounded p-2 w-full"
+                    readonly
+                />
+            </div>
+            <div>
+                <label for="longitud" class="block mb-1">Longitud</label>
+                <input
+                    type="number"
+                    step="any"
+                    id="longitud"
+                    name="longitud"
+                    class="border rounded p-2 w-full"
+                    readonly
+                />
+            </div>
+        </div>
+    </div>
+    <div class="flex justify-center mt-6">{% endcall %}</div>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
-<script>
-  const map = L.map('map').setView([-34.6037, -58.3816], 5);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(map);
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        crossorigin=""
+    />
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        crossorigin=""
+    ></script>
 
-  let marker;
-  map.on('click', function(e) {
-    const lat = e.latlng.lat.toFixed(6);
-    const lng = e.latlng.lng.toFixed(6);
-    document.getElementById('latitud').value = lat;
-    document.getElementById('longitud').value = lng;
-    if (marker) map.removeLayer(marker);
-    marker = L.marker([lat, lng]).addTo(map);
-  });
-</script>
+    <!-- JS para mapa -->
+    <script>
+        const bounds = [
+            [-55.0, -73.0],
+            [-21.0, -53.0],
+        ];
+        const map = L.map("map", {
+            maxBounds: bounds,
+            maxBoundsViscosity: 1.0,
+        }).setView([-34.6037, -58.3816], 5);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        }).addTo(map);
 
+        let marker;
+        map.on("click", function (e) {
+            const lat = e.latlng.lat.toFixed(6);
+            const lng = e.latlng.lng.toFixed(6);
+            if (
+                lat >= -55.05 &&
+                lat <= -21.78 &&
+                lng >= -73.56 &&
+                lng <= -53.64
+            ) {
+                if (marker) map.removeLayer(marker);
+                marker = L.marker([lat, lng]).addTo(map);
+            } else {
+                alert("Solo puedes marcar puntos dentro de Argentina 🇦🇷");
+            }
+            document.getElementById("latitud").value = lat;
+            document.getElementById("longitud").value = lng;
+        });
+    </script>
 
-{% endblock %}
+    <script>
+        const addTagBtn = document.getElementById("add_tag_btn");
+        const tagSelect = document.getElementById("tag_select");
+        const tagsContainer = document.getElementById("tags_container");
 
+        addTagBtn.addEventListener("click", () => {
+            const selectedOption = tagSelect.options[tagSelect.selectedIndex];
+            const tagId = selectedOption.value;
+            const tagName = selectedOption.text;
+
+            if (!tagId) return;
+
+            // evitar duplicados
+            if (
+                document.querySelector(
+                    `#tags_container input[value='${tagId}']`,
+                )
+            )
+                return;
+
+            const tagBadge = document.createElement("div");
+            tagBadge.className =
+                "bg-gray-400 text-white px-3 py-1 rounded flex items-center gap-2 shadow-sm";
+            tagBadge.innerHTML = `
+                <span>${tagName}</span>
+                <button type="button" class="remove-tag text-white font-bold">&times;</button>
+                <input type="hidden" name="tags" value="${tagId}">
+            `;
+
+            tagsContainer.appendChild(tagBadge);
+            tagSelect.selectedIndex = 0;
+
+            tagBadge
+                .querySelector(".remove-tag")
+                .addEventListener("click", () => {
+                    tagsContainer.removeChild(tagBadge);
+                });
+        });
+    </script>
+
+    {% endblock %}
+</div>
