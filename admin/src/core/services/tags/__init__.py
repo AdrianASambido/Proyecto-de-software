@@ -4,8 +4,9 @@ from datetime import date
 import unicodedata
 import re
 
+
 def list_tags():
-    tags=Tag.query.all()
+    tags = Tag.query.all()
     return tags
 
 
@@ -17,6 +18,7 @@ def add_tag(tag_data):
     db.session.add(new_tag)
     db.session.commit()
     return new_tag
+
 
 def update_tag(tag_id, tag_data):
     tag = Tag.query.get(tag_id)

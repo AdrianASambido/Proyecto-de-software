@@ -1,6 +1,13 @@
+from datetime import datetime, timezone, date
+from time import sleep
+
+
+from src.core.services.sites import add_site
 
 from datetime import datetime, timezone, date
 from time import sleep
+
+from geoalchemy2 import WKTElement
 # db
 from src.core.database import db
 # servicios
@@ -174,46 +181,49 @@ def seeds_db():
    
     print("\n==== CREANDO SITES ====")
 
-
-    sites_data = [{
-        "nombre":"Machu Picchu",
-        "descripcion_breve":"Ciudad inca antigua",
-        "descripcion_completa":"Machu Picchu es una ciudadela inca situada en las montañas...",
-        "ciudad":"Cusco",
-        "provincia":"Cusco",
-        "inauguracion":2022,
-        "latitud":-13.1631,
-        "longitud":-72.5450,
-        "categoria":"Arqueológico",
-        "estado_conservacion":"Bueno",
-        "visible":True
-    },
-   {
-        "nombre":"Gran Muralla China",
-        "descripcion_breve":"Estructura defensiva antigua",
-        "descripcion_completa":"La Gran Muralla China es una serie de fortificaciones...",
-        "ciudad":"Beijing",
-        "provincia":"Beijing",
-        "inauguracion":2022,
-        "latitud":40.4319,
-        "longitud":116.5704,
-        "categoria":"Histórico",
-        "estado_conservacion":"Bueno",
-        "visible":True
-    },
-   {
-        "nombre":"Taj Mahal",
-        "descripcion_breve":"Mausoleo de mármol blanco",
-        "descripcion_completa":"El Taj Mahal es un mausoleo ubicado en Agra, India...",
-        "ciudad":"Agra",
-        "provincia":"Uttar Pradesh",
-        "inauguracion":2022,
-        "latitud":27.1751,
-        "longitud":78.0421,
-        "categoria":"Arquitectónico",
-        "estado_conservacion":"Malo",
-        "visible":True
-    }
+    sites_data = [
+        {
+            "nombre": "Machu Picchu",
+            "descripcion_breve": "Ciudad inca antigua",
+            "descripcion_completa": "Machu Picchu es una ciudadela inca situada en las montañas...",
+            "ciudad": "Cusco",
+            "provincia": "Cusco",
+            "inauguracion": 2022,
+            "latitud": -13.163068,
+            "longitud": -72.545128,
+           
+            "categoria": "Arqueológico",
+            "estado_conservacion": "Bueno",
+            "visible": True,
+        },
+        {
+            "nombre": "Gran Muralla China",
+            "descripcion_breve": "Estructura defensiva antigua",
+            "descripcion_completa": "La Gran Muralla China es una serie de fortificaciones...",
+            "ciudad": "Beijing",
+            "provincia": "Beijing",
+            "inauguracion": 2022,
+            "latitud": 40.431908,
+            "longitud": 116.570374,
+            
+            "categoria": "Histórico",
+            "estado_conservacion": "Bueno",
+            "visible": True,
+        },
+        {
+            "nombre": "Taj Mahal",
+            "descripcion_breve": "Mausoleo de mármol blanco",
+            "descripcion_completa": "El Taj Mahal es un mausoleo ubicado en Agra, India...",
+            "ciudad": "Agra",
+            "provincia": "Uttar Pradesh",
+            "inauguracion": 2022,
+           "latitud": 27.175015,
+              "longitud": 78.042155,
+           
+            "categoria": "Arquitectónico",
+            "estado_conservacion": "Malo",
+            "visible": True,
+        },
     ]
 
     add_site(sites_data[0])
@@ -232,10 +242,13 @@ def seeds_db():
     })
 
     # sleep(5)
-    modify_site(result.id, {
-        "estado_conservacion":"Bueno",
-        "visible":True
-    })
+    modify_site(
+        result.id,
+        {
+           
+            "punto": WKTElement('POINT(-87.2856 19.8712)', srid=4326),
+        },
+    )
 
     # sleep(5)
     modify_site(result.id, {
@@ -261,10 +274,13 @@ def seeds_db():
     })
 
     # sleep(5)
-    modify_site(result.id, {
-        "estado_conservacion":"Bueno",
-        "visible":True
-    })
+    modify_site(
+        result.id,
+        {
+            
+            "punto": WKTElement('POINT(-87.2856 19.8712)', srid=4326),
+        },
+    )
 
     # sleep(5)
     modify_site(result.id, {

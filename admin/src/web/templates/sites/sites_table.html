@@ -1,7 +1,9 @@
-{% extends "common/tables_base.html" %}
+{% extends "basic-structure-w-sidebar.html" %}
+{% from "common/_form.html" import render_form %}
+  
+<!-- % extends "common/tables_base.html" %}-->
 
 {% block table_title %}Sitios Históricos{% endblock %}
-
 
 {% block add_url %}{{ url_for('sites.add_site') }}{% endblock %}
 {% block add_label %}Agregar sitio{% endblock %}
@@ -10,28 +12,38 @@
   <!-- Buscar -->
   <input type="text" name="busqueda" placeholder="Buscar..."
     value="{{ request.args.get('busqueda','') }}"
-    class="h-9 w-40 rounded-md border border-gray-400 bg-white px-3 text-gray-800 placeholder-gray-400 
+    class="h-9 w-40 rounded-md border border-gray-400 bg-white px-3 text-gray-800 placeholder-gray-400
            focus:border-blue-500 focus:ring-2 focus:ring-blue-400"/>
 
   <!-- Ciudad -->
   <input type="text" name="ciudad" placeholder="Ciudad"
     value="{{ request.args.get('ciudad','') }}"
-    class="h-9 w-28 rounded-md border border-gray-400 bg-white px-3 text-gray-800 placeholder-gray-400 
+    class="h-9 w-28 rounded-md border border-gray-400 bg-white px-3 text-gray-800 placeholder-gray-400
            focus:border-blue-500 focus:ring-2 focus:ring-blue-400"/>
 
   <!-- Provincia -->
   <select name="provincia"
-    class="h-9 w-32 rounded-md border border-gray-400 bg-white px-3 text-gray-800 
+    class="h-9 w-32 rounded-md border border-gray-400 bg-white px-3 text-gray-800
            focus:border-blue-500 focus:ring-2 focus:ring-blue-400">
     <option value="">Provincia</option>
     {% for prov in provincias %}
       <option value="{{ prov }}" {% if request.args.get('provincia') == prov %}selected{% endif %}>{{ prov }}</option>
     {% endfor %}
   </select>
+  <!-- Campo de Tags -->
+
+  <select id="tags-select" name="tags" multiple placeholder="Selecciona tags...">
+    {% for tag in tags %}
+      <option value="{{ tag.id }}"
+        {% if tag.id|string in request.args.getlist('tags') %}selected{% endif %}>
+        {{ tag.nombre }}
+      </option>
+    {% endfor %}
+  </select>
 
   <!-- Estado -->
   <select name="estado_conservacion"
-    class="h-9 w-40 rounded-md border border-gray-400 bg-white px-3 text-gray-800 
+    class="h-9 w-40 rounded-md border border-gray-400 bg-white px-3 text-gray-800
            focus:border-blue-500 focus:ring-2 focus:ring-blue-400">
     <option value="">Estado</option>
     {% for estado in ['Bueno','Regular','Malo'] %}
@@ -42,12 +54,12 @@
   <!-- Fechas -->
   <input type="date" name="fecha_desde"
     value="{{ request.args.get('fecha_desde','') }}"
-    class="h-9 rounded-md border border-gray-400 bg-white px-3 text-gray-800 
+    class="h-9 rounded-md border border-gray-400 bg-white px-3 text-gray-800
            focus:border-blue-500 focus:ring-2 focus:ring-blue-400"/>
   <span class="text-gray-500">a</span>
   <input type="date" name="fecha_hasta"
     value="{{ request.args.get('fecha_hasta','') }}"
-    class="h-9 rounded-md border border-gray-400 bg-white px-3 text-gray-800 
+    class="h-9 rounded-md border border-gray-400 bg-white px-3 text-gray-800
            focus:border-blue-500 focus:ring-2 focus:ring-blue-400"/>
 
   <!-- Visibilidad -->
@@ -60,7 +72,7 @@
 
   <!-- Orden -->
   <select name="orden"
-    class="h-9 w-28 rounded-md border border-gray-400 bg-white px-3 text-gray-800 
+    class="h-9 w-28 rounded-md border border-gray-400 bg-white px-3 text-gray-800
            focus:border-blue-500 focus:ring-2 focus:ring-blue-400">
     <option value="fecha_desc" {% if request.args.get('orden')=='fecha_desc' %}selected{% endif %}>Fecha ↓</option>
     <option value="fecha_asc" {% if request.args.get('orden')=='fecha_asc' %}selected{% endif %}>Fecha ↑</option>
@@ -70,19 +82,18 @@
     <option value="ciudad_desc" {% if request.args.get('orden')=='ciudad_desc' %}selected{% endif %}>Ciudad ↓</option>
   </select>
 
-  <!-- Botones -->
-  <button type="submit"
-    class="h-9 rounded-md bg-blue-600 px-4 text-white font-medium shadow-sm 
-           hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1">
-    Aplicar
-  </button>
+<!-- Botones -->
+<button type="submit"
+  class="h-9 rounded-md bg-blue-600 px-4 text-white font-medium shadow-sm
+         hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1">
+  Aplicar
+</button>
 
-  <a href="{{ url_for('sites.index') }}"
-    class="h-9 rounded-md bg-gray-300 px-4 text-gray-800 font-medium shadow-sm 
-           hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1">
-    Limpiar
-  </a>
-</form>
+<a href="{{ url_for('sites.index') }}"
+  class="h-9 inline-flex items-center justify-center rounded-md bg-gray-300 px-4 text-gray-800 font-medium shadow-sm
+         hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1">
+  Limpiar
+</a>
 
 
 <p class="mb-2 text-sm text-black-400">
@@ -121,27 +132,32 @@
       <td>{{ 'Sí' if sitio.visible else 'No' }}</td>
       <td>{{ sitio.created_at }}</td>
       <td class="flex gap-2">
-        <a href="{{ url_for('site_history.index', sitio_id=sitio.id) }}" 
-        class="rounded bg-blue-500 px-2 py-1 text-white hover:bg-blue-600">
-          Detalles
-        </a>
-        <a href="{{ url_for('sites.modify', site_id=sitio.id) }}"
-           class="rounded bg-blue-500 px-2 py-1 text-white hover:bg-blue-600">
-          Modificar
-        </a>
-        <a href="{{ url_for('sites.delete', site_id=sitio.id) }}"
-          onclick="return confirm('¿Estás seguro de que deseas eliminar este sitio?');"
-          class="rounded bg-red-500 px-2 py-1 text-white hover:bg-red-600">
-          Eliminar
-        </a>
-      </td>
+      {% set details_url = url_for('site_history.index', sitio_id=sitio.id) %}
+      {% set edit_url = url_for('sites.modify', site_id=sitio.id) %}
+  {% set delete_url = url_for('sites.delete', site_id=sitio.id) %}
+  {% include "common/actions.html" %}
+
     </tr>
+
   {% else %}
     <tr>
       <td colspan="13" class="text-center text-white-500 py-4">
         No se encontraron resultados.
       </td>
     </tr>
+
   {% endfor %}
-  
+
+  <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+
+
+  <script>
+    new TomSelect("#tags-select",{
+      plugins: ['remove_button'],
+      maxItems: null,
+      create: false
+    });
+  </script>
 {% endblock %}
+{% include "common/delete_modal.html" %}
