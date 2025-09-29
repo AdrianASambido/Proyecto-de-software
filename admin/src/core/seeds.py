@@ -7,7 +7,7 @@ from src.core.services.sites import add_site
 from datetime import datetime, timezone, date
 from time import sleep
 
-
+from geoalchemy2 import WKTElement
 # db
 from src.core.database import db
 
@@ -83,8 +83,9 @@ def seeds_db():
             "ciudad": "Cusco",
             "provincia": "Cusco",
             "inauguracion": 2022,
-            "latitud": -13.1631,
-            "longitud": -72.5450,
+            "latitud": -13.163068,
+            "longitud": -72.545128,
+           
             "categoria": "Arqueológico",
             "estado_conservacion": "Bueno",
             "visible": True,
@@ -96,8 +97,9 @@ def seeds_db():
             "ciudad": "Beijing",
             "provincia": "Beijing",
             "inauguracion": 2022,
-            "latitud": 40.4319,
-            "longitud": 116.5704,
+            "latitud": 40.431908,
+            "longitud": 116.570374,
+            
             "categoria": "Histórico",
             "estado_conservacion": "Bueno",
             "visible": True,
@@ -109,8 +111,9 @@ def seeds_db():
             "ciudad": "Agra",
             "provincia": "Uttar Pradesh",
             "inauguracion": 2022,
-            "latitud": 27.1751,
-            "longitud": 78.0421,
+           "latitud": 27.175015,
+              "longitud": 78.042155,
+           
             "categoria": "Arquitectónico",
             "estado_conservacion": "Malo",
             "visible": True,
@@ -135,8 +138,8 @@ def seeds_db():
     modify_site(
         result.id,
         {
-            "latitud": 19.8712,
-            "longitud": -87.2856,
+           
+            "punto": WKTElement('POINT(-87.2856 19.8712)', srid=4326),
         },
     )
 
@@ -165,8 +168,8 @@ def seeds_db():
     modify_site(
         result.id,
         {
-            "latitud": 19.8712,
-            "longitud": -87.2856,
+            
+            "punto": WKTElement('POINT(-87.2856 19.8712)', srid=4326),
         },
     )
 

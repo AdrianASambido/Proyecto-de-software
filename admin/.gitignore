@@ -65,6 +65,7 @@ db.sqlite3-journal
 instance/
 .webassets-cache
 .flaskenv
+flask_session/
 
 # Scrapy stuff:
 .scrapy
