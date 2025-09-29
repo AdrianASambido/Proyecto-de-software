@@ -13,6 +13,8 @@ from geoalchemy2.shape import to_shape
 from geoalchemy2.elements import WKTElement
 from sqlalchemy import desc, asc
 from src.core.services.tags import get_tag_by_id
+from src.core.Entities.tag import Tag
+from sqlalchemy.orm import joinedload
 
 
 def list_sites(filtros: dict, page: int = 1, per_page: int = 3):
@@ -75,7 +77,11 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 3):
         "ciudad_desc": Site.ciudad.desc(),
     }
     query = query.order_by(opciones_orden[orden])
-
+    tags_ids = filtros.get("tags")
+    if tags_ids:
+        tags_ids = [int(t) for t in tags_ids if t.isdigit()]
+        if tags_ids:
+            query = query.join(Tag, Site.tags).filter(Tag.id.in_(tags_ids)).distinct()
     return query
 
 

@@ -10,7 +10,7 @@ from src.core.services import sites as board_sites
 from src.core.services import tags as board_tags
 
 from src.core.services.sites import list_sites, add_site, get_site, modify_site
-
+from src.core.services.tags import list_tags
 from flask import flash
 import pycountry
 
@@ -34,13 +34,14 @@ def index():
     filtros.pop("per_page", None)
 
     pagination = board_sites.list_sites(filtros).paginate(page=page, per_page=per_page)
-
+    tags = [{"id": tag.id, "nombre": tag.name} for tag in board_tags.list_tags()]
     return render_template(
         "sites/sites_table.html",
         items=pagination.items,
         provincias=provincias_arg,
         pagination=pagination,
         filtros=filtros,
+        tags=tags,
     )
 
 
