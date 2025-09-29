@@ -18,6 +18,7 @@ class User(db.Model):
     rol_id=db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=False)
     created_at=db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at=db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
+    eliminado=db.Column(db.Boolean, default=False)
 
     role=db.relationship("Role", back_populates="users")
 
