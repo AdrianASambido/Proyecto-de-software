@@ -111,11 +111,11 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.register_blueprint(feature_flags_bp)
     
     #comandos para el CLI
-    @app.cli.command(name="resetdb")
+    @app.cli.command(name="resetdb")#correrlo como "flask --app src.web resetdb"
     def resetdb():
         database.reset_db()
 
-    @app.cli.command(name="seeddb")
+    @app.cli.command(name="seeddb")#correrlo como "flask --app src.web seeddb"
     def seeddb():
         seeds.seeds_db()
 
