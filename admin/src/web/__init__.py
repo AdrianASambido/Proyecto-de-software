@@ -12,6 +12,7 @@ from src.core.services.feature_flags import (
 from src.web.controllers.users import bp as users_bp
 from src.web.controllers.sites import bp as sites_bp
 from src.web.controllers.feature_flags import bp as feature_flags_bp
+from src.web.controllers.gestion_roles import bp as gestion_roles_bp
 
 
 def pre_request_logging():
@@ -105,6 +106,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.register_blueprint(users_bp)
     app.register_blueprint(sites_bp)
     app.register_blueprint(feature_flags_bp)
+    app.register_blueprint(gestion_roles_bp)
     
     #comandos para el CLI
     @app.cli.command(name="resetdb")

@@ -1,0 +1,161 @@
+{% extends "basic-structure-w-sidebar.html" %}
+
+{% block title %}Permisos | Administración{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Gestión de Permisos</h1>
+        <a href="{{ url_for('gestion_roles.list_roles') }}" 
+           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+            ← Volver a Roles
+        </a>
+    </div>
+
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Lista de Permisos</h2>
+            <p class="text-sm text-gray-600 mt-1">
+                Los permisos siguen el patrón <code class="bg-gray-100 px-1 rounded">modulo_accion</code>
+            </p>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            ID
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Nombre
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Módulo
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Acción
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Descripción
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Fecha Creación
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for permission in permissions %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ permission.id }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">{{ permission.name }}</div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if permission.module == 'user' %}
+                                    bg-purple-100 text-purple-800
+                                {% elif permission.module == 'site' %}
+                                    bg-green-100 text-green-800
+                                {% elif permission.module == 'tag' %}
+                                    bg-blue-100 text-blue-800
+                                {% elif permission.module == 'feature_flag' %}
+                                    bg-yellow-100 text-yellow-800
+                                {% else %}
+                                    bg-gray-100 text-gray-800
+                                {% endif %}">
+                                {{ permission.module }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if permission.action == 'index' %}
+                                    bg-blue-100 text-blue-800
+                                {% elif permission.action == 'new' %}
+                                    bg-green-100 text-green-800
+                                {% elif permission.action == 'update' %}
+                                    bg-yellow-100 text-yellow-800
+                                {% elif permission.action == 'destroy' %}
+                                    bg-red-100 text-red-800
+                                {% elif permission.action == 'show' %}
+                                    bg-purple-100 text-purple-800
+                                {% else %}
+                                    bg-gray-100 text-gray-800
+                                {% endif %}">
+                                {{ permission.action }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            {{ permission.description or 'Sin descripción' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ permission.created_at.strftime('%d/%m/%Y %H:%M') }}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            No hay permisos registrados
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Resumen por Módulo -->
+    <div class="mt-6">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">Resumen por Módulo</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {% set modules = permissions|map(attribute='module')|unique|list %}
+            {% for module in modules %}
+            <div class="bg-white shadow-lg rounded-lg p-4">
+                <h4 class="text-md font-semibold text-gray-800 capitalize">{{ module }}</h4>
+                <p class="text-2xl font-bold text-blue-600 mt-2">
+                    {{ permissions|selectattr('module', 'equalto', module)|list|length }} permiso(s)
+                </p>
+                <div class="mt-2 text-sm text-gray-600">
+                    {% set module_permissions = permissions|selectattr('module', 'equalto', module)|list %}
+                    {% for perm in module_permissions[:3] %}
+                    <div class="truncate">{{ perm.action }}</div>
+                    {% endfor %}
+                    {% if module_permissions|length > 3 %}
+                    <div class="text-gray-400">... y {{ module_permissions|length - 3 }} más</div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Leyenda -->
+    <div class="mt-6 bg-gray-50 rounded-lg p-4">
+        <h4 class="text-md font-semibold text-gray-800 mb-2">Leyenda de Acciones</h4>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-2 text-sm">
+            <div class="flex items-center">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 mr-2">index</span>
+                <span>Listar</span>
+            </div>
+            <div class="flex items-center">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 mr-2">new</span>
+                <span>Crear</span>
+            </div>
+            <div class="flex items-center">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mr-2">update</span>
+                <span>Actualizar</span>
+            </div>
+            <div class="flex items-center">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 mr-2">destroy</span>
+                <span>Eliminar</span>
+            </div>
+            <div class="flex items-center">
+                <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800 mr-2">show</span>
+                <span>Ver detalle</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

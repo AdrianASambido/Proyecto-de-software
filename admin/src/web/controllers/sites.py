@@ -14,7 +14,7 @@ from src.core.services.sites import list_sites, add_site, get_site, modify_site
 from flask import flash
 import pycountry
 
-bp = Blueprint("sites", __name__, url_prefix=("/sitios"))
+bp = Blueprint("sites", __name__, url_prefix="/sitios")
 
 provincias_arg = [sub.name for sub in pycountry.subdivisions.get(country_code="AR")]
 
