@@ -218,3 +218,14 @@ def delete_site(site_id):
 
     db.session.commit()
     return True
+
+def is_assigned_to_any_site(tag_id):
+    """
+    Verifica si una etiqueta está asignada a algún sitio histórico.
+    """
+    tag = get_tag_by_id(tag_id)
+    if not tag:
+        return False
+
+    sitios_con_tag = Site.query.options(joinedload(Site.tags)).filter(Site.tags.any(id=tag_id)).all()
+    return len(sitios_con_tag) > 0
