@@ -1,6 +1,5 @@
 from flask import Flask, render_template, abort, redirect, url_for, request
 from src.web.config import config
-from flask_session import Session
 
 from src.core import database, seeds
 from src.core.services.feature_flags import (
@@ -16,13 +15,12 @@ from src.web.controllers.sites_history import bp as sites_history_bp
 from src.web.controllers.sites import bp as sites_bp
 from src.web.controllers.tags import bp as tags_bp
 from src.web.controllers.feature_flags import bp as feature_flags_bp
-from src.web.controllers.login import bp as login_bp
 
-sesion = Session()
 
 def pre_request_logging():
     # Revisar si está logueado
     print("Pre-request logging: Verificando si el usuario está logueado...")
+
 
 def create_app(env="development", static_folder="../../static"):  # ../../static
     app = Flask(__name__, static_folder=static_folder)
@@ -73,7 +71,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
                 ),
                 503,
             )
-    
+
     @app.route("/")
     def home():
         return render_template("home.html"), 200

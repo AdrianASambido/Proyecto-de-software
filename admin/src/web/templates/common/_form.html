@@ -1,4 +1,5 @@
 {% macro render_form(action, method="post", fields=[], submit_text="Enviar") %}
+
 <form action="{{ action }}" method="{{ method }}" class="bg-white shadow-md rounded-lg p-6 max-w-md">
   {% for field in fields %}
     <div class="mb-4">
@@ -42,9 +43,10 @@
   {% endfor %}
 
   {% if caller %}{{ caller() }}{% endif %}
-  
-  <button type="submit" class="w-full bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-700">
+<button type="submit" class="w-full bg-blue-900 text-white py-2 px-4 rounded-lg hover:bg-gray-700">
     {{ submit_text }}
   </button>
+
 </form>
+
 {% endmacro %}

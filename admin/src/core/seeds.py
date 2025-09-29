@@ -7,14 +7,13 @@ from src.core.services.sites import add_site
 from datetime import datetime, timezone, date
 from time import sleep
 
-
+from geoalchemy2 import WKTElement
 # db
 from src.core.database import db
 
 # servicios
 from src.core.services.sites import add_site, modify_site
 from src.core.services.history import add_site_history
-from src.core.services.users import add_user
 
 # entidades
 from src.core.Entities import FeatureFlag
@@ -84,8 +83,9 @@ def seeds_db():
             "ciudad": "Cusco",
             "provincia": "Cusco",
             "inauguracion": 2022,
-            "latitud": -13.1631,
-            "longitud": -72.5450,
+            "latitud": -13.163068,
+            "longitud": -72.545128,
+           
             "categoria": "Arqueológico",
             "estado_conservacion": "Bueno",
             "visible": True,
@@ -97,8 +97,9 @@ def seeds_db():
             "ciudad": "Beijing",
             "provincia": "Beijing",
             "inauguracion": 2022,
-            "latitud": 40.4319,
-            "longitud": 116.5704,
+            "latitud": 40.431908,
+            "longitud": 116.570374,
+            
             "categoria": "Histórico",
             "estado_conservacion": "Bueno",
             "visible": True,
@@ -110,24 +111,14 @@ def seeds_db():
             "ciudad": "Agra",
             "provincia": "Uttar Pradesh",
             "inauguracion": 2022,
-            "latitud": 27.1751,
-            "longitud": 78.0421,
+           "latitud": 27.175015,
+              "longitud": 78.042155,
+           
             "categoria": "Arquitectónico",
             "estado_conservacion": "Malo",
             "visible": True,
         },
     ]
-
-    user_data={
-        "email": "lapampa2003@gmail.com",
-        "nombre": "Juan Ignacio",
-        "username": "jics",
-        "apellido": "Coelho Soria",
-        "contraseña": "lapampa",
-        "rol_id": "1",
-    }
-
-    add_user(user_data)
 
     add_site(sites_data[0])
     result = add_site(sites_data[1])
@@ -147,8 +138,8 @@ def seeds_db():
     modify_site(
         result.id,
         {
-            "latitud": 19.8712,
-            "longitud": -87.2856,
+           
+            "punto": WKTElement('POINT(-87.2856 19.8712)', srid=4326),
         },
     )
 
@@ -177,8 +168,8 @@ def seeds_db():
     modify_site(
         result.id,
         {
-            "latitud": 19.8712,
-            "longitud": -87.2856,
+            
+            "punto": WKTElement('POINT(-87.2856 19.8712)', srid=4326),
         },
     )
 
