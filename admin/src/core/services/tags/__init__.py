@@ -6,7 +6,7 @@ import re
 
 
 def list_tags():
-    tags = Tag.query.all()
+    tags = Tag.query.filter_by(deleted_at=None).all()
     return tags
 
 
@@ -32,12 +32,14 @@ def update_tag(tag_id, tag_data):
 
 
 def delete_tag(tag_id):
+    # elimnacion logica
     tag = Tag.query.get(tag_id)
     if not tag:
-        return False
-    db.session.delete(tag)
+        return None
+
+    tag.deleted_at = date.today()
     db.session.commit()
-    return True
+    return tag
 
 
 def generate_slug(name):
