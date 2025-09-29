@@ -15,7 +15,7 @@ from src.web.controllers.sites_history import bp as sites_history_bp
 from src.web.controllers.sites import bp as sites_bp
 from src.web.controllers.tags import bp as tags_bp
 from src.web.controllers.feature_flags import bp as feature_flags_bp
-
+from src.web.controllers.login import bp as login_bp
 
 def pre_request_logging():
     # Revisar si está logueado
@@ -27,7 +27,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.config.from_object(config[env])
 
     database.init_app(app)
-    sesion.init_app(app)
+   
 
     app.before_request_funcs = {"users_bp": [pre_request_logging]}
 
