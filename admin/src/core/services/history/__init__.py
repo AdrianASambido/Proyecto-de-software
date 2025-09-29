@@ -7,7 +7,10 @@ from src.core.Entities.site import Site
 from src.core.database import db
 from datetime import datetime, timezone, date
 import enum
-
+from geoalchemy2.shape import to_shape
+from geoalchemy2 import WKTElement
+from shapely.geometry import mapping
+from geoalchemy2.elements import WKBElement
 
 def _serialize_value(val):
     """Convierte valores no serializables por JSON a tipos compatibles."""
@@ -15,6 +18,9 @@ def _serialize_value(val):
         return val.value
     if isinstance(val, (datetime, date)):
         return val.isoformat()
+    if isinstance(val, (WKTElement,WKBElement)):
+        geom = to_shape(val)   
+        return mapping(geom)  
     return val
 
 
