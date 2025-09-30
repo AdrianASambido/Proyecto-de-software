@@ -14,6 +14,15 @@ def list_tags(filtros: dict | None = None):
     busqueda = filtros.get("busqueda")
     if busqueda:
         query = query.filter(Tag.name.ilike(f"%{busqueda}%"))
+    
+    orden = filtros.get("orden", "fecha_desc")
+    opciones_orden = {
+        "fecha_asc": Tag.created_at.asc(),
+        "fecha_desc": Tag.created_at.desc(),
+        "nombre_asc": Tag.name.asc(),
+        "nombre_desc": Tag.name.desc(),
+    }
+    query = query.order_by(opciones_orden[orden])
 
     return query.all()
 
@@ -21,7 +30,7 @@ def list_tags(filtros: dict | None = None):
 
 def add_tag(tag_data):
     new_tag = Tag(
-        name=tag_data.get("nombre"),
+        name=convert_to_lowercase(tag_data.get("nombre")),
         slug=generate_slug(tag_data.get("nombre")),
     )
     db.session.add(new_tag)
@@ -59,6 +68,9 @@ def get_tag_by_id(tag_id):
 def get_tag_by_name(name):
     tag = Tag.query.filter_by(name=name, deleted_at=None).first()
     return tag
+
+def convert_to_lowercase(text):
+    return text.lower()
 
 def generate_slug(name):
     # Normalizar caracteres (quitar acentos)
