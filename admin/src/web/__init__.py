@@ -27,7 +27,6 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
 
     database.init_app(app)
 
-
     app.before_request_funcs = {"users_bp": [pre_request_logging]}
 
     # Middleware para verificar flags de mantenimiento
