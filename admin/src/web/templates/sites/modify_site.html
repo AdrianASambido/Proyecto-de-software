@@ -1,7 +1,11 @@
-{% extends "basic-structure-w-sidebar.html" %}
-{% from "common/_form.html" import render_form %}
-
-{% block content %}
+{% extends "basic-structure-w-sidebar.html" %} {% from "common/_form.html"
+import render_form %} {% block content %}
+<a
+    href="{{ url_for('sites.index') }}"
+    class="mb-4 inline-block rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-200"
+>
+    ← Volver al listado
+</a>
 <h2 class="text-2xl font-bold mb-4">Modificar sitio histórico</h2>
 {% call render_form( action=url_for('sites.modify', site_id=site.id), fields=[
 {"name": "nombre","label": "Nombre","type":"text","value":
