@@ -14,7 +14,7 @@ from src.core.services.tags import list_tags
 from flask import flash
 import pycountry
 
-bp = Blueprint("sites", __name__, url_prefix=("/sitios"))
+bp = Blueprint("sites", __name__, url_prefix="/sitios")
 
 provincias_arg = [sub.name for sub in pycountry.subdivisions.get(country_code="AR")]
 

@@ -23,4 +23,40 @@ class User(db.Model):
     role=db.relationship("Role", back_populates="users")
 
     def __repr__(self):
-        return f"<User {self.username}>"
+        return f"<User {self.email}>"
+    
+    @property
+    def is_admin(self):
+        """Verifica si el usuario es administrador"""
+        return self.role and self.role.name == "Administrador"
+    
+    @property
+    def is_editor(self):
+        """Verifica si el usuario es editor"""
+        return self.role and self.role.name == "Editor"
+    
+    def can_login(self):
+        """Verifica si el usuario puede iniciar sesión (activo y no bloqueado)"""
+        return self.activo and not self.bloqueado
+    
+    def can_be_blocked(self):
+        """Verifica si el usuario puede ser bloqueado (no es administrador)"""
+        return not self.is_admin
+    
+    def has_permission(self, permission_name):
+        """Verifica si el usuario tiene un permiso específico a través de su rol"""
+        if not self.role:
+            return False
+        return self.role.has_permission(permission_name)
+    
+    def block(self):
+        """Bloquea al usuario si es posible"""
+        if self.can_be_blocked():
+            self.bloqueado = True
+            return True
+        return False
+    
+    def unblock(self):
+        """Desbloquea al usuario"""
+        self.bloqueado = False
+        return True

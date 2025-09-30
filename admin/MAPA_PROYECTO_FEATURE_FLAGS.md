@@ -171,6 +171,4 @@ admin/
 
 ---
 
-**Fecha de creación**: $(date)
-**Desarrollado por**: Asistente AI
-**Versión**: 1.0
+
