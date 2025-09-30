@@ -136,7 +136,7 @@ def modify_site(site_id, site_data):
     # aca agregar a la tabla de historial
     add_site_history(
         site_id,
-        HistoryAction.EDITAR.value,
+        HistoryAction.EDITAR,
         1,
         sitio,
         original_snapshot,
@@ -185,7 +185,7 @@ def add_site(site_data):
     db.session.commit()
 
     add_site_history(
-        nuevo_sitio.id, HistoryAction.CREAR.value, 1, site_data, None, list(site_data.keys())
+        nuevo_sitio.id, HistoryAction.CREAR, 1, site_data, None, list(site_data.keys())
     )
 
     return nuevo_sitio
@@ -209,7 +209,7 @@ def delete_site(site_id):
     # guardamos historial
     add_site_history(
         site_id=sitio.id,
-        accion=HistoryAction.ELIMINAR.value,
+        accion=HistoryAction.ELIMINAR,
         usuario_modificador_id=1,
         sitio_cambiado=None,  # 🔹 porque estamos borrando
         sitio_original=original_snapshot,  # 🔹 snapshot antes del borrado
