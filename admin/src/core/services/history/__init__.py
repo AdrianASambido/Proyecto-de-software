@@ -52,7 +52,6 @@ def list_site_history(sitio_id, page: int = 1, filtros: dict | None = None):
     if sitio is None:
         return None
 
-    # por usuario, por tipo de acción, por rango de fechas.
     query_filters = db.session.query(SiteHistory).filter_by(sitio_id=sitio_id)
     print(filtros)
     if filtros is not None:
@@ -63,9 +62,10 @@ def list_site_history(sitio_id, page: int = 1, filtros: dict | None = None):
             )
         # por tipo de acción
         if filtros.get("accion") is not None:
-            query_filters = query_filters.filter_by(
-                accion=HistoryAction(filtros.get("accion"))
-            )
+            accion_value = filtros.get("accion")
+            accion_enum = next((a for a in HistoryAction if a.value == accion_value), None)
+            if accion_enum:
+                query_filters = query_filters.filter_by(accion=accion_enum)
         # por rango de fechas
         if filtros.get("fecha_desde") is not None:
             query_filters = query_filters.filter(
@@ -76,10 +76,11 @@ def list_site_history(sitio_id, page: int = 1, filtros: dict | None = None):
                 SiteHistory.fecha_modificacion <= filtros.get("fecha_hasta")
             )
 
-    # Calculate offset
+    # Asumiendo que tienes definida esta variable con la cantidad por página
+    per_page = 20  
+
     offset = (int(page) - 1) * per_page
 
-    # Construct the paginated query
     paginated_query = (
         query_filters.order_by(SiteHistory.fecha_modificacion.desc())
         .limit(per_page + 1)
@@ -87,12 +88,10 @@ def list_site_history(sitio_id, page: int = 1, filtros: dict | None = None):
     )
     site_history = paginated_query.all()
 
-    # si la cantidad de resultados es mayor a la cantidad de resultados por pagina, hay mas paginas
     has_more = len(site_history) > per_page
 
-    # obtener datos de usuario junto al historial
     for cambios in site_history:
-        cambios.datos_usuario = usuario_1
+        cambios.datos_usuario = usuario_1  # Esto lo tienes que definir o modificar según contexto
 
     return {
         "sitio": sitio,
@@ -100,7 +99,6 @@ def list_site_history(sitio_id, page: int = 1, filtros: dict | None = None):
         "has_more": has_more,
         "page": page,
     }
-
 
 def add_site_history(
     site_id,
