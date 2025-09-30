@@ -2,7 +2,6 @@
 
 from src.core.database import db
 from src.core.Entities.user import User
-from src.core.Entities.role import Role
 from flask_bcrypt import Bcrypt
 
 bcrypt = Bcrypt()
@@ -33,20 +32,6 @@ def delete_user(user_id):
     else:
         raise ValueError("Usuario no encontrado.")
 
-def get_user_by_id(user_id):
-    """
-    Obtiene un usuario por su ID.
-    """
-    return User.query.get(user_id)
-
-
-def get_user_by_email(email):
-    """
-    Obtiene un usuario por su email.
-    """
-    return User.query.filter_by(email=email).first()
-
-
 def add_user(user_data):
     """
     Agrega un nuevo usuario.
@@ -64,10 +49,8 @@ def add_user(user_data):
         nombre=user_data.get("nombre"),
         username=user_data.get("username"),
         apellido=user_data.get("apellido"),
-        activo=user_data.get("activo", True),
-        bloqueado=user_data.get("bloqueado", False),
         contraseña_cifrada=bcrypt.generate_password_hash(user_data.get("contraseña")).decode('utf-8'),
-        rol_id=rol_id
+        rol_id=user_data.get("rol_id"),
     )
 
     #Revisa si el usuario ya existe

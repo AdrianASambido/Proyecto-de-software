@@ -13,9 +13,6 @@ from src.web.controllers.users import bp as users_bp
 from src.web.controllers.sites import bp as sites_bp
 from src.web.controllers.tags import bp as tags_bp
 from src.web.controllers.feature_flags import bp as feature_flags_bp
-from src.web.controllers.sites_history import bp as sites_history_bp
-from src.web.controllers.sites import bp as sites_histoty_bp
-
 from src.web.controllers.login import bp as login_bp
 
 def pre_request_logging():
@@ -111,7 +108,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.register_blueprint(login_bp)
     
     #comandos para el CLI
-    @app.cli.command(name="resetdb")#correrlo como "flask --app src.web resetdb"
+    @app.cli.command(name="resetdb")
     def resetdb():
         database.reset_db()
 
