@@ -1,0 +1,153 @@
+{% extends "basic-structure-w-sidebar.html" %}
+
+{% block title %}Gestión de Usuarios y Roles | Administración{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Gestión de Usuarios y Roles</h1>
+        <a href="{{ url_for('gestion_roles.list_roles') }}" 
+           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+            Gestionar Roles
+        </a>
+    </div>
+
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Lista de Usuarios</h2>
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            ID
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Nombre
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Email
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Rol
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Estado
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Acciones
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for user in users %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {{ user.id }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="text-sm font-medium text-gray-900">
+                                {{ user.nombre }} {{ user.apellido }}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ user.email }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if user.role.name == 'Administrador' %}
+                                    bg-red-100 text-red-800
+                                {% elif user.role.name == 'Editor' %}
+                                    bg-blue-100 text-blue-800
+                                {% else %}
+                                    bg-gray-100 text-gray-800
+                                {% endif %}">
+                                {{ user.role.name }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex flex-col space-y-1">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                    {% if user.activo %}
+                                        bg-green-100 text-green-800
+                                    {% else %}
+                                        bg-red-100 text-red-800
+                                    {% endif %}">
+                                    {% if user.activo %}Activo{% else %}Inactivo{% endif %}
+                                </span>
+                                {% if user.bloqueado %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    Bloqueado
+                                </span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div class="flex flex-col space-y-2">
+                                <!-- Asignar Rol -->
+                                <form method="POST" action="{{ url_for('gestion_roles.assign_role_to_user', user_id=user.id) }}" class="inline">
+                                    <select name="role_id" class="text-xs border rounded px-2 py-1">
+                                        <option value="">Cambiar rol...</option>
+                                        {% for role in roles %}
+                                        <option value="{{ role.id }}" {% if user.role.id == role.id %}selected{% endif %}>
+                                            {{ role.name }}
+                                        </option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="text-blue-600 hover:text-blue-900 text-xs ml-1">
+                                        Asignar
+                                    </button>
+                                </form>
+                                
+                                <!-- Bloquear/Desbloquear -->
+                                <div class="flex space-x-2">
+                                    {% if user.bloqueado %}
+                                    <form method="POST" action="{{ url_for('gestion_roles.unblock_user', user_id=user.id) }}" class="inline">
+                                        <button type="submit" 
+                                                class="text-green-600 hover:text-green-900 text-xs"
+                                                onclick="return confirm('¿Desbloquear este usuario?')">
+                                            Desbloquear
+                                        </button>
+                                    </form>
+                                    {% else %}
+                                    <form method="POST" action="{{ url_for('gestion_roles.block_user', user_id=user.id) }}" class="inline">
+                                        <button type="submit" 
+                                                class="text-red-600 hover:text-red-900 text-xs"
+                                                onclick="return confirm('¿Bloquear este usuario?')"
+                                                {% if user.is_admin %}disabled title="Los administradores no pueden ser bloqueados"{% endif %}>
+                                            Bloquear
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                            No hay usuarios registrados
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Resumen de Roles -->
+    <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+        {% for role in roles %}
+        <div class="bg-white shadow-lg rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-gray-800">{{ role.name }}</h3>
+            <p class="text-sm text-gray-600 mt-1">{{ role.description or 'Sin descripción' }}</p>
+            <p class="text-2xl font-bold text-blue-600 mt-2">
+                {{ users|selectattr('role.name', 'equalto', role.name)|list|length }} usuario(s)
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

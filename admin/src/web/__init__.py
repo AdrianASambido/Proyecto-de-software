@@ -1,6 +1,5 @@
 from flask import Flask, render_template, abort, redirect, url_for, request
 from src.web.config import config
-
 from src.core import database, seeds
 from src.core.services.feature_flags import (
     is_admin_maintenance_mode,
@@ -11,12 +10,15 @@ from src.core.services.feature_flags import (
 
 # ACA controladores
 from src.web.controllers.users import bp as users_bp
-from src.web.controllers.sites_history import bp as sites_history_bp
 from src.web.controllers.sites import bp as sites_bp
 from src.web.controllers.tags import bp as tags_bp
 from src.web.controllers.feature_flags import bp as feature_flags_bp
 from src.web.controllers.login import bp as login_bp
+<<<<<<< HEAD
 
+=======
+from src.web.controllers.sites_history import bp as sites_history_bp
+>>>>>>> c5c5b7dc5728f2e3d6a6f5ff31d94c63b9bbefbf
 
 def pre_request_logging():
     # Revisar si está logueado
@@ -28,6 +30,10 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.config.from_object(config[env])
 
     database.init_app(app)
+<<<<<<< HEAD
+=======
+
+>>>>>>> c5c5b7dc5728f2e3d6a6f5ff31d94c63b9bbefbf
 
     app.before_request_funcs = {"users_bp": [pre_request_logging]}
 
@@ -114,7 +120,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     def resetdb():
         database.reset_db()
 
-    @app.cli.command(name="seeddb")
+    @app.cli.command(name="seeddb")#correrlo como "flask --app src.web seeddb"
     def seeddb():
         seeds.seeds_db()
 
