@@ -1,0 +1,176 @@
+{% extends "basic-structure-w-sidebar.html" %}
+
+{% block title %}{{ role.name }} - Detalles | Administración{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-900">{{ role.name }}</h1>
+            <p class="text-gray-600 mt-2">{{ role.description or 'Sin descripción' }}</p>
+        </div>
+        <a href="{{ url_for('gestion_roles.list_roles') }}" 
+           class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-colors">
+            ← Volver a Roles
+        </a>
+    </div>
+
+    <!-- Información del Rol -->
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Información del Rol</h2>
+        </div>
+        <div class="px-6 py-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">ID</label>
+                    <p class="mt-1 text-sm text-gray-900">{{ role.id }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Nombre</label>
+                    <p class="mt-1 text-sm text-gray-900">{{ role.name }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Descripción</label>
+                    <p class="mt-1 text-sm text-gray-900">{{ role.description or 'Sin descripción' }}</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Fecha de Creación</label>
+                    <p class="mt-1 text-sm text-gray-900">{{ role.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Permisos Asignados -->
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Permisos Asignados</h2>
+        </div>
+        
+        {% if role_permissions %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Nombre
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Módulo
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Acción
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Descripción
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Acciones
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for permission in role_permissions %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ permission.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ permission.module }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ permission.action }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            {{ permission.description or 'Sin descripción' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <form method="POST" action="{{ url_for('gestion_roles.remove_permission_from_role', role_id=role.id, permission_id=permission.id) }}" 
+                                  class="inline">
+                                <button type="submit" 
+                                        class="text-red-600 hover:text-red-900"
+                                        onclick="return confirm('¿Está seguro de remover este permiso?')">
+                                    Remover
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="px-6 py-4 text-center text-gray-500">
+            Este rol no tiene permisos asignados
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Permisos Disponibles -->
+    <div class="bg-white shadow-lg rounded-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">Permisos Disponibles</h2>
+        </div>
+        
+        {% if all_permissions %}
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Nombre
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Módulo
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Acción
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Descripción
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Acciones
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    {% for permission in all_permissions %}
+                    {% if permission not in role_permissions %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            {{ permission.name }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ permission.module }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {{ permission.action }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500">
+                            {{ permission.description or 'Sin descripción' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <form method="POST" action="{{ url_for('gestion_roles.assign_permission_to_role', role_id=role.id, permission_id=permission.id) }}" 
+                                  class="inline">
+                                <button type="submit" 
+                                        class="text-green-600 hover:text-green-900">
+                                    Asignar
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="px-6 py-4 text-center text-gray-500">
+            No hay permisos disponibles
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
