@@ -21,6 +21,11 @@ class Role(db.Model):
     name = db.Column(db.String(50), unique=True, nullable=False)
     description = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
+    permissions = db.relationship(
+    "Permission",
+    secondary="role_permissions",
+    back_populates="roles"
+)
 
     users = db.relationship("User", back_populates="role")
     
