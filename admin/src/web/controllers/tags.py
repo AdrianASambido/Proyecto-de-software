@@ -30,7 +30,7 @@ def edit_tag(tag_id):
 @bp.post("/create")
 def add_tag_handler():
     tag_data = dict(request.form)
-    isExistingTag = svc_get_tag_by_name(tag_data.get("nombre"))
+    isExistingTag = svc_get_tag_by_name(tag_data.get("nombre").lower())
     
     if isExistingTag:
         flash("Ya existe una etiqueta con ese nombre.", "error")
