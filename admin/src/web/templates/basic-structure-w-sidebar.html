@@ -245,17 +245,14 @@
 
   <script>
 
-    function openDeleteModal(actionUrl) {
-      console.log('modal!')
-      const modal = document.getElementById('deleteModal');
-      modal.classList.remove('hidden');
-      modal.style.display = 'flex';
+    const openDeleteModal = (actionUrl) => {
       document.getElementById('deleteForm').action = actionUrl;
-    }
+      document.getElementById('deleteModal').style.display = 'flex';
+    };
 
-    function closeDeleteModal() {
-      document.getElementById('deleteModal').classList.add('hidden');
-    }
+    const closeDeleteModal = () => {
+      document.getElementById('deleteModal').style.display = 'none';
+    };
 
   </script>
 
