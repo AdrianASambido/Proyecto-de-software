@@ -2,6 +2,7 @@
 
 from src.core.database import db
 from src.core.Entities.user import User
+from src.core.Entities.role import Role
 from flask_bcrypt import Bcrypt
 
 bcrypt = Bcrypt()
@@ -49,7 +50,7 @@ def add_user(user_data):
         nombre=user_data.get("nombre"),
         username=user_data.get("username"),
         apellido=user_data.get("apellido"),
-        contraseña_cifrada=bcrypt.generate_password_hash(user_data.get("contraseña")).decode('utf-8'),
+        contraseña_cifrada=bcrypt.generate_password_hash(user_data.get("contraseña_cifrada")).decode('utf-8'),
         rol_id=user_data.get("rol_id"),
     )
 
@@ -61,6 +62,11 @@ def add_user(user_data):
     db.session.commit()
     return nuevo_usuario
 
+def get_user_by_id(user_id):
+    """
+    Retorna un usuario por su ID.
+    """
+    return User.query.get(user_id)
 
 def update_user(user_id, user_data):
     """

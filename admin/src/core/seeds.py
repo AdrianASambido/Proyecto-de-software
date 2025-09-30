@@ -14,11 +14,13 @@ from src.core.database import db
 from src.core.services.sites import add_site, modify_site
 from src.core.services.history import add_site_history
 from src.core.services import roles
+from src.core.services.users import add_user
 # entidades
 from src.core.Entities import FeatureFlag
 from src.core.Entities.site_history import HistoryAction
 from src.core.Entities.role import Role
 from src.core.Entities.permission import Permission
+from src.core.Entities.user import User
 # para agregar datos de prueba a la base de datos se usa "flask seeddb"
 def seeds_db():
     print("\n\n==== SEEDING BASE DE DATOS ====")
@@ -79,6 +81,10 @@ def seeds_db():
         {
             "name": "Administrador", 
             "description": "Usuario con todos los permisos del sistema"
+        },
+        {
+            "name": "Usuario Público",
+            "description": "Usuario con permisos muy limitados"
         }
     ]
     
@@ -231,7 +237,36 @@ def seeds_db():
 
     add_site(sites_data[2])
 
-   
+    user1 = {
+        "email": "user1@gmail.com",
+        "nombre": "Jose",
+        "username": "joseuser",
+        "apellido": "Perez",
+        "contraseña_cifrada": "jose123",
+        "rol_id": 1
+    }
+    
+    user2 = {
+        "email": "user2@gmail.com",
+        "nombre": "Pedrito",
+        "username": "pedrouser",
+        "apellido": "Martinez",
+        "contraseña_cifrada": "pedro123",
+        "rol_id": 2,
+    }
+
+    user3 = {
+        "email": "user3@gmail.com",
+        "nombre": "Juan",
+        "username": "juanuser",
+        "apellido": "Soria",
+        "contraseña_cifrada": "juan324",
+        "rol_id": 3,
+    }
+
+    add_user(user1)
+    add_user(user2)
+    add_user(user3)
 
 
     # sleep(5)

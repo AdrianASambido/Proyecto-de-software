@@ -30,6 +30,14 @@ def authenticate():
         flash("Credenciales inválidas. Por favor, intente de nuevo.", "error")
         return redirect(url_for("login.login"))
     
+    if user.eliminado:
+        flash("No puede acceder. Esta cuenta está eliminada", "error")
+        return redirect(url_for("login.login"))
+    
+    if not user.activo:
+        flash("El usuario no está activo. Contacte al administrador.", "error")
+        return redirect(url_for("login.login"))
+    
     session["user"] = user.email
     flash("Inicio de sesión exitoso.", "success")
     return render_template("home.html"), 200
