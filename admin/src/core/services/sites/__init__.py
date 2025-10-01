@@ -16,6 +16,9 @@ from src.core.services.tags import get_tag_by_id
 from src.core.Entities.tag import Tag
 from sqlalchemy.orm import joinedload
 
+import csv
+from io import StringIO
+
 
 def list_sites(filtros: dict, page: int = 1, per_page: int = 3):
     """
@@ -218,3 +221,46 @@ def delete_site(site_id):
 
     db.session.commit()
     return True
+
+def export_sites_csv(filtros: dict = None):
+    """
+    Exporta la lista de sitios históricos en formato CSV.
+    Aplica los mismos filtros que list_sites.
+    """
+
+    query = list_sites(filtros if filtros else {}, page=1, per_page=10000)
+
+    output = StringIO()
+    writer = csv.writer(output)
+
+    # Escribir encabezados
+    writer.writerow([
+        "ID", "Nombre", "Descripción Breve", "Ciudad", "Provincia", 
+        "Latitud", "Longitud", "Estado de Conservación", "Fecha de registro", "Tags"
+    ])
+
+    for sitio in query.all():
+        punto_shape = to_shape(sitio.punto) if sitio.punto else None
+        latitud = punto_shape.y if punto_shape else None
+        longitud = punto_shape.x if punto_shape else None
+
+        writer.writerow([
+            sitio.id, sitio.nombre,
+            sitio.descripcion_breve,
+            sitio.ciudad,
+            sitio.provincia,
+            latitud,
+            longitud,
+            sitio.estado_conservacion,
+            sitio.created_at,
+            ";".join([tag.name for tag in sitio.tags])
+        ])
+
+    output.seek(0)
+    return output.getvalue()
+
+def get_current_timestamp_str():
+    """
+    Retorna la fecha y hora actual en formato YYYYMMDD_HHMM para usar en nombres de archivo.
+    """
+    return datetime.now().strftime("%Y%m%d_%H%M")
