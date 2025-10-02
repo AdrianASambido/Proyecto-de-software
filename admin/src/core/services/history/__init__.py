@@ -102,6 +102,7 @@ def list_site_history(sitio_id, page: int = 1, filtros: dict | None = None):
     }
 
 
+
 def add_site_history(
     site_id,
     accion,
