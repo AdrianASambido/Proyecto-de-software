@@ -12,6 +12,7 @@ from src.core.Entities.site_history import HistoryAction
 bp = Blueprint("sites_history", __name__, url_prefix=("/historial/<int:sitio_id>"))
 
 
+
 @bp.get("/")
 def index(sitio_id):
     """

@@ -193,7 +193,6 @@ def add_site(site_data):
 
     return nuevo_sitio
 
-
 def delete_site(site_id):
     sitio = Site.query.get(site_id)
     if not sitio:

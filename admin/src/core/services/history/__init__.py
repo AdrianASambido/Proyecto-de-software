@@ -12,6 +12,7 @@ from geoalchemy2 import WKTElement
 from shapely.geometry import mapping
 from geoalchemy2.elements import WKBElement
 
+
 def _serialize_value(val):
     """Convierte valores no serializables por JSON a tipos compatibles."""
     if isinstance(val, enum.Enum):

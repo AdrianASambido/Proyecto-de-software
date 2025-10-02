@@ -156,3 +156,10 @@ def get_blocked_users():
     Obtiene todos los usuarios bloqueados.
     """
     return User.query.filter_by(bloqueado=True).all()
+
+def get_user_by_id(user_id):
+    """
+    Retorna un usuario por su ID
+    """
+    user = User.query.get(user_id)
+    return user

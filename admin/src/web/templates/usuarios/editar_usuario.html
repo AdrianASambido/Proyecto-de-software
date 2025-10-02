@@ -1,0 +1,18 @@
+{% extends "basic-structure-w-sidebar.html" %} {% from "common/_form.html"
+import render_form %} {% block content %}
+<a 
+    href="{{ url_for('users.index') }}"
+    class="mb-4 inline-block rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-200"
+>
+    ← Volver al listado
+</a>
+<h2 class="text-2xl font-bold mb-4">Editar datos de usuario</h2>
+    {{render_form( action=url_for('users.edit_user', user_id=user.id),
+    fields=[
+        {"name": "nombre","label": "Nombre","type":"text","value": user.nombre},
+        {"name": "apellido","label":"Apellido","type":"text","value": user.apellido},
+        {"name": "email","label":"Email","type":"email","value": user.email},
+        {"name": "rol","label":"Rol","type":"select","options":roles,"value": user.rol},
+        {"name": "activo","label":"Activo","type":"checkbox","checked": user.activo} ],
+        submit_text="Guardar cambios" )}}
+{% endblock %}
