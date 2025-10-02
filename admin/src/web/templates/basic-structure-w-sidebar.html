@@ -19,10 +19,10 @@
   </script>
   <title>{% block title %}My App{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-  <link rel="stylesheet" type="text/css"
-      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-  <script type="text/javascript"
-        src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <!-- favicon -->
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
 
 <body class="relative h-auto min-h-screen w-full overflow-x-hidden">
@@ -34,8 +34,8 @@
           <div class="flex flex-1 flex-col items-center justify-center sm:flex-row sm:justify-start sm:gap-8">
             <div class="mr-8 w-fit">
               <a href="/" class="relative flex h-16 w-56 flex-shrink-0 items-center justify-center p-2 drop-shadow-lg">
-                <img width="200" height="50" class="h-8 w-32 object-contain"
-                  src="{{ url_for('static', filename='publico/assets/logo_only.svg') }}" alt="Imagen del logo" />
+                <img width="100" height="100" class="size-16 object-contain"
+                  src="{{ url_for('static', filename='logo_no_bg.png') }}" alt="Imagen del logo" />
               </a>
             </div>
           </div>
@@ -221,25 +221,25 @@
     </aside>
 
     <!-- aca el contenido principal de la pagina -->
-    <main class="flex h-full w-full flex-col items-center justify-start pt-32 sm:pt-24 sm:basis-8/12 lg:basis-9/12 peer-checked/sidebaropen:basis-full">
+    <main
+      class="flex h-full w-full flex-col items-center justify-start pt-32 sm:pt-24 sm:basis-8/12 lg:basis-9/12 peer-checked/sidebaropen:basis-full">
       {% block content %}{% endblock %}
     </main>
   </div>
 
-<!-- Loader -->
-<div id="loader"
-     class="fixed inset-0 flex items-center justify-center bg-white z-[9999]">
-  <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-600"></div>
-</div>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const loader = document.getElementById("loader");
-  if (loader) {
-    loader.classList.add("opacity-0", "transition-opacity", "duration-500");
-    setTimeout(() => loader.remove(), 500);
-  }
-});
-</script>
+  <!-- Loader -->
+  <div id="loader" class="fixed inset-0 flex items-center justify-center bg-white z-[9999]">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-600"></div>
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const loader = document.getElementById("loader");
+      if (loader) {
+        loader.classList.add("opacity-0", "transition-opacity", "duration-500");
+        setTimeout(() => loader.remove(), 500);
+      }
+    });
+  </script>
 
   <script>
     function openDeleteModal(actionUrl) {
@@ -254,26 +254,26 @@ document.addEventListener("DOMContentLoaded", function () {
         modal.classList.add('hidden');
         modal.style.display = 'none'; 
     }
-</script>
-{% with messages = get_flashed_messages(with_categories=true) %}
+  </script>
+  {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        {% for category, message in messages %}
-          Toastify({
-            text: "{{ message }}",
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            backgroundColor: "{{ 'linear-gradient(to right, #16a34a, #4ade80)' if category=='success' else 'linear-gradient(to right, #2563eb, #60a5fa)' if category=='info' else 'linear-gradient(to right, #dc2626, #f87171)' }}",
-            stopOnFocus: true
-          }).showToast();
-        {% endfor %}
-      });
-    </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      {% for category, message in messages %}
+      Toastify({
+        text: "{{ message }}",
+        duration: 3000,
+        close: true,
+        gravity: "top",
+        position: "right",
+        backgroundColor: "{{ 'linear-gradient(to right, #16a34a, #4ade80)' if category=='success' else 'linear-gradient(to right, #2563eb, #60a5fa)' if category=='info' else 'linear-gradient(to right, #dc2626, #f87171)' }}",
+        stopOnFocus: true
+      }).showToast();
+      {% endfor %}
+    });
+  </script>
   {% endif %}
-{% endwith %}
+  {% endwith %}
 
 </body>
 
