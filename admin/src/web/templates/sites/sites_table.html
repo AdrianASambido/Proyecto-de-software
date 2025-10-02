@@ -1,6 +1,6 @@
 {% extends "common/tables_base.html" %}
 {% from "common/_form.html" import render_form %}
-
+  
 
 
 {% block table_title %}Sitios Históricos{% endblock %}
@@ -91,48 +91,32 @@
     </p>
     {% endblock %}
 
-    {% block table_headers %}
-    <th>Nombre</th>
-    <th>Ciudad</th>
-    <th>Provincia</th>
-    <th>Descripción breve</th>
-    <th>Descripción completa</th>
-    <th>Año inauguración</th>
-    <th>Categoría</th>
-    <th>Estado de conservación</th>
-    <th>Descripción breve</th>
-    <th>Descripción completa</th>
-    <th>Año inauguración</th>
-    <th>Categoría</th>
-    <th>Estado de conservación</th>
-    <th>Latitud</th>
-    <th>Longitud</th>
-    <th>Visible</th>
-    <th>Fecha de registro</th>
-    <th>Acciones</th>
-    {% endblock %}
-    {% block table_rows %}
-    {% for sitio in items %}
-    {% for sitio in items %}
+{% block table_headers %}
+  <th>Nombre</th>
+  <th>Ciudad</th>
+  <th>Provincia</th>
+  <th>Descripción breve</th>
+  <th>Estado de conservación</th>
+  <th>Visible</th>
+  <th>Fecha de registro</th>
+  <th>Acciones</th>
+{% endblock %}
+{% block table_rows %}
+  {% for sitio in items %}
     <tr>
       <td>{{ sitio.nombre }}</td>
       <td>{{ sitio.ciudad }}</td>
       <td>{{ sitio.provincia }}</td>
       <td>{{ sitio.descripcion_breve }}</td>
-      <td>{{ sitio.descripcion_completa }}</td>
-      <td>{{ sitio.inauguracion }}</td>
-      <td>{{ sitio.categoria }}</td>
       <td>{{ sitio.estado_conservacion }}</td>
-      <td>{{ sitio.latitud }}</td>
-      <td>{{ sitio.longitud }}</td>
       <td>{{ 'Sí' if sitio.visible else 'No' }}</td>
-      <td>{{ sitio.created_at }}</td>
-      <td>{{ sitio.created_at }}</td>
+      <td>{{ sitio.created_at.strftime("%d/%m/%Y %H:%M") }}</td>
+
       <td class="flex gap-2">
-        {% set details_url = url_for('sites_history.index', sitio_id=sitio.id) %}
-        {% set edit_url = url_for('sites.modify', site_id=sitio.id) %}
-        {% set delete_url = url_for('sites.delete', site_id=sitio.id) %}
-        {% include "common/actions.html" %}
+      {% set details_url = url_for('sites.detail', sitio_id=sitio.id) %}
+      {% set edit_url = url_for('sites.modify', site_id=sitio.id) %}
+  {% set delete_url = url_for('sites.delete', site_id=sitio.id) %}
+  {% include "common/actions.html" %}
 
     </tr>
 

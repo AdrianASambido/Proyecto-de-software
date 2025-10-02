@@ -126,4 +126,11 @@ def export():
         "attachment",
         filename=f"sitios_{board_sites.get_current_timestamp_str()}.csv",
     )
+
     return response
+
+
+@bp.route("/<int:sitio_id>")
+def detail(sitio_id):
+    sitio = board_sites.get_site(sitio_id)
+    return render_template("sites/detail.html", sitio=sitio)
