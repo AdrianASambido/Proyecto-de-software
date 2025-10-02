@@ -1,23 +1,18 @@
-from datetime import datetime, timezone, date
+from datetime import datetime, timezone
 from time import sleep
-
-
-from src.core.services.sites import add_site
-
-from datetime import datetime, timezone, date
-from time import sleep
-
 
 # db
 from src.core.database import db
 
 # servicios
-from src.core.services.sites import add_site, modify_site
+from src.core.services.sites import add_site, modify_site, delete_site
 from src.core.services.history import add_site_history
+from src.core.services.users import add_user
 
 # entidades
 from src.core.Entities import FeatureFlag
 from src.core.Entities.site_history import HistoryAction
+from src.core.Entities.role import Role
 
 
 # para agregar datos de prueba a la base de datos se usa "flask seeddb"
@@ -71,8 +66,45 @@ def seeds_db():
         db.session.rollback()
         print(f"✗ Error al guardar feature flags: {e}")
 
-    # Seed para sitios
+     # Crear roles
+    roles_data = [
+        {
+            "name": "Editor",
+            "description": "Usuario con permisos de edición limitados"
+        },
+        {
+            "name": "Administrador", 
+            "description": "Usuario con todos los permisos del sistema"
+        }
+    ]
+    
+    for role_data in roles_data:
+        existing_role = Role.query.filter_by(name=role_data["name"]).first()
+        if not existing_role:
+            role = Role(**role_data)
+            db.session.add(role)
+            print(f"✓ Rol '{role_data['name']}' creado")
+        else:
+            print(f"⚠ Rol '{role_data['name']}' ya existe")
+    
+    try:
+        db.session.commit()
+        print("✓ Roles y permisos guardados en la base de datos")
+    except Exception as e:
+        db.session.rollback()
+        print(f"✗ Error al guardar roles y permisos: {e}")
+    
+    add_user({
+        "nombre": "Admin",
+        "apellido": "Admin",
+        "email": "admin@admin.com",
+        "rol": 1,
+        "activo": True,
+        "contraseña_cifrada": "admin"
+    })
 
+
+    # Seed para sitios
     print("\n==== CREANDO SITES ====")
 
     sites_data = [
@@ -122,16 +154,13 @@ def seeds_db():
 
     add_site(sites_data[2])
 
-    # sleep(5)
     modify_site(
         result.id,
         {"nombre": "Chichen Itza", "estado_conservacion": "Malo", "visible": False},
     )
 
-    # sleep(5)
     modify_site(result.id, {"estado_conservacion": "Bueno", "visible": True})
 
-    # sleep(5)
     modify_site(
         result.id,
         {
@@ -140,7 +169,6 @@ def seeds_db():
         },
     )
 
-    # sleep(5)
     modify_site(
         result.id,
         {
@@ -149,37 +177,6 @@ def seeds_db():
         },
     )
 
-    # eliminar efectivamente el site con la funcion que lo maneje al eliminado
-    add_site_history(result.id, HistoryAction.ELIMINAR, 1, None, result, None)
-
-    # sleep(5)
-    modify_site(
-        result.id,
-        {"nombre": "Chichen Itza", "estado_conservacion": "Malo", "visible": False},
-    )
-
-    # sleep(5)
-    modify_site(result.id, {"estado_conservacion": "Bueno", "visible": True})
-
-    # sleep(5)
-    modify_site(
-        result.id,
-        {
-            "latitud": 19.8712,
-            "longitud": -87.2856,
-        },
-    )
-
-    # sleep(5)
-    modify_site(
-        result.id,
-        {
-            "ciudad": "Tuxtla Gutiérrez",
-            "provincia": "Chiapas",
-        },
-    )
-
-    # eliminar efectivamente el site con la funcion que lo maneje al eliminado
-    add_site_history(result.id, HistoryAction.ELIMINAR, 1, None, result, None)
+    delete_site(result.id)
 
     print(f"\n==== SEEDING LISTO ====\n\n")

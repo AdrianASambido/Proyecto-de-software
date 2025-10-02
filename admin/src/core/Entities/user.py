@@ -28,4 +28,4 @@ class User(db.Model):
     role=db.relationship("Role", back_populates="users")
 
     def __repr__(self):
-        return f"<User {self.username}>"
+        return f"<User {self.id} | {self.email} | {self.nombre} {self.apellido}>"

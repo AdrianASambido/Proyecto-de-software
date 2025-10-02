@@ -20,7 +20,7 @@ def add_user(user_data):
         nombre=user_data.get("nombre"),
         apellido=user_data.get("apellido"),
         email=user_data.get("email"),
-        rol=user_data.get("rol"),
+        rol_id=user_data.get("rol"),
         activo=user_data.get("activo", True),
         contraseña_cifrada=user_data.get("contraseña_cifrada"),
     )
@@ -28,3 +28,5 @@ def add_user(user_data):
     db.session.add(nuevo_usuario)
     db.session.commit()
     return nuevo_usuario
+
+    
