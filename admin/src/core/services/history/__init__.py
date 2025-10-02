@@ -98,7 +98,7 @@ def list_site_history(sitio_id, page: int = 1, order: str = "desc", filtros: dic
                     todos_ids = list({*ids_previos, *ids_nuevos})
                     if todos_ids:
                         tags = db.session.query(Tag).filter(Tag.id.in_(todos_ids)).all()
-                        mapa = {t.id: {"id": t.id, "name": t.name, "slug": t.slug} for t in tags}
+                        mapa = {t.id: {"id": t.id, "name": t.name} for t in tags}
                         c["valor_anterior_detalle"] = [mapa.get(tid) for tid in ids_previos if tid in mapa]
                         c["valor_nuevo_detalle"] = [mapa.get(tid) for tid in ids_nuevos if tid in mapa]
         site_history.append(hist)
