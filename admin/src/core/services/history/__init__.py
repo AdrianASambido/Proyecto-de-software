@@ -4,13 +4,17 @@ Este modelo representa las operaciones relacionadas con los sitios historicos.
 
 from src.core.Entities.site_history import SiteHistory, HistoryAction
 from src.core.Entities.site import Site
-from src.core.database import db
-from datetime import datetime, timezone, date
-import enum
+from src.core.Entities.tag import Tag
+from src.core.Entities.user import User
+
 from geoalchemy2.shape import to_shape
 from geoalchemy2 import WKTElement
 from shapely.geometry import mapping
 from geoalchemy2.elements import WKBElement
+
+import enum
+from src.core.database import db
+from datetime import datetime, timezone, date
 
 
 def _serialize_value(val):
@@ -33,17 +37,10 @@ def _get_field(obj, campo):
         return obj.get(campo)
     return getattr(obj, campo, None)
 
-
-usuario_1 = {
-    "id": 1,
-    "nombre": "Usuario 1",
-    "apellido": "Apellido 1",
-}
-
 per_page = 2
 
+def list_site_history(sitio_id, page: int = 1, order: str = "desc", filtros: dict | None = None):
 
-def list_site_history(sitio_id, page: int = 1, filtros: dict | None = None):
     """
     Retorna una lista de todos los cambios de un sitio historico.
     """
@@ -53,53 +50,79 @@ def list_site_history(sitio_id, page: int = 1, filtros: dict | None = None):
     if sitio is None:
         return None
 
-    # por usuario, por tipo de acción, por rango de fechas.
-    query_filters = db.session.query(SiteHistory).filter_by(sitio_id=sitio_id)
-    print(filtros)
+    # por usuario, por tipo de acción, por rango de fechas. JOIN con User y solo columnas necesarias
+    stmt = (
+         db.session.query(SiteHistory)
+        .with_entities(
+            SiteHistory,
+            User
+        )
+        .join(User, User.id == SiteHistory.usuario_modificador_id)
+        .filter(SiteHistory.sitio_id == sitio_id)
+    )
+
     if filtros is not None:
         # por usuario
         if filtros.get("usuario") is not None:
-            query_filters = query_filters.filter_by(
-                usuario_modificador_id=filtros.get("usuario")
-            )
+            stmt = stmt.where(SiteHistory.usuario_modificador_id == filtros.get("usuario")) 
         # por tipo de acción
         if filtros.get("accion") is not None:
-            query_filters = query_filters.filter_by(
-                accion=HistoryAction(filtros.get("accion"))
+            stmt = stmt.where(
+                SiteHistory.accion == HistoryAction(filtros.get("accion"))
             )
         # por rango de fechas
         if filtros.get("fecha_desde") is not None:
-            query_filters = query_filters.filter(
+            stmt = stmt.where(
                 SiteHistory.fecha_modificacion >= filtros.get("fecha_desde")
             )
         if filtros.get("fecha_hasta") is not None:
-            query_filters = query_filters.filter(
+            stmt = stmt.where(
                 SiteHistory.fecha_modificacion <= filtros.get("fecha_hasta")
             )
 
-    # Calculate offset
-    offset = (int(page) - 1) * per_page
-
-    # Construct the paginated query
-    paginated_query = (
-        query_filters.order_by(SiteHistory.fecha_modificacion.desc())
-        .limit(per_page + 1)
-        .offset(offset)
+    pagination = db.paginate(
+        stmt.order_by(
+            SiteHistory.fecha_modificacion.desc() 
+            if order == "desc" 
+            else SiteHistory.fecha_modificacion.asc()
+        ),
+        page=page,
+        per_page=per_page,
+        error_out=False,
     )
-    site_history = paginated_query.all()
 
-    # si la cantidad de resultados es mayor a la cantidad de resultados por pagina, hay mas paginas
-    has_more = len(site_history) > per_page
-
-    # obtener datos de usuario junto al historial
-    for cambios in site_history:
-        cambios.datos_usuario = usuario_1
+    site_history = []
+    for hist in pagination.items:
+        usuario = User.query.get(hist.usuario_modificador_id)
+        hist.datos_usuario = {
+            "id": usuario.id,
+            "nombre": usuario.nombre,
+            "apellido": usuario.apellido,
+        }
+        if hist.accion == HistoryAction.CAMBIAR_TAGS and hist.cambios:
+            for c in hist.cambios:
+                if isinstance(c, dict) and c.get("campo") == "tags":
+                    ids_previos = c.get("valor_anterior") or []
+                    ids_nuevos = c.get("valor_nuevo") or []
+                    todos_ids = list({*ids_previos, *ids_nuevos})
+                    if todos_ids:
+                        tags = db.session.query(Tag).filter(Tag.id.in_(todos_ids)).all()
+                        mapa = {t.id: {"id": t.id, "name": t.name} for t in tags}
+                        c["valor_anterior_detalle"] = [mapa.get(tid) for tid in ids_previos if tid in mapa]
+                        c["valor_nuevo_detalle"] = [mapa.get(tid) for tid in ids_nuevos if tid in mapa]
+        site_history.append(hist)
 
     return {
         "sitio": sitio,
-        "historial": site_history[:-1] if has_more else site_history,
-        "has_more": has_more,
-        "page": page,
+        "historial": site_history,
+        "pagination": {
+            "page": pagination.page,
+            "pages": pagination.pages,
+            "has_next": pagination.has_next,
+            "next_num": pagination.next_num,
+            "has_prev": pagination.has_prev,
+            "prev_num": pagination.prev_num,
+        }
     }
 
 
@@ -170,11 +193,30 @@ def add_site_history(
 
     # si es modificacion
     if sitio_original is not None and sitio_cambiado is not None:
+
+        # detectar cambios en coordenadas para agruparlos
+        lat_cambio = False
+        lng_cambio = False
+        lat_vieja = None
+        lat_nueva = None
+        lng_vieja = None
+        lng_nueva = None
+
         # iterar por los campos modificados y agregarlos de la siguiente manera
         for campo in campos_modificados:
             valor_anterior = _get_field(sitio_original, campo)
             valor_nuevo = _get_field(sitio_cambiado, campo)
-            if valor_anterior != valor_nuevo:
+
+            # Detectar cambios en coordenadas
+            if campo == "latitud" and valor_anterior != valor_nuevo:
+                lat_cambio = True
+                lat_vieja = valor_anterior
+                lat_nueva = valor_nuevo
+            elif campo == "longitud" and valor_anterior != valor_nuevo:
+                lng_cambio = True
+                lng_vieja = valor_anterior
+                lng_nueva = valor_nuevo
+            elif campo not in ["latitud", "longitud"] and valor_anterior != valor_nuevo:
                 cambios_realizados.append(
                     {
                         "campo": campo,
@@ -182,6 +224,31 @@ def add_site_history(
                         "valor_nuevo": _serialize_value(valor_nuevo),
                     }
                 )
+
+        # Si cambió alguna coordenada, agregar como un solo cambio de "ubicacion"
+        if lat_cambio or lng_cambio:
+            # Obtener valores actuales si no cambiaron
+            if not lat_cambio:
+                lat_vieja = _get_field(sitio_original, "latitud")
+                lat_nueva = _get_field(sitio_cambiado, "latitud")
+            if not lng_cambio:
+                lng_vieja = _get_field(sitio_original, "longitud")
+                lng_nueva = _get_field(sitio_cambiado, "longitud")
+
+            cambios_realizados.append(
+                {
+                    "campo": "ubicacion",
+                    "valor_anterior": {
+                        "latitud": _serialize_value(lat_vieja),
+                        "longitud": _serialize_value(lng_vieja)
+                    },
+                    "valor_nuevo": {
+                        "latitud": _serialize_value(lat_nueva),
+                        "longitud": _serialize_value(lng_nueva)
+                    },
+                }
+            )
+
 
     if len(cambios_realizados) == 0:
         return None

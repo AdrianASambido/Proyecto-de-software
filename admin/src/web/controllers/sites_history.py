@@ -22,6 +22,7 @@ def index(sitio_id):
     """
 
     page = request.args.get("page", default=1, type=int)
+    order = request.args.get("order", default="asc", type=str)
     filtros = {}
     if (
         request.args.get("usuario") is not None
@@ -45,28 +46,45 @@ def index(sitio_id):
         and request.args.get("fecha_hasta") != ""
     ):
         filtros["fecha_hasta"] = request.args.get("fecha_hasta")
+
+
     datos_historial = list_site_history(
-        sitio_id, page, filtros if len(filtros.keys()) > 0 else None
+        sitio_id, page, order, filtros if len(filtros.keys()) > 0 else None
     )
 
     if datos_historial is None:
         return abort(404)
 
-    usuarios_en_historial = []
+    # obtener usuarios para crear bien el selector 
+    usuarios_options = []
     for cambio in datos_historial["historial"]:
-        if cambio.datos_usuario not in usuarios_en_historial:
-            usuarios_en_historial.append(cambio.datos_usuario)
+        if cambio.datos_usuario not in usuarios_options:
+            usuarios_options.append(
+                {"value": cambio.datos_usuario["id"], "label": 
+                f"{cambio.datos_usuario['nombre']} {cambio.datos_usuario['apellido']}"}
+            )
+
+    print(datos_historial)
 
     return (
         render_template(
             "site_history/changes_list.html",
-            HistoryAction=HistoryAction,
             lista_de_cambios=datos_historial["historial"],
             sitio=datos_historial["sitio"],
-            has_more=datos_historial["has_more"],
-            page=datos_historial["page"],
+            
+            # datos para filtros
+            active_filters_count=len(filtros),
+            HistoryAction=HistoryAction,
+            usuarios_options=usuarios_options,
+            # filtros
             filtros=filtros,
-            usuarios_en_historial=usuarios_en_historial,
+
+            # datos para paginacion
+            pagination=datos_historial["pagination"],
+
+            # ordenamiento
+            order=order,
+            orders=[{"value": "asc", "label": "Ascendente"}, {"value": "desc", "label": "Descendente"}],
         ),
         200,
     )
