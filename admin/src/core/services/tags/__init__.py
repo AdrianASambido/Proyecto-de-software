@@ -4,6 +4,10 @@ from datetime import date
 import unicodedata
 import re
 
+def list_tags():
+    tags=Tag.query.all()
+    return tags
+
 
 def list_tags(filtros: dict | None = None):
     if filtros is None:
@@ -28,6 +32,7 @@ def list_tags(filtros: dict | None = None):
 
 
 
+
 def add_tag(tag_data):
     new_tag = Tag(
         name=convert_to_lowercase(tag_data.get("nombre")),
@@ -36,7 +41,6 @@ def add_tag(tag_data):
     db.session.add(new_tag)
     db.session.commit()
     return new_tag
-
 
 def update_tag(tag_id, tag_data):
     tag = Tag.query.get(tag_id)

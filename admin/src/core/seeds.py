@@ -7,6 +7,13 @@ from src.core.services.sites import add_site
 from datetime import datetime, timezone, date
 from time import sleep
 
+
+
+from src.core.services.sites import add_site
+
+from datetime import datetime, timezone, date
+from time import sleep
+
 from geoalchemy2 import WKTElement
 # db
 from src.core.database import db
@@ -181,7 +188,6 @@ def seeds_db():
         db.session.rollback()
         print(f"✗ Error al guardar feature flags: {e}")
 
-
     # Seed para sitios
    
    
@@ -302,11 +308,10 @@ def seeds_db():
 
 
     # sleep(5)
-    modify_site(result.id, {
-        "nombre":"Chichen Itza",
-        "estado_conservacion":"Malo",
-        "visible":False
-    })
+    modify_site(
+        result.id,
+        {"nombre": "Chichen Itza", "estado_conservacion": "Malo", "visible": False},
+    )
 
     # sleep(5)
     modify_site(
@@ -318,10 +323,22 @@ def seeds_db():
     )
 
     # sleep(5)
-    modify_site(result.id, {
-        "latitud":19.8712,
-        "longitud":-87.2856,
-    })
+    modify_site(
+        result.id,
+        {
+            "latitud": 19.8712,
+            "longitud": -87.2856,
+        },
+    )
+
+    # sleep(5)
+    modify_site(
+        result.id,
+        {
+            "ciudad": "Tuxtla Gutiérrez",
+            "provincia": "Chiapas",
+        },
+    )
 
     # sleep(5)
     modify_site(result.id, {
@@ -336,3 +353,4 @@ def seeds_db():
 
 
     print(f"\n==== SEEDING LISTO ====\n\n")
+

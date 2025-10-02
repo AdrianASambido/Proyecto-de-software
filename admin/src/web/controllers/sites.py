@@ -1,5 +1,6 @@
 """
 Este controlador maneja las rutas relacionadas con las operaciones de sitios históricos.
+Este controlador maneja las rutas relacionadas con las operaciones de sitios históricos.
 """
 
 from flask import Blueprint
@@ -49,6 +50,8 @@ def index():
 @bp.route("/nuevo", methods=["GET", "POST"])
 def add_site():
     """
+    GET: muestra el formulario para crear un nuevo sitio.
+    POST: procesa el formulario y crea el sitio.
     GET: muestra el formulario para crear un nuevo sitio.
     POST: procesa el formulario y crea el sitio.
     """
@@ -123,6 +126,7 @@ def export():
         "attachment",
         filename=f"sitios_{board_sites.get_current_timestamp_str()}.csv",
     )
+
     return response
 
 

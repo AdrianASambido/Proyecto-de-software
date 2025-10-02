@@ -1,9 +1,7 @@
 {% extends "basic-structure-w-sidebar.html" %} {% from "common/_form.html"
 import render_form %} {% block content %}
-<a
-    href="{{ url_for('sites.index') }}"
-    class="mb-4 inline-block rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-200"
->
+<a href="{{ url_for('sites.index') }}"
+    class="mb-4 inline-block rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-200">
     ← Volver al listado
 </a>
 <h2 class="text-2xl font-bold mb-4">Modificar sitio histórico</h2>
@@ -34,27 +32,13 @@ submit_text="Guardar cambios" ) %}
 <div class="flex gap-4 mt-4">
     <div class="flex-1">
         <label for="latitud">Latitud</label>
-        <input
-            type="number"
-            step="any"
-            id="latitud"
-            name="latitud"
-            class="border rounded p-2 w-full"
-            value="{{ site.latitud }}"
-            readonly
-        />
+        <input type="number" step="any" id="latitud" name="latitud" class="border rounded p-2 w-full"
+            value="{{ site.latitud }}" readonly />
     </div>
     <div class="flex-1">
         <label for="longitud">Longitud</label>
-        <input
-            type="number"
-            step="any"
-            id="longitud"
-            name="longitud"
-            class="border rounded p-2 w-full"
-            value="{{ site.longitud }}"
-            readonly
-        />
+        <input type="number" step="any" id="longitud" name="longitud" class="border rounded p-2 w-full"
+            value="{{ site.longitud }}" readonly />
     </div>
 </div>
 <div class="flex justify-center mt-6"></div>
