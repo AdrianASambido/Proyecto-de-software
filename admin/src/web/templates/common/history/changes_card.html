@@ -45,6 +45,152 @@
         {% if change.cambios and change.cambios|length > 0 %}
         <div class="space-y-2">
             {% for c in change.cambios %}
+            <!-- Verificar si es un cambio de ubicación para mostrar mapas -->
+            {% if c.campo == 'ubicacion' %}
+            <div class="space-y-3">
+                <div class="text-xs uppercase tracking-widest text-neutral-400">Ubicación</div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <!-- Mapa con ubicación anterior (si existe) -->
+                    {% if c.valor_anterior and c.valor_anterior is mapping and c.valor_anterior['latitud'] is not none
+                    %}
+                    <div class="space-y-2">
+                        <div class="text-sm font-medium text-neutral-300">Ubicación anterior</div>
+                        <div id="map-old-{{ change.id }}-{{ loop.index }}"
+                            class="z-0 w-full h-64 border border-neutral-600 rounded-lg"></div>
+                        <div class="text-xs text-neutral-400">
+                            Lat: {{ c.valor_anterior['latitud'] }}, Lng: {{ c.valor_anterior['longitud'] }}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="space-y-2">
+                        <div class="text-sm font-medium text-neutral-400">Ubicación anterior</div>
+                        <div
+                            class="flex items-center justify-center w-full h-64 border border-neutral-600 rounded-lg bg-neutral-800">
+                            <span class="text-neutral-500">Sin ubicación previa</span>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Mapa con ubicación nueva (si existe) -->
+                    {% if c.valor_nuevo and c.valor_nuevo is mapping and c.valor_nuevo['latitud'] is not none %}
+                    <div class="space-y-2">
+                        <div class="text-sm font-medium text-emerald-300">Ubicación nueva</div>
+                        <div id="map-new-{{ change.id }}-{{ loop.index }}"
+                            class="z-0 w-full h-64 border border-neutral-600 rounded-lg"></div>
+                        <div class="text-xs text-neutral-400">
+                            Lat: {{ c.valor_nuevo['latitud'] }}, Lng: {{ c.valor_nuevo['longitud'] }}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="space-y-2">
+                        <div class="text-sm font-medium text-red-400">Ubicación eliminada</div>
+                        <div
+                            class="flex items-center justify-center w-full h-64 border border-neutral-600 rounded-lg bg-neutral-800">
+                            <span class="text-neutral-500">Ubicación eliminada</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if c.valor_anterior and c.valor_anterior is mapping %}
+                <input type="hidden" id="latitud_anterior_{{ change.id }}_{{ loop.index }}" value="{{ c.valor_anterior['latitud'] }}">
+                <input type="hidden" id="longitud_anterior_{{ change.id }}_{{ loop.index }}" value="{{ c.valor_anterior['longitud'] }}">
+                {% endif %}
+                {% if c.valor_nuevo and c.valor_nuevo is mapping %}
+                <input type="hidden" id="latitud_nuevo_{{ change.id }}_{{ loop.index }}" value="{{ c.valor_nuevo['latitud'] }}">
+                <input type="hidden" id="longitud_nuevo_{{ change.id }}_{{ loop.index }}" value="{{ c.valor_nuevo['longitud'] }}">
+                {% endif %}
+
+                <script>
+                (function() {
+                    // Esperar a que el DOM esté listo
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', initMaps{{ change.id }}_{{ loop.index }});
+                    } else {
+                        initMaps{{ change.id }}_{{ loop.index }}();
+                    }
+
+                    function initMaps{{ change.id }}_{{ loop.index }}() {
+                        const oldLatEl = document.getElementById('latitud_anterior_{{ change.id }}_{{ loop.index }}');
+                        const oldLngEl = document.getElementById('longitud_anterior_{{ change.id }}_{{ loop.index }}');
+                        const newLatEl = document.getElementById('latitud_nuevo_{{ change.id }}_{{ loop.index }}');
+                        const newLngEl = document.getElementById('longitud_nuevo_{{ change.id }}_{{ loop.index }}');
+
+                        if (oldLatEl && oldLngEl) {
+                            const old_latitud = parseFloat(oldLatEl.value);
+                            const old_longitud = parseFloat(oldLngEl.value);
+
+                            if (!isNaN(old_latitud) && !isNaN(old_longitud)) {
+                                const mapOld = L.map('map-old-{{ change.id }}-{{ loop.index }}').setView([old_latitud, old_longitud], 13);
+                                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                                }).addTo(mapOld);
+                                L.marker([old_latitud, old_longitud]).addTo(mapOld);
+                            }
+                        }
+
+                        if (newLatEl && newLngEl) {
+                            const new_latitud = parseFloat(newLatEl.value);
+                            const new_longitud = parseFloat(newLngEl.value);
+
+                            if (!isNaN(new_latitud) && !isNaN(new_longitud)) {
+                                const mapNew = L.map('map-new-{{ change.id }}-{{ loop.index }}').setView([new_latitud, new_longitud], 13);
+                                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+                                }).addTo(mapNew);
+                                L.marker([new_latitud, new_longitud]).addTo(mapNew);
+                            }
+                        }
+                    }
+                })();
+                </script>
+            </div>
+
+            <!-- Verificar si es un cambio de tags para mostrar nombres -->
+            {% elif c.campo == 'tags' %}
+            <div class="grid grid-cols-1 gap-2 sm:grid-cols-12">
+                <div class="sm:col-span-5 flex flex-col">
+                    <div class="text-xs uppercase tracking-widest text-neutral-400">Tags</div>
+                    <div class="flex flex-wrap gap-1 mt-1">
+                        {% if c.valor_anterior and c.valor_anterior|length > 0 %}
+                        {% for tag_id in c.valor_anterior %}
+                        <span
+                            class="inline-flex items-center px-2 py-1 text-xs font-medium bg-neutral-700 text-neutral-300 rounded">
+                            Tag #{{ tag_id }}
+                        </span>
+                        {% endfor %}
+                        {% else %}
+                        <span class="text-neutral-400 text-sm">Sin tags</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="hidden items-center justify-start sm:col-span-2 sm:flex">
+                    <svg class="h-5 w-5 text-neutral-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12h14" />
+                        <path d="m13 5 7 7-7 7" />
+                    </svg>
+                </div>
+
+                <div class="sm:col-span-5 flex items-end">
+                    <div class="flex flex-wrap gap-1 mt-1">
+                        {% if c.valor_nuevo and c.valor_nuevo|length > 0 %}
+                        {% for tag_id in c.valor_nuevo %}
+                        <span
+                            class="inline-flex items-center px-2 py-1 text-xs font-medium bg-emerald-700 text-emerald-100 rounded">
+                            Tag #{{ tag_id }}
+                        </span>
+                        {% endfor %}
+                        {% else %}
+                        <span class="text-neutral-400 text-sm">Sin tags</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cambios normales -->
+            {% else %}
             <div class="grid grid-cols-1 gap-2 sm:grid-cols-12">
                 <!-- Valor anterior -->
                 <div class="sm:col-span-5 flex flex-col">
@@ -71,6 +217,7 @@
                         and c.valor_nuevo != '' else 'Sin valor' }}</div>
                 </div>
             </div>
+            {% endif %}
 
             {% if not loop.last %}
             <div class="border-b border-gray-800"></div>

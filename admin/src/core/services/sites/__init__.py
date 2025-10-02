@@ -146,6 +146,18 @@ def modify_site(site_id, site_data):
         list(site_data.keys()),
     )
 
+    
+    # Si cambiaron las tags, registrar en historial aparte
+    if tags_nuevas is not None and sorted(tags_viejas) != sorted(tags_nuevas):
+        add_site_history(
+            site_id,
+            HistoryAction.CAMBIAR_TAGS,
+            1,
+            {"tags": tags_nuevas},
+            {"tags": tags_viejas},
+            ["tags"],
+        )
+
     return sitio
 
 
@@ -193,7 +205,6 @@ def add_site(site_data):
 
     return nuevo_sitio
 
-
 def delete_site(site_id):
     sitio = Site.query.get(site_id)
     if not sitio:
@@ -208,6 +219,18 @@ def delete_site(site_id):
     # marcamos como eliminado (eliminación lógica)
     sitio.eliminated_at = datetime.now(timezone.utc)
     db.session.add(sitio)
+
+        # Agregar ubicación como un solo campo
+    if sitio.latitud is not None and sitio.longitud is not None:
+        original_snapshot["ubicacion"] = {
+            "latitud": sitio.latitud,
+            "longitud": sitio.longitud
+        }
+
+    # Capturar tags si existen (cuando la relación esté activa)
+    # if hasattr(sitio, 'tags') and sitio.tags:
+    #     original_snapshot["tags"] = [tag.id for tag in sitio.tags]
+
 
     # guardamos historial
     add_site_history(
