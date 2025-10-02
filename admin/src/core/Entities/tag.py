@@ -33,13 +33,6 @@ class Tag(db.Model):
         back_populates="tags"
     )
 
-    # Relación muchos-a-muchos con sites
-    # sites = db.relationship(
-    #     "Site",  # name del modelo de sites
-    #     secondary=site_tags,
-    #     backref="tags",
-    #     # back_populates="tags"
-    # )
-
     def __repr__(self):
         return f"<Tag {self.name}>"
+        
