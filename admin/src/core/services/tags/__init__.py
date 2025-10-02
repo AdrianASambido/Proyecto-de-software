@@ -28,7 +28,7 @@ def list_tags(filtros: dict | None = None):
     }
     query = query.order_by(opciones_orden[orden])
 
-    return query.all()
+    return query
 
 
 
