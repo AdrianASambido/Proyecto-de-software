@@ -23,14 +23,20 @@ class Site(db.Model):
     punto = db.Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
     categoria = db.Column(db.String(50), nullable=False)
     estado_conservacion = db.Column(db.String(50), nullable=False)
+  
+
     created_at = db.Column(
-        db.DateTime, nullable=False, default=datetime.now(timezone.utc)
+        db.DateTime,
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc)
     )
+
     updated_at = db.Column(
         db.DateTime,
-        default=datetime.now(timezone.utc),
-        onupdate=datetime.now(timezone.utc),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc)
     )
+
     eliminated_at = db.Column(db.DateTime, nullable=True)
 
     @property

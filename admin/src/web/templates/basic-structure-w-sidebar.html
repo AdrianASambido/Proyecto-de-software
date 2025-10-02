@@ -226,37 +226,33 @@
     </main>
   </div>
 
-
-  <!-- Loader -->
-  <div id="loader"
-      class="fixed inset-0 flex items-center justify-center bg-white z-[9999]">
-    <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-600"></div>
-  </div>
-
-  <script>
-  document.addEventListener("DOMContentLoaded", function () {
-    const loader = document.getElementById("loader");
-    if (loader) {
-      loader.classList.add("opacity-0", "transition-opacity", "duration-500");
-      setTimeout(() => loader.remove(), 500);
-    }
-  });
-  </script>
+<!-- Loader -->
+<div id="loader"
+     class="fixed inset-0 flex items-center justify-center bg-white z-[9999]">
+  <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-600"></div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const loader = document.getElementById("loader");
+  if (loader) {
+    loader.classList.add("opacity-0", "transition-opacity", "duration-500");
+    setTimeout(() => loader.remove(), 500);
+  }
+});
+</script>
 
   <script>
-
-    const openDeleteModal = (actionUrl) => {
+    function openDeleteModal(actionUrl) {
+      console.log('modal!')
+      const modal = document.getElementById('deleteModal');
+      modal.classList.remove('hidden');
+      modal.style.display = 'flex';
       document.getElementById('deleteForm').action = actionUrl;
-      document.getElementById('deleteModal').style.display = 'flex';
-    };
-
-    const closeDeleteModal = () => {
-      document.getElementById('deleteModal').style.display = 'none';
-    };
-
-  </script>
-
-
+    }
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').classList.add('hidden');
+    }
+</script>
 {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
     <script>
@@ -276,9 +272,6 @@
     </script>
   {% endif %}
 {% endwith %}
-
-
-
 
 </body>
 
