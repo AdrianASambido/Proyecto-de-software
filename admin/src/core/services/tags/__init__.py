@@ -37,7 +37,6 @@ def add_tag(tag_data):
     db.session.commit()
     return new_tag
 
-
 def update_tag(tag_id, tag_data):
     tag = Tag.query.get(tag_id)
     if not tag:

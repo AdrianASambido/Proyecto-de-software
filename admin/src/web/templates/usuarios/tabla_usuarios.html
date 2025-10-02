@@ -1,6 +1,7 @@
 {% extends "common/tables_base.html" %}
 
 {% block table_title %}Lista de Usuarios{% endblock %}
+{% block add_url %}{{ url_for('users.add_user') }}{% endblock %}
 {% block add_label %}Agregar Usuario{% endblock %}
 
 {% block table_filters %}
@@ -47,18 +48,37 @@
 {% endblock %}
 
 {% block table_row %}
-    {% for user in usuarios %}
-      <td>{{ user.email }}</td>
-      <td>{{ user.nombre }}</td>
-      <td>{{ user.apellido }}</td>
-      <td>********</td>
-      <td>
-          {% if user.activo %}
-              <span class="text-green-500 font-semibold">Sí</span>
-          {% else %}
-              <span class="text-red-500 font-semibold">No</span>
-          {% endif %}
+    {% for user in items %}
+    <tr>
+        <td>{{ user.email }}</td>
+        <td>{{ user.nombre }}</td>
+        <td>{{ user.apellido }}</td>
+        <td>
+            {% if user.activo %}
+                <span class="text-green-500 font-semibold">Activo</span>
+            {% else %}
+                <span class="text-red-500 font-semibold">Inactivo</span>
+            {% endif %}
+        </td>
+        <td>{{ user.rol }}</td>
+        <td class="text-right">
+            <a href="{{ url_for('users.edit_user', user_id=user.id) }}"
+               class="text-blue-600 hover:underline">Editar Usuario</a>
+            <form method="post" action="{{ url_for('users.delete_user', user_id=user.id) }}" class="inline">
+                <button type="submit" class="text-red-600 hover:underline"
+                        onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
+                    Eliminar Usuario
+                </button>
+            </form>
+        {% include "common/actions.html" %}
+    </tr>
+    {% else %}
+    <tr>
+      <td colspan="13" class="text-center text-white-500 py-4">
+        No hay usuarios guardados.
       </td>
-      <td>{{ user.rol }}</td>
+    </tr>
     {% endfor %}
+  <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 {% endblock %}

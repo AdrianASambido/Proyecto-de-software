@@ -6,6 +6,7 @@ from src.core.Entities.tag import site_tags
 
 
 
+
 class Site(db.Model):
     """
     Modelo que representa un sitio historico en la base de datos
