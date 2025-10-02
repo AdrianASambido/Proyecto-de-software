@@ -13,8 +13,9 @@ from src.core.services.sites import list_sites, add_site, get_site, modify_site
 from src.core.services.tags import list_tags
 from flask import flash
 import pycountry
+from flask import current_app as app
 
-bp = Blueprint("sites", __name__, url_prefix=("/sitios"))
+bp = Blueprint("sites", __name__, url_prefix="/sitios")
 
 provincias_arg = [sub.name for sub in pycountry.subdivisions.get(country_code="AR")]
 
@@ -101,3 +102,25 @@ def delete(site_id):
     board_sites.delete_site(site_id)
     flash("Sitio histórico eliminado exitosamente.", "success")
     return redirect(url_for("sites.index"))
+
+@bp.get("/exportar")
+def export():
+    """
+    Exporta la lista de sitios históricos en formato CSV.
+    """
+    filtros = request.form.to_dict()
+    filtros.pop("exportar", None)
+
+    csv_data = board_sites.export_sites_csv(filtros if len(filtros.keys()) > 0 else None)
+
+    response = app.response_class(
+        response=csv_data,
+        status=200,
+        mimetype="text/csv",
+    )
+    response.headers.set(
+        "Content-Disposition",
+        "attachment",
+        filename=f"sitios_{board_sites.get_current_timestamp_str()}.csv",
+    )
+    return response

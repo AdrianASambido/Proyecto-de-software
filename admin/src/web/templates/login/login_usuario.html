@@ -6,8 +6,18 @@
 {% block content %}
     <h1>Login Usuario</h1>
     <p>Por favor, ingrese correo y contraseña para iniciar sesión.</p>
+    {% with messages = get_flashed_messages(with_categories = true)%}
+    {%if messages%}
+        {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
     {{ render_form(
-        action=url_for('login'), 
+        action=url_for('login.authenticate'), 
         fields=[
             {'name': 'email', 'type': 'email', 'label': 'Correo Electrónico', 'placeholder': 'Ingrese su correo', 'required': True},
             {'name': 'password', 'type': 'password', 'label': 'Contraseña', 'placeholder': 'Ingrese su contraseña', 'required': True}
