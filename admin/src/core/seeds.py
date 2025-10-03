@@ -143,7 +143,7 @@ def seeds_db():
 
     # Seed para Feature Flags
     print("\n==== CREANDO FEATURE FLAGS ====")
-    
+
     feature_flags_data = [
         {
             "name": "admin_maintenance_mode",
@@ -151,26 +151,26 @@ def seeds_db():
             "is_enabled": False,
             "maintenance_message": "",
             "last_modified_by": "System",
-            "last_modified_at": datetime.now(timezone.utc)
+            "last_modified_at": datetime.now(timezone.utc),
         },
         {
-            "name": "portal_maintenance_mode", 
+            "name": "portal_maintenance_mode",
             "description": "Modo mantenimiento del portal web. Cuando está activo, pone el portal público en modo mantenimiento.",
             "is_enabled": False,
             "maintenance_message": "",
             "last_modified_by": "System",
-            "last_modified_at": datetime.now(timezone.utc)
+            "last_modified_at": datetime.now(timezone.utc),
         },
         {
             "name": "reviews_enabled",
             "description": "Permitir nuevas reseñas. Cuando está desactivado, oculta/deshabilita la creación de reseñas en el portal.",
             "is_enabled": True,
             "maintenance_message": "",
-            "last_modified_by": "System", 
-            "last_modified_at": datetime.now(timezone.utc)
-        }
+            "last_modified_by": "System",
+            "last_modified_at": datetime.now(timezone.utc),
+        },
     ]
-    
+
     for flag_data in feature_flags_data:
         # Verificar si el flag ya existe
         existing_flag = FeatureFlag.query.filter_by(name=flag_data["name"]).first()
@@ -180,7 +180,7 @@ def seeds_db():
             print(f"✓ Feature flag '{flag_data['name']}' creado")
         else:
             print(f"⚠ Feature flag '{flag_data['name']}' ya existe")
-    
+
     try:
         db.session.commit()
         print("✓ Feature flags guardados en la base de datos")
@@ -248,7 +248,7 @@ def seeds_db():
         "nombre": "Jose",
         "username": "joseuser",
         "apellido": "Perez",
-        "contraseña_cifrada": "jose123",
+        "contraseña": "jose123",
         "rol_id": 1
     }
     
@@ -257,7 +257,7 @@ def seeds_db():
         "nombre": "Pedrito",
         "username": "pedrouser",
         "apellido": "Martinez",
-        "contraseña_cifrada": "pedro123",
+        "contraseña": "pedro123",
         "rol_id": 2,
     }
 
@@ -266,7 +266,7 @@ def seeds_db():
         "nombre": "Juan",
         "username": "juanuser",
         "apellido": "Soria",
-        "contraseña_cifrada": "juan324",
+        "contraseña": "juan324",
         "rol_id": 3,
     }
 
@@ -341,12 +341,15 @@ def seeds_db():
     )
 
     # sleep(5)
-    modify_site(result.id, {
-        "ciudad":"Tuxtla Gutiérrez",
-        "provincia":"Chiapas",
-    })
+    modify_site(
+        result.id,
+        {
+            "ciudad": "Tuxtla Gutiérrez",
+            "provincia": "Chiapas",
+        },
+    )
 
-    # eliminar efectivamente el site con la funcion que lo maneje al eliminado 
+    # eliminar efectivamente el site con la funcion que lo maneje al eliminado
     add_site_history(result.id, HistoryAction.ELIMINAR, 1, None, result, None)
 
 

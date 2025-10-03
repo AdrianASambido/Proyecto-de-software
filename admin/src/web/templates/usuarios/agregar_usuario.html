@@ -1,17 +1,39 @@
 {% extends "basic-structure-w-sidebar.html" %}
-{% from "common/_form.html" import render_form %}
-
 {% block content %}
 <h2 class="text-2xl font-bold mb-4">Agregar Usuario</h2>
-{{render_form(
-action=url_for('users.add_user'),
-fields=[
-{"name": "nombre","label": "Nombre","type":"text","placeholder":"Nombre del usuario","required":True },
-{"name": "apellido","label":"Apellido del Usuario","type":"text","placeholder":"Apellido del Usuario","required":true},
-{"name": "email","label":"Email del usuario","type":"email","placeholder":"Email del usuario","required":true},
-{"name": "contraseña","label":"Contraseña","type":"text","placeholder":"Contraseña","required":True},
-{"name": "rol","label":"Rol del Usuario","type":"select","options":[{"value":"ADMINISTRADOR","label":"Administrador"},
-{"value":"EDITOR","label":"Editor"}],"required":True},
-],
-submit_text="Agregar Usuario") }}
-{%endblock%}
+<form method="POST" action="{{ url_for('users.add_user') }}">
+    {{ form.hidden_tag() }}
+    
+    <div class="mb-3">
+        {{ form.nombre.label }}  
+        {{ form.nombre(class="form-control", placeholder="Nombre del usuario") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.apellido.label }}
+        {{ form.apellido(class="form-control", placeholder="Apellido del usuario") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.username.label }}
+        {{ form.username(class="form-control", placeholder="Nombre de Usuario") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.email.label }}
+        {{ form.email(class="form-control", placeholder="Email del usuario") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.contraseña.label }}
+        {{ form.contraseña(class="form-control", placeholder="Contraseña") }}
+    </div>
+
+    <div class="mb-3">
+        {{ form.rol_id.label }}
+        {{ form.rol_id(class="form-select") }}
+    </div>
+
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}

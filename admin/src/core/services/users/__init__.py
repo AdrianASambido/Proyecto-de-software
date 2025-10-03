@@ -14,6 +14,30 @@ def list_users():
     users = User.query.filter_by(eliminado=False).all()
     return users
 
+def list_users(filtros: dict):
+    """
+    Retorna una lista de usuarios aplicando filtros dinámicos, salvo los eliminados
+    Filtros soportados:
+      - email (texto parcial)
+      - rol (selector)
+      - activo (checkbox)
+    """
+    query = User.query.filter_by(eliminado=False)
+
+    email = filtros.get("email")
+    if email:
+        query = query.filter(User.email.ilike(f"%{email}%"))
+
+    rol = filtros.get("role")
+    if rol:
+        query = query.filter(User.rol_id == rol)
+
+    activo = filtros.get("activo")
+    if activo:
+        query = query.filter(User.activo == True)
+
+    return query
+
 def get_user_by_email(email):
     """
     Retorna un usuario por su correo electrónico
@@ -41,15 +65,17 @@ def add_user(user_data):
     rol_id = user_data.get("rol_id")
     if not rol_id:
         # Si no se proporciona rol_id, buscar por nombre
-        rol_name = user_data.get("rol", "Editor")  # Default a Editor
+        rol_name = user_data.get("rol_id", "Editor")  # Default a Editor
         rol = Role.query.filter_by(name=rol_name).first()
         rol_id = rol.id if rol else 2  # Default a Editor (ID 2)
     
     nuevo_usuario = User(
         email=user_data.get("email"),
-        rol_id=user_data.get("rol"),
-        activo=user_data.get("activo", True),
-        contraseña_cifrada=user_data.get("contraseña_cifrada"),
+        nombre=user_data.get("nombre"),
+        username=user_data.get("username"),
+        apellido=user_data.get("apellido"),
+        contraseña_cifrada=bcrypt.generate_password_hash(user_data.get("contraseña")).decode('utf-8'),
+        rol_id=int(rol_id),
     )
 
     #Revisa si el usuario ya existe
@@ -121,19 +147,6 @@ def unblock_user(user_id):
         db.session.commit()
         return True
     return False
-
-
-def delete_user(user_id):
-    """
-    Elimina un usuario.
-    """
-    usuario = get_user_by_id(user_id)
-    if usuario:
-        db.session.delete(usuario)
-        db.session.commit()
-        return True
-    return False
-
 
 def get_users_by_role(role_id):
     """
