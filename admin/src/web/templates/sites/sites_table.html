@@ -106,12 +106,7 @@
   <th>Ciudad</th>
   <th>Provincia</th>
   <th>Descripción breve</th>
-  <th>Descripción completa</th>
-  <th>Año inauguración</th>
-  <th>Categoría</th>
   <th>Estado de conservación</th>
-  <th>Latitud</th>
-  <th>Longitud</th>
   <th>Visible</th>
   <th>Fecha de registro</th>
   <th>Acciones</th>
@@ -123,16 +118,12 @@
       <td>{{ sitio.ciudad }}</td>
       <td>{{ sitio.provincia }}</td>
       <td>{{ sitio.descripcion_breve }}</td>
-      <td>{{ sitio.descripcion_completa }}</td>
-      <td>{{ sitio.inauguracion }}</td>
-      <td>{{ sitio.categoria }}</td>
       <td>{{ sitio.estado_conservacion }}</td>
-      <td>{{ sitio.latitud }}</td>
-      <td>{{ sitio.longitud }}</td>
       <td>{{ 'Sí' if sitio.visible else 'No' }}</td>
-      <td>{{ sitio.created_at }}</td>
+      <td>{{ sitio.created_at.strftime("%d/%m/%Y %H:%M") }}</td>
+
       <td class="flex gap-2">
-      {% set details_url = url_for('site_history.index', sitio_id=sitio.id) %}
+      {% set details_url = url_for('sites.detail', sitio_id=sitio.id) %}
       {% set edit_url = url_for('sites.modify', site_id=sitio.id) %}
   {% set delete_url = url_for('sites.delete', site_id=sitio.id) %}
   {% include "common/actions.html" %}
