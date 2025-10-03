@@ -3,6 +3,13 @@ from src.core.database import db
 from sqlalchemy import Enum
 from datetime import datetime, timezone
 
+
+class rolEnum(enum.Enum):
+    PUBLICO = "Usuario Público"
+    EDITOR = "Editor"
+    ADMINISTRADOR = "Administrador"
+
+
 class User(db.Model):
     """Modelo que representa un usuario en la base de datos"""
 
