@@ -1,10 +1,10 @@
 {% extends "common/tables_base.html" %}
 {% from "common/_form.html" import render_form %}
-  
-
+{% from "common/filters_sidebar.html" import render_filters_sidebar, render_filter_button %}
+{% from "common/order_selector.html" import render_order_selector %}
+{% from "common/checkbox_filter.html" import render_checkbox %}
 
 {% block table_title %}Sitios Históricos{% endblock %}
-
 {% block add_url %}{{ url_for('sites.add_site') }}{% endblock %}
 {% block add_label %}Agregar sitio{% endblock %}
 {% block table_filters %}
@@ -85,6 +85,10 @@
       Limpiar
     </a>
 
+{% set tags_options = [] %}
+{% for tag in tags %}
+  {% set _ = tags_options.append({'value': tag.id, 'label': tag.nombre}) %}
+{% endfor %}
 
     <p class="mb-2 text-sm text-black-400">
       Mostrando {{ items|length }} resultado{{ 's' if items|length != 1 else '' }}
@@ -92,15 +96,16 @@
     {% endblock %}
 
 {% block table_headers %}
-  <th>Nombre</th>
-  <th>Ciudad</th>
-  <th>Provincia</th>
-  <th>Descripción breve</th>
-  <th>Estado de conservación</th>
-  <th>Visible</th>
-  <th>Fecha de registro</th>
-  <th>Acciones</th>
+<th class="px-3 py-2 text-left">Nombre</th>
+<th class="px-3 py-2 text-left">Ciudad</th>
+<th class="px-3 py-2 text-left">Provincia</th>
+<th class="px-3 py-2 text-left">Descripción breve</th>
+<th class="px-3 py-2 text-left">Estado de conservación</th>
+<th class="px-3 py-2 text-left">Visible</th>
+<th class="px-3 py-2 text-left">Fecha de registro</th>
+<th class="px-3 py-2 text-left">Acciones</th>
 {% endblock %}
+
 {% block table_rows %}
   {% for sitio in items %}
     <tr>

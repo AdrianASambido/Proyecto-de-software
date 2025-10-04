@@ -710,6 +710,7 @@ optional = false
 python-versions = ">=3.9"
 groups = ["test"]
 groups = ["test"]
+groups = ["test"]
 files = [
     {file = "pluggy-1.6.0-py3-none-any.whl", hash = "sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746"},
     {file = "pluggy-1.6.0.tar.gz", hash = "sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3"},
@@ -813,6 +814,7 @@ files = [
 name = "pygments"
 version = "2.19.2"
 description = "Pygments is a syntax highlighting package written in Python."
+optional = false
 optional = false
 optional = false
 python-versions = ">=3.8"
@@ -1099,6 +1101,7 @@ version = "4.15.0"
 description = "Backported and Experimental Type Hints for Python 3.9+"
 optional = false
 python-versions = ">=3.9"
+groups = ["main", "dev", "test"]
 groups = ["main", "dev", "test"]
 groups = ["main", "dev", "test"]
 files = [
