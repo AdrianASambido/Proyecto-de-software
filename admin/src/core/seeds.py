@@ -248,7 +248,7 @@ def seeds_db():
         "nombre": "Jose",
         "username": "joseuser",
         "apellido": "Perez",
-        "contraseña": "jose123",
+        "contraseña_cifrada": "jose123",
         "rol_id": 1
     }
     
@@ -257,7 +257,7 @@ def seeds_db():
         "nombre": "Pedrito",
         "username": "pedrouser",
         "apellido": "Martinez",
-        "contraseña": "pedro123",
+        "contraseña_cifrada": "pedro123",
         "rol_id": 2,
     }
 
@@ -266,7 +266,7 @@ def seeds_db():
         "nombre": "Juan",
         "username": "juanuser",
         "apellido": "Soria",
-        "contraseña": "juan324",
+        "contraseña_cifrada": "juan324",
         "rol_id": 3,
     }
 
