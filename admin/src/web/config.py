@@ -40,7 +40,7 @@ class DevelopmentConfig(Config):
     DB_NAME=os.getenv("GRUPO01_DATABASE_NAME", "postgres")
 
     DB_USER = os.getenv("GRUPO01_DATABASE_USERNAME", "postgres")
-    DB_PASSWORD = os.getenv("GRUPO01_DATABASE_PASSWORD", "postgres")
+    DB_PASSWORD = os.getenv("GRUPO01_DATABASE_PASSWORD", "Sacsayhuaman03")
     DB_HOST = os.getenv("GRUPO01_DATABASE_HOST", "localhost")
     DB_PORT = os.getenv("GRUPO01_DATABASE_PORT", "5432")
     DB_NAME = os.getenv("GRUPO01_DATABASE_NAME", "postgres")
@@ -62,7 +62,7 @@ class TestingConfig(Config):
     DB_NAME=os.getenv("GRUPO01_DATABASE_NAME", "postgres")
 
     DB_USER = os.getenv("GRUPO01_DATABASE_USERNAME", "postgres")
-    DB_PASSWORD = os.getenv("GRUPO01_DATABASE_PASSWORD", "postgres")
+    DB_PASSWORD = os.getenv("GRUPO01_DATABASE_PASSWORD", "Sacsayhuaman03")
     DB_HOST = os.getenv("GRUPO01_DATABASE_HOST", "localhost")
     DB_PORT = os.getenv("GRUPO01_DATABASE_PORT", "5432")
     DB_NAME = os.getenv("GRUPO01_DATABASE_NAME", "postgres")

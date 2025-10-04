@@ -1,0 +1,20 @@
+{# Macro para renderizar un checkbox estilizado con Tailwind #}
+{% macro render_checkbox(name, value, label, checked=False, count=None) %}
+<label class="flex items-center gap-3 cursor-pointer group py-2 px-3 rounded-md hover:bg-neutral-800 transition-colors">
+  <input
+    type="checkbox"
+    name="{{ name }}"
+    value="{{ value }}"
+    {% if checked %}checked{% endif %}
+    class="w-4 h-4 rounded border-neutral-600 bg-neutral-700 text-blue-600 focus:ring-2 focus:ring-blue-500 focus:ring-offset-0 cursor-pointer transition-colors"
+  >
+  <span class="flex-1 text-sm text-neutral-200 group-hover:text-white transition-colors">
+    {{ label }}
+  </span>
+  {% if count is not none %}
+  <span class="text-xs text-neutral-500 font-medium px-2 py-0.5 bg-neutral-800 rounded-full">
+    {{ count }}
+  </span>
+  {% endif %}
+</label>
+{% endmacro %}

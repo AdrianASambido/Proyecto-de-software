@@ -19,7 +19,7 @@ class SiteHistory(db.Model):
     __tablename__ = "sites_history"
     id = db.Column(db.Integer, primary_key=True)
     sitio_id = db.Column(db.Integer, db.ForeignKey("sites.id"), nullable=False)
-    usuario_modificador_id = db.Column(db.Integer, nullable=False)
+    usuario_modificador_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     fecha_modificacion = db.Column(
         db.DateTime, nullable=False, default=datetime.now(timezone.utc)
     )
@@ -41,4 +41,4 @@ class SiteHistory(db.Model):
     )
 
     def __repr__(self):
-        return f"<Historial de modificacion {self.id}>"
+        return f"<Historial de modificacion {self.id} | {self.accion} | {self.fecha_modificacion} >"

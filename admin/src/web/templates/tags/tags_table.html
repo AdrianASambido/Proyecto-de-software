@@ -6,25 +6,57 @@
 {% block add_url %}{{ url_for('tags.add_tag') }}{% endblock %}
 {% block add_label %}Agregar etiqueta{% endblock %}
 
-{% block table_headers %}
+{% block table_filters %}
+<form method="get" class="mb-4 flex flex-wrap items-center gap-2 text-sm">
+  <!-- Buscar -->
+  <input type="text" name="busqueda" placeholder="Buscar..." value="{{ request.args.get('busqueda','') }}" class="h-9 w-40 rounded-md border border-gray-400 bg-white px-3 text-gray-800 placeholder-gray-400
+           focus:border-blue-500 focus:ring-2 focus:ring-blue-400" />
+
+  <!-- Orden -->
+  <select name="orden" class="h-9 w-28 rounded-md border border-gray-400 bg-white px-3 text-gray-800
+           focus:border-blue-500 focus:ring-2 focus:ring-blue-400">
+    <option value="fecha_desc" {% if request.args.get('orden')=='fecha_desc' %}selected{% endif %}>Fecha ↓</option>
+    <option value="fecha_asc" {% if request.args.get('orden')=='fecha_asc' %}selected{% endif %}>Fecha ↑</option>
+    <option value="nombre_asc" {% if request.args.get('orden')=='nombre_asc' %}selected{% endif %}>Nombre ↑</option>
+    <option value="nombre_desc" {% if request.args.get('orden')=='nombre_desc' %}selected{% endif %}>Nombre ↓</option>
+  </select>
+
+  <!-- Botones -->
+  <button type="submit" class="h-9 rounded-md bg-blue-600 px-4 text-white font-medium shadow-sm
+         hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1">
+    Aplicar
+  </button>
+
+  <a href="{{ url_for('tags.index') }}" class="h-9 inline-flex items-center justify-center rounded-md bg-gray-300 px-4 text-gray-800 font-medium shadow-sm
+         hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1">
+    Limpiar
+  </a>
+
+
+  <p class="mb-2 text-sm text-black-400">
+    Mostrando {{ items|length }} resultado{{ 's' if items|length != 1 else '' }}
+  </p>
+  {% endblock %}
+
+  {% block table_headers %}
   <th>Nombre</th>
   <th>Slug</th>
   <th>Fecha de creación</th>
   <th>Última modificación</th>
   <th>Acciones</th>
-{% endblock %}
+  {% endblock %}
 
-{% block table_rows %}
+  {% block table_rows %}
   {% for tag in items %}
-    <tr class="text-center">
-      <td>{{ tag.name }}</td>
-      <td>{{ tag.slug }}</td>
-      <td>{{ tag.created_at }}</td>
-      <td>{{ tag.updated_at }}</td>
-      
-      {% set edit_url = url_for('tags.edit_tag', tag_id=tag.id) %}
-      {% set delete_url = url_for('tags.delete_tag_handler', tag_id=tag.id) %}
-      {% include "common/actions.html" %}
-    </tr>
+  <tr class="text-center">
+    <td>{{ tag.name }}</td>
+    <td>{{ tag.slug }}</td>
+    <td>{{ tag.created_at }}</td>
+    <td>{{ tag.updated_at }}</td>
+
+    {% set edit_url = url_for('tags.edit_tag', tag_id=tag.id) %}
+    {% set delete_url = url_for('tags.delete_tag_handler', tag_id=tag.id) %}
+    {% include "common/actions.html" %}
+  </tr>
   {% endfor %}
-{% endblock %}
+  {% endblock %}

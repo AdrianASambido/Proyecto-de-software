@@ -1,10 +1,8 @@
 {% extends "basic-structure-w-sidebar.html" %} {% from "common/_form.html"
 import render_form %} {% block content %}
 
-<a
-    href="{{ url_for('sites.index') }}"
-    class="mb-4 inline-block rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-200"
->
+<a href="{{ url_for('sites.index') }}"
+    class="mb-4 inline-block rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-200">
     ← Volver al listado
 </a>
 
@@ -38,11 +36,7 @@ submit_text="Agregar sitio histórico") %}
             <option value="{{ tag.value }}">{{ tag.label }}</option>
             {% endfor %}
         </select>
-        <button
-            type="button"
-            id="add_tag_btn"
-            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
+        <button type="button" id="add_tag_btn" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
             Agregar
         </button>
     </div>
@@ -52,47 +46,25 @@ submit_text="Agregar sitio histórico") %}
 <div class="mt-4">
     <div class="mt-6">
         <label class="block font-semibold mb-2">Ubicación en el mapa</label>
-        <div
-            id="map"
-            class="w-full h-96 border border-gray-300 rounded-lg mt-16"
-        ></div>
+        <div id="map" class="w-full h-96 border border-gray-300 rounded-lg mt-16"></div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
             <div>
                 <label for="latitud" class="block mb-1">Latitud</label>
-                <input
-                    type="number"
-                    step="any"
-                    id="latitud"
-                    name="latitud"
-                    class="border rounded p-2 w-full"
-                    readonly
-                />
+                <input type="number" step="any" id="latitud" name="latitud" class="border rounded p-2 w-full"
+                    readonly />
             </div>
             <div>
                 <label for="longitud" class="block mb-1">Longitud</label>
-                <input
-                    type="number"
-                    step="any"
-                    id="longitud"
-                    name="longitud"
-                    class="border rounded p-2 w-full"
-                    readonly
-                />
+                <input type="number" step="any" id="longitud" name="longitud" class="border rounded p-2 w-full"
+                    readonly />
             </div>
         </div>
     </div>
     <div class="flex justify-center mt-6">{% endcall %}</div>
 
-    <link
-        rel="stylesheet"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        crossorigin=""
-    />
-    <script
-        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        crossorigin=""
-    ></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
     <!-- JS para mapa -->
     <script>
