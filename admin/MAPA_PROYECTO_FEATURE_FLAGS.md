@@ -1,6 +1,7 @@
 # 📁 MAPA DE ESTRUCTURA DEL PROYECTO - FEATURE FLAGS
 
 ## Estructura General
+
 ```
 admin/
 ├── 📁 src/
@@ -38,6 +39,7 @@ admin/
 ### 🆕 ARCHIVOS NUEVOS
 
 #### `src/core/Entities/feature_flag.py`
+
 - **Propósito**: Modelo de base de datos para feature flags
 - **Campos**:
   - `id`: Clave primaria
@@ -51,6 +53,7 @@ admin/
 - **Métodos**: `to_dict()` para serialización
 
 #### `src/core/board_feature_flags.py`
+
 - **Propósito**: Lógica de negocio para feature flags
 - **Funciones principales**:
   - `list_feature_flags()`: Obtener todos los flags
@@ -63,6 +66,7 @@ admin/
   - `get_portal_maintenance_message()`: Obtener mensaje de mantenimiento portal
 
 #### `src/web/controllers/feature_flags.py`
+
 - **Propósito**: Controlador REST para feature flags
 - **Rutas**:
   - `GET /admin/feature-flags/`: Lista de flags
@@ -71,6 +75,7 @@ admin/
 - **Características**: Manejo de JSON, validaciones, respuestas REST
 
 #### `src/web/templates/errores/maintenance.html`
+
 - **Propósito**: Página de mantenimiento
 - **Características**:
   - Diseño responsive con Bootstrap
@@ -82,11 +87,13 @@ admin/
 ### ✅ ARCHIVOS MODIFICADOS
 
 #### `src/core/Entities/__init__.py`
+
 - **Cambio**: Agregadas importaciones de User, Role y FeatureFlag
 - **Antes**: Solo importaba Site
 - **Después**: Importa todas las entidades
 
 #### `src/core/seeds.py`
+
 - **Cambios**:
   - Agregada importación de FeatureFlag y date
   - Corregido formato de fecha para SQLite
@@ -96,6 +103,7 @@ admin/
     - `reviews_enabled`: Control de reseñas
 
 #### `src/web/__init__.py`
+
 - **Cambios**:
   - Agregada importación de `board_feature_flags`
   - Registrado blueprint de feature flags
@@ -106,12 +114,14 @@ admin/
     - Retorna página de mantenimiento con código 503
 
 #### `src/web/config.py`
+
 - **Cambios**:
   - Cambiado de PostgreSQL a SQLite para desarrollo
   - Configuración más simple para desarrollo local
   - Comentada configuración PostgreSQL original
 
 #### `src/web/templates/administration/feature_flags.html`
+
 - **Cambios completos**:
   - Interfaz moderna con Bootstrap
   - Toggles interactivos con JavaScript
@@ -124,11 +134,13 @@ admin/
 ### ✅ ARCHIVOS CREADOS/COMPLETADOS
 
 #### `src/core/Entities/user.py`
+
 - **Propósito**: Modelo básico de usuario
 - **Campos**: id, username, email, created_at
 - **Estado**: Creado para evitar errores de importación
 
 #### `src/core/Entities/role.py`
+
 - **Propósito**: Modelo básico de roles
 - **Campos**: id, name, description, created_at
 - **Estado**: Creado para evitar errores de importación
@@ -136,11 +148,13 @@ admin/
 ## 🎯 Funcionalidades Implementadas
 
 ### Feature Flags Disponibles
+
 1. **admin_maintenance_mode**: Bloquea administración excepto login y feature flags
 2. **portal_maintenance_mode**: Pone el portal en modo mantenimiento
 3. **reviews_enabled**: Controla la creación/visualización de reseñas
 
 ### Características del Sistema
+
 - ✅ **Solo System Admins** pueden gestionar flags
 - ✅ **Cambios en tiempo real** sin reiniciar aplicación
 - ✅ **Mensajes personalizables** para mantenimiento
@@ -170,5 +184,3 @@ admin/
 - ✅ **Feature Flags**: Completamente funcionales
 
 ---
-
-
