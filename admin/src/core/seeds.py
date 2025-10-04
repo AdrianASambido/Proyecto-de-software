@@ -238,17 +238,12 @@ def seeds_db():
         },
     ]
 
-    add_site(sites_data[0])
-    result = add_site(sites_data[1])
-
-    add_site(sites_data[2])
-
     user1 = {
         "email": "user1@gmail.com",
         "nombre": "Jose",
         "username": "joseuser",
         "apellido": "Perez",
-        "contraseña_cifrada": "jose123",
+        "contraseña": "jose123",
         "rol_id": 1
     }
     
@@ -257,7 +252,7 @@ def seeds_db():
         "nombre": "Pedrito",
         "username": "pedrouser",
         "apellido": "Martinez",
-        "contraseña_cifrada": "pedro123",
+        "contraseña": "pedro123",
         "rol_id": 2,
     }
 
@@ -266,13 +261,18 @@ def seeds_db():
         "nombre": "Juan",
         "username": "juanuser",
         "apellido": "Soria",
-        "contraseña_cifrada": "juan324",
+        "contraseña": "juan324",
         "rol_id": 3,
     }
 
     add_user(user1)
     add_user(user2)
     add_user(user3)
+
+    add_site(sites_data[0])
+    result = add_site(sites_data[1])
+
+    add_site(sites_data[2])
 
 
     # sleep(5)
