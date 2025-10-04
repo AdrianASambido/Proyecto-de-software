@@ -19,20 +19,41 @@ from sqlalchemy.orm import joinedload
 import csv
 from io import StringIO
 
-
 def list_sites(filtros: dict, page: int = 1, per_page: int = 3):
     """
-    Retorna una lista de sitios históricos aplicando filtros dinámicos.
-    Filtros soportados:
-      - ciudad (texto o selector)
-      - provincia (selector)
-      - tags (lista)
-      - estado_conservacion (Bueno | Regular | Malo)
-      - fecha_desde / fecha_hasta
-      - visible (checkbox)
+    Retorna un objeto de paginación con los sitios históricos aplicando filtros y orden.
     """
-    query = Site.query
+    query = filter_sites(filtros)
+    query = order_sites(query, filtros)
+    return query.paginate(page=page, per_page=per_page, error_out=False)
+
+
+
+
+def order_sites(query, filtros):
+    """
+    ordena los sitios
+    """
+    orden = filtros.get("order", "fecha_desc")
+    opciones_orden = {
+        "fecha_asc": Site.created_at.asc(),
+        "fecha_desc": Site.created_at.desc(),
+        "nombre_asc": Site.nombre.asc(),
+        "nombre_desc": Site.nombre.desc(),
+        "ciudad_asc": Site.ciudad.asc(),
+        "ciudad_desc": Site.ciudad.desc(),
+    }
+    return query.order_by(opciones_orden.get(orden, Site.created_at.desc()))
+
+
+
+def filter_sites(filtros):
+    """
+    filtra los sitios
+    """
     query = Site.query.filter(Site.eliminated_at.is_(None))
+
+    # Texto de búsqueda
     busqueda = filtros.get("busqueda")
     if busqueda:
         query = query.filter(
@@ -41,12 +62,13 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 3):
                 Site.descripcion_breve.ilike(f"%{busqueda}%"),
             )
         )
-    # Ciudad (texto parcial o exacto)
+
+    # Ciudad (texto )
     ciudad = filtros.get("ciudad")
     if ciudad:
         query = query.filter(Site.ciudad.ilike(f"%{ciudad}%"))
 
-    # Provincia (igualdad)
+    # Provincia (exacta)
     provincia = filtros.get("provincia")
     if provincia:
         query = query.filter(Site.provincia == provincia)
@@ -65,36 +87,29 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 3):
     if fecha_hasta:
         query = query.filter(Site.created_at <= fecha_hasta)
 
-    # Visibilidad (checkbox → "on" o "1")
+    # Visibilidad
     visible = filtros.get("visible")
-    if visible:
-        query = query.filter(Site.visible == True)
+    if visible in ("on", "1", True):
+        query = query.filter(Site.visible.is_(True))
 
-    orden = filtros.get("orden", "fecha_desc")
-    opciones_orden = {
-        "fecha_asc": Site.created_at.asc(),
-        "fecha_desc": Site.created_at.desc(),
-        "nombre_asc": Site.nombre.asc(),
-        "nombre_desc": Site.nombre.desc(),
-        "ciudad_asc": Site.ciudad.asc(),
-        "ciudad_desc": Site.ciudad.desc(),
-    }
-    query = query.order_by(opciones_orden[orden])
+    # Tags (ids)
     tags_ids = filtros.get("tags")
     if tags_ids:
-        tags_ids = [int(t) for t in tags_ids if t.isdigit()]
+        tags_ids = [int(t) for t in tags_ids if str(t).isdigit()]
         if tags_ids:
             query = query.join(Tag, Site.tags).filter(Tag.id.in_(tags_ids)).distinct()
-    return query
 
+    return query
 
 def get_site(site_id):
     """
     Retorna un sitio historico por su ID.
     """
     sitio = Site.query.get(site_id)
-
-    return sitio
+    if(sitio):
+        return sitio
+    else:
+        return None
 
 
 def modify_site(site_id, site_data):
@@ -136,6 +151,7 @@ def modify_site(site_id, site_data):
 
     db.session.commit()
 
+
     # aca agregar a la tabla de historial
     add_site_history(
         site_id,
@@ -146,7 +162,8 @@ def modify_site(site_id, site_data):
         list(site_data.keys()),
     )
 
-    
+    tags_viejas = [t.nombre for t in sitio.tags]  # relación many-to-many
+    tags_nuevas = site_data.get("tags")
     # Si cambiaron las tags, registrar en historial aparte
     if tags_nuevas is not None and sorted(tags_viejas) != sorted(tags_nuevas):
         add_site_history(
@@ -206,6 +223,9 @@ def add_site(site_data):
     return nuevo_sitio
 
 def delete_site(site_id):
+    """
+    borra un sitio
+    """
     sitio = Site.query.get(site_id)
     if not sitio:
         return False

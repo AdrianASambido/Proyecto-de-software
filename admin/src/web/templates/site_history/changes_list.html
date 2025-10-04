@@ -9,14 +9,14 @@
     <!-- Header with title and back link -->
     <div class="mb-6 flex items-center justify-between">
         <h1 class="text-2xl font-bold text-neutral-600">Historial de cambios de {{ sitio.nombre }}</h1>
-        <a href="{{ url_for('sites.index') }}"
+        <a href="{{ url_for('sites.detail',sitio_id=sitio.id) }}"
             class="inline-flex items-center gap-2 rounded-md border border-neutral-700 bg-neutral-800 px-3 py-2 text-sm font-medium text-neutral-200 transition hover:bg-neutral-700 hover:text-white"
             title="Volver al sitio">
             <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M15 18l-6-6 6-6" />
             </svg>
-            Volver al listado
+            Volver 
         </a>
     </div>
     <div class="border-b border-neutral-700 w-auto h-1 mx-auto"></div>
@@ -27,7 +27,7 @@
             {{ render_order_selector(
             orders=orders,
             order=order,
-            action_url=url_for('site_history.index', sitio_id=sitio.id, **filtros),
+            action_url=url_for('sites_history.index', sitio_id=sitio.id, **filtros),
             additional_params=filtros
             ) }}
 
@@ -35,7 +35,7 @@
             <!-- Botón de filtros -->
             {{ render_filter_button(
             active_filters_count=active_filters_count,
-            reset_url=url_for('site_history.index', sitio_id=sitio.id, order=order)
+            reset_url=url_for('sites_history.index', sitio_id=sitio.id, order=order)
             ) }}
 
 
@@ -125,7 +125,7 @@ filters_config=[
 "name_to": "fecha_hasta"
 }
 ],
-action_url=url_for('site_history.index', sitio_id=sitio.id, order=order),
+action_url=url_for('sites_history.index', sitio_id=sitio.id, order=order),
 current_filters=filtros
 ) }}
 

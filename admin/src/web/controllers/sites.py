@@ -25,8 +25,6 @@ provincias_arg = [sub.name for sub in pycountry.subdivisions.get(country_code="A
 def index():
     """
     Muestra la lista de sitios históricos.
-
-    Renderiza la plantilla con la lista de sitios.
     """
     page = request.args.get("page", 1, type=int)
     per_page = 3
@@ -35,7 +33,9 @@ def index():
     filtros.pop("page", None)
     filtros.pop("per_page", None)
 
-    pagination = board_sites.list_sites(filtros).paginate(page=page, per_page=per_page)
+    # Ya devuelve un objeto paginado
+    pagination = board_sites.list_sites(filtros, page=page, per_page=per_page)
+
     tags = [{"id": tag.id, "nombre": tag.name} for tag in board_tags.list_tags()]
     return render_template(
         "sites/sites_table.html",
@@ -45,6 +45,7 @@ def index():
         filtros=filtros,
         tags=tags,
     )
+
 
 
 @bp.route("/nuevo", methods=["GET", "POST"])
@@ -111,7 +112,7 @@ def export():
     """
     Exporta la lista de sitios históricos en formato CSV.
     """
-    filtros = request.form.to_dict()
+    filtros = request.args.to_dict()
     filtros.pop("exportar", None)
 
     csv_data = board_sites.export_sites_csv(filtros if len(filtros.keys()) > 0 else None)
@@ -132,5 +133,8 @@ def export():
 
 @bp.route("/<int:sitio_id>")
 def detail(sitio_id):
+    """
+    renderiza los detalles del sitio
+    """
     sitio = board_sites.get_site(sitio_id)
     return render_template("sites/detail.html", sitio=sitio)
