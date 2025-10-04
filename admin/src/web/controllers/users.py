@@ -5,7 +5,7 @@
 from flask import Blueprint
 from flask import render_template, request, redirect, url_for, flash
 from src.core.services import users as board_users
-from src.core.formularios import RegistrationForm
+from src.core.formularios import RegistrationForm, EditUserForm
 from src.core.auth import login_required
 bp = Blueprint("users", __name__, url_prefix=("/usuarios"))
 
@@ -52,14 +52,16 @@ def add_user():
     
     return render_template("usuarios/agregar_usuario.html", form=form), 200
 
-
 @bp.route("/editar_usuario/<int:user_id>", methods=["GET", "POST"])
 @login_required
 def edit_user(user_id):
-    usuario = board_users.buscar_usuario_por_id(user_id)
-    if request.method == "POST":
-        nuevos_datos = dict(request.form)
-        board_users.modificar_usuario(user_id, nuevos_datos)
+    usuario = board_users.get_user_by_id(user_id)
+    form = EditUserForm(obj=usuario)
+    if form.validate_on_submit():
+        nuevos_datos = form.data
+        print("Se consiguieron los datos nuevos")
+        board_users.update_user(user_id, nuevos_datos)
+        print("Se guardaron los datos nuevos")
         return redirect(url_for("users.index"))
     
-    return render_template("usuarios/editar_usuario.html", user=usuario), 200
+    return render_template("usuarios/editar_usuario.html", user=usuario, form=form), 200

@@ -67,10 +67,10 @@
             <div
               class="absolute right-0 top-14 h-0 w-48 origin-top-right scale-95 select-none overflow-hidden rounded-md bg-neutral-700/90 opacity-0 shadow-sm backdrop-blur transition-all duration-300 ease-in-out peer-checked/usermenuopen:block peer-checked/usermenuopen:h-auto peer-checked/usermenuopen:scale-100 peer-checked/usermenuopen:opacity-100">
               <p class="flex items-center text-center gap-4 underline text-sm font-medium px-4 py-2 text-orange-200">
-                Hola, nombre
+                ¡Hola, {{session.get('username')}}!
               </p>
 
-              <a href="/perfil"
+              <a href="{{url_for('users.edit_user', user_id=session.get('user_id'))}}"
                 class="flex items-center gap-4 hover:bg-neutral-900 px-4 py-2 text-sm text-neutral-200 hover:text-orange-200"
                 role="menuitem" tabindex="-1" id="user-menu-item-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
