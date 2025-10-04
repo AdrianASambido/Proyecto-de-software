@@ -3,12 +3,17 @@
 """
 
 from flask import Blueprint
-from flask import render_template, request, redirect, url_for
-from src.core import board_usuarios
-
+from flask import render_template, request, redirect, url_for, flash
+from src.core.services import users as board_users
+from src.core.formularios import RegistrationForm
+from src.core.auth import login_required
 bp = Blueprint("users", __name__, url_prefix=("/usuarios"))
 
+
+
+
 @bp.get("/lista_usuarios")
+@login_required
 def index():
     """Muestra la lista de usuarios.
     Renderiza la plantilla con la lista de usuarios.
@@ -20,27 +25,41 @@ def index():
     filtros.pop("page", None)
     filtros.pop("per_page", None)
 
-    pagination = board_usuarios.list_users(filtros).paginate(page=page, per_page=per_page)
+    pagination = board_users.list_users(filtros).paginate(page=page, per_page=per_page)
     return render_template("usuarios/tabla_usuarios.html",
                            items=pagination.items,
                            pagination=pagination,
                            filtros=filtros), 200
 
-@bp.route("/agregar_usuario")
+
+@bp.route("/agregar_usuario", methods=["GET", "POST"])
+@login_required
 def add_user():
-    if request.method=="POST":
-        user_data = dict(request.form)
-        board_usuarios.add_user(user_data)
+    form = RegistrationForm()
+
+    if form.validate_on_submit():
+        user_data = {
+            "nombre": form.nombre.data,
+            "apellido": form.apellido.data,
+            "username": form.username.data,
+            "email": form.email.data,
+            "contraseña": form.contraseña.data,  # el servicio se encarga de encriptar
+            "rol_id": form.rol_id.data,
+        }
+        board_users.add_user(user_data)
+        flash("Usuario agregado exitosamente.", "success")
         return redirect(url_for("users.index"))
     
-    return render_template("usuarios/agregar_usuario.html"), 200
+    return render_template("usuarios/agregar_usuario.html", form=form), 200
+
 
 @bp.route("/editar_usuario/<int:user_id>", methods=["GET", "POST"])
+@login_required
 def edit_user(user_id):
-    usuario = board_usuarios.buscar_usuario_por_id(user_id)
+    usuario = board_users.buscar_usuario_por_id(user_id)
     if request.method == "POST":
         nuevos_datos = dict(request.form)
-        board_usuarios.modificar_usuario(user_id, nuevos_datos)
+        board_users.modificar_usuario(user_id, nuevos_datos)
         return redirect(url_for("users.index"))
     
     return render_template("usuarios/editar_usuario.html", user=usuario), 200

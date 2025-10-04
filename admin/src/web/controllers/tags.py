@@ -7,31 +7,53 @@ from src.core.services.tags import (
     update_tag as svc_update_tag,
     delete_tag as svc_delete_tag,
 )
+from src.core.auth import login_required
 
 bp = Blueprint("tags", __name__, url_prefix="/tags")
 
+
 @bp.get("/")
+@login_required
 def index():
+    page = request.args.get("page", 1, type=int)
+    per_page = 3
+
     filtros = request.args.to_dict()
-    tags = svc_list_tags(filtros)
-    return render_template("tags/tags_table.html", items=tags), 200
+    filtros.pop("page", None)
+    filtros.pop("per_page", None)
+
+    pagination = svc_list_tags(filtros).paginate(page=page, per_page=per_page)
+
+    return (
+        render_template(
+            "tags/tags_table.html",
+            items=pagination.items,
+            pagination=pagination,
+            filtros=filtros,
+        ),
+        200,
+    )
 
 
 @bp.get("/nuevo")
+@login_required
 def add_tag():
     return render_template("tags/add_tag.html"), 200
 
+
 @bp.get("/editar/<int:tag_id>")
+@login_required
 def edit_tag(tag_id):
     tag = svc_get_tag_by_id(tag_id)
     return render_template("tags/edit_tag.html", tag=tag)
 
 
 @bp.post("/create")
+@login_required
 def add_tag_handler():
     tag_data = dict(request.form)
     isExistingTag = svc_get_tag_by_name(tag_data.get("nombre").lower())
-    
+
     if isExistingTag:
         flash("Ya existe una etiqueta con ese nombre.", "error")
         return redirect(url_for("tags.add_tag"))
@@ -40,14 +62,18 @@ def add_tag_handler():
     flash("Etiqueta creada exitosamente.", "success")
     return redirect(url_for("tags.index"))
 
+
 @bp.post("/editar/<int:tag_id>")
+@login_required
 def edit_tag_handler(tag_id):
     tag_data = dict(request.form)
     svc_update_tag(tag_id, tag_data)
     flash("Etiqueta modificada exitosamente.", "success")
     return redirect(url_for("tags.index"))
 
+
 @bp.post("/eliminar/<int:tag_id>")
+@login_required
 def delete_tag_handler(tag_id):
     try:
         svc_delete_tag(tag_id)

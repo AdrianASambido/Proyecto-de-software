@@ -15,13 +15,14 @@ from src.core.services.tags import list_tags
 from flask import flash
 import pycountry
 from flask import current_app as app
-
+from src.core.auth import login_required
 bp = Blueprint("sites", __name__, url_prefix="/sitios")
 
 provincias_arg = [sub.name for sub in pycountry.subdivisions.get(country_code="AR")]
 
 
 @bp.get("/")
+@login_required
 def index():
     """
     Muestra la lista de sitios históricos.
@@ -49,6 +50,7 @@ def index():
 
 
 @bp.route("/nuevo", methods=["GET", "POST"])
+@login_required
 def add_site():
     """
     GET: muestra el formulario para crear un nuevo sitio.
@@ -68,6 +70,7 @@ def add_site():
 
 
 @bp.route("/modificar/<int:site_id>", methods=["GET", "POST"])
+@login_required
 def modify(site_id):
     """
     GET: muestra el formulario para modificar un sitio histórico.
@@ -93,6 +96,7 @@ def modify(site_id):
 
 
 @bp.post("/eliminar/<int:site_id>")
+@login_required
 def delete(site_id):
     """
     Elimina un sitio histórico.
@@ -108,6 +112,7 @@ def delete(site_id):
     return redirect(url_for("sites.index"))
 
 @bp.get("/exportar")
+@login_required
 def export():
     """
     Exporta la lista de sitios históricos en formato CSV.
@@ -132,6 +137,7 @@ def export():
 
 
 @bp.route("/<int:sitio_id>")
+@login_required
 def detail(sitio_id):
     """
     renderiza los detalles del sitio

@@ -14,16 +14,12 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if 'user_id' not in session:
-            flash('Debe iniciar sesión para acceder a esta página', 'error')
+         
             return redirect(url_for('login.login'))
         
         # Verificar que el usuario existe y puede iniciar sesión
-        user = get_user_by_id(session['user_id'])
-        if not user or not user.can_login():
-            session.clear()
-            flash('Su cuenta está bloqueada o inactiva', 'error')
-            return redirect(url_for('login.login'))
-        
+    
+
         return f(*args, **kwargs)
     return decorated_function
 
