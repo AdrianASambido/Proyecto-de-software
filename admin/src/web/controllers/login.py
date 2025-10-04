@@ -8,15 +8,19 @@ bcrypt = Bcrypt()
 
 @bp.get("/")
 def login():
-    if "user" in session:
-        flash("Ya has iniciado sesión.", "warning")
+    if "user_id" in session:
+       
         return redirect(url_for("home"))
     return render_template("login/login_usuario.html"), 200
 
 @bp.get("/logout")
 def logout():
-    session.clear()
-    flash("La sesion se cerró", "success")
+    if(session.get("user_id")):
+        session.pop("user_id", None)
+        session.clear()
+    else:
+        flash("No hay una sesión activa.", "error")
+
     return redirect(url_for("login.login"))
 
 @bp.post("/authenticate")
@@ -38,6 +42,6 @@ def authenticate():
         flash("El usuario no está activo. Contacte al administrador.", "error")
         return redirect(url_for("login.login"))
     
-    session["user"] = user.email
+    session["user_id"] = user.id
     flash("Inicio de sesión exitoso.", "success")
-    return render_template("home.html"), 200
+    return redirect(url_for("home"))

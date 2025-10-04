@@ -92,6 +92,12 @@ def get_user_by_id(user_id):
     """
     return User.query.get(user_id)
 
+def get_user_by_email(email):
+    """
+    Retorna un usuario por su correo electrónico.
+    """
+    return User.query.filter_by(email=email, eliminado=False).first()
+
 def update_user(user_id, user_data):
     """
     Actualiza un usuario existente.
