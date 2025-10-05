@@ -4,10 +4,6 @@ from datetime import date
 import unicodedata
 import re
 
-def list_tags():
-    tags=Tag.query.all()
-    return tags
-
 
 def list_tags(filtros: dict | None = None):
     if filtros is None:
