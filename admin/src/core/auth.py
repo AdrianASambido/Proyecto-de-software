@@ -5,7 +5,7 @@ Módulo de autenticación y autorización
 from functools import wraps
 from flask import session, redirect, url_for, flash, request
 from src.core.services.users import get_user_by_id
-
+from werkzeug.exceptions import abort
 
 def login_required(f):
     """
@@ -60,15 +60,12 @@ def permission_required(permission_name):
                 return redirect(url_for('login.login'))
             
             user = get_user_by_id(session['user_id'])
-            if not user or not user.can_login():
-                session.clear()
-                flash('Su cuenta está bloqueada o inactiva', 'error')
-                return redirect(url_for('login.login'))
+           
             
             if not user.has_permission(permission_name):
                 flash(f'No tiene permisos para realizar esta acción: {permission_name}', 'error')
                 return redirect(url_for('home'))
-            
+          
             return f(*args, **kwargs)
         return decorated_function
     return decorator

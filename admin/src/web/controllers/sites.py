@@ -13,15 +13,17 @@ from src.core.services import tags as board_tags
 from src.core.services.sites import list_sites, add_site, get_site, modify_site
 from src.core.services.tags import list_tags
 from flask import flash
+from src.core.siteForm import SiteForm
 import pycountry
 from flask import current_app as app
-from src.core.auth import login_required
+from src.core.auth import login_required,permission_required,admin_required
 bp = Blueprint("sites", __name__, url_prefix="/sitios")
 
 provincias_arg = [sub.name for sub in pycountry.subdivisions.get(country_code="AR")]
 
 
 @bp.get("/")
+@permission_required('site_index')
 @login_required
 def index():
     """
@@ -50,53 +52,68 @@ def index():
 
 
 @bp.route("/nuevo", methods=["GET", "POST"])
+@permission_required('site_new')
 @login_required
 def add_site():
     """
     GET: muestra el formulario para crear un nuevo sitio.
     POST: procesa el formulario y crea el sitio.
-    GET: muestra el formulario para crear un nuevo sitio.
-    POST: procesa el formulario y crea el sitio.
+   
     """
-    if request.method == "POST":
-        site_data = dict(request.form)
-        board_sites.add_site(site_data)
-        flash("Sitio histórico creado exitosamente.", "success")
-        return redirect(url_for("sites.index"))
-    tags = [{"value": tag.id, "label": tag.name} for tag in board_tags.list_tags()]
+    siteForm=SiteForm()
+    provincias_opts = [(prov, prov) for prov in provincias_arg]
+    siteForm.provincia.choices = provincias_opts
 
-    provincias_opts = [{"value": prov, "label": prov} for prov in provincias_arg]
-    return render_template("sites/add_site.html", provincias=provincias_opts, tags=tags)
+    tags= [(tag.id, tag.name) for tag in board_tags.list_tags()]
+    siteForm.tags.choices = tags
+    if request.method == "POST":
+        if siteForm.validate_on_submit():
+            site_data = {
+                "nombre": siteForm.nombre.data,
+                "descripcion_breve": siteForm.descripcion_breve.data,
+                "descripcion_completa": siteForm.descripcion_completa.data,
+                "ciudad": siteForm.ciudad.data,
+                "provincia": siteForm.provincia.data,
+                "inauguracion": siteForm.inauguracion.data,
+                "visible": siteForm.visible.data,
+                "categoria": siteForm.categoria.data,
+                "estado_conservacion": siteForm.estado_conservacion.data,
+                "latitud": float(siteForm.latitud.data),
+                "longitud": float(siteForm.longitud.data),
+                "tags": siteForm.tags.data,
+            }
+
+            board_sites.add_site(site_data)
+            flash("Sitio histórico creado exitosamente.", "success")
+            return redirect(url_for("sites.index"))
+   
+    return render_template("sites/add_site.html", provincias=provincias_opts, tags=tags,form=siteForm)
 
 
 @bp.route("/modificar/<int:site_id>", methods=["GET", "POST"])
+@permission_required('site_update')
 @login_required
 def modify(site_id):
     """
     GET: muestra el formulario para modificar un sitio histórico.
     POST: procesa el formulario y actualiza el sitio.
     """
-    sitio = board_sites.get_site(site_id)
+    site = board_sites.get_site(site_id)
+    form = SiteForm(obj=site)
+    form.provincia.choices = [(p, p) for p in provincias_arg]
+    form.tags.choices = [(t.id, t.name) for t in board_tags.list_tags()]
 
-    if not sitio:
-        return render_template("404.html"), 404
-
-    if request.method == "POST":
-        site_data = dict(request.form)
-
-        board_sites.modify_site(site_id, site_data)
-        flash("Sitio histórico modificado exitosamente.", "success")
+    if form.validate_on_submit():
+        board_sites.modify_site(site_id, form.data)
+        flash("Sitio actualizado correctamente.", "success")
         return redirect(url_for("sites.index"))
-    tags = [{"value": tag.id, "label": tag.name} for tag in board_tags.list_tags()]
 
-    provincias_opts = [{"value": prov, "label": prov} for prov in provincias_arg]
-    return render_template(
-        "sites/modify_site.html", site=sitio, provincias=provincias_opts, tags=tags
-    )
+    return render_template("sites/modify_site.html", form=form)
 
 
 @bp.post("/eliminar/<int:site_id>")
 @login_required
+@permission_required('site_destroy')
 def delete(site_id):
     """
     Elimina un sitio histórico.
@@ -113,12 +130,14 @@ def delete(site_id):
 
 @bp.get("/exportar")
 @login_required
+@permission_required('site_export')
 def export():
     """
     Exporta la lista de sitios históricos en formato CSV.
     """
     filtros = request.args.to_dict()
     filtros.pop("exportar", None)
+    
 
     csv_data = board_sites.export_sites_csv(filtros if len(filtros.keys()) > 0 else None)
 
@@ -137,6 +156,7 @@ def export():
 
 
 @bp.route("/<int:sitio_id>")
+@permission_required('site_show')
 @login_required
 def detail(sitio_id):
     """

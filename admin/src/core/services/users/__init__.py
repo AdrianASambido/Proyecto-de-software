@@ -71,9 +71,11 @@ def add_user(user_data):
     
     nuevo_usuario = User(
         email=user_data.get("email"),
-        rol_id=user_data.get("rol"),
-        activo=user_data.get("activo", True),
-        contraseña_cifrada=user_data.get("contraseña_cifrada"),
+        nombre=user_data.get("nombre"),
+        username=user_data.get("username"),
+        apellido=user_data.get("apellido"),
+        contraseña_cifrada=bcrypt.generate_password_hash(user_data.get("contraseña")).decode('utf-8'),
+        rol_id=int(rol_id),
     )
 
     #Revisa si el usuario ya existe
