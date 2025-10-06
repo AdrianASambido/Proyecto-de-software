@@ -36,16 +36,3 @@ class LoginForm(FlaskForm):
         user = User.query.filter_by(email=self.email.data).first()
         if user and not Bcrypt().check_password_hash(user.password, password.data):
             raise ValidationError('Contraseña incorrecta. Inténtelo de nuevo.')
-        
-class EditUserForm(FlaskForm):
-    nombre = StringField('Nombre real del Usuario', validators=[DataRequired(), Length(min=2, max=50)])
-    apellido = StringField('Apellido del Usuario', validators=[DataRequired(), Length(min=2, max=50)])
-    username = StringField('Nombre de usuario', validators=[DataRequired(), Length(min=2, max=20)])
-    email = StringField('Email', validators=[DataRequired(), Email()])
-    rol_id = SelectField('Rol', choices=[('', 'Ninguno'), ('1', 'Administrador'), ('2', 'Editor')])
-    submit = SubmitField('Actualizar Usuario')
-
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
-        if user:
-            raise ValidationError('El email ya está registrado en la base de datos. Por favor, elija otro.')
