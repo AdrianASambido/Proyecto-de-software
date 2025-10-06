@@ -28,7 +28,7 @@ def list_users(filtros: dict):
     if email:
         query = query.filter(User.email.ilike(f"%{email}%"))
 
-    rol = filtros.get("role")
+    rol = filtros.get("rol")
     if rol:
         query = query.filter(User.rol_id == rol)
 
@@ -61,13 +61,13 @@ def add_user(user_data):
     """
     Agrega un nuevo usuario.
     """
-    # Obtener el rol por ID o nombre
-    rol_id = user_data.get("rol_id")
-    if not rol_id:
+    #Obtener el rol por ID o nombre
+    #rol_id = user_data.get("rol_id")
+    #if not rol_id:
         # Si no se proporciona rol_id, buscar por nombre
-        rol_name = user_data.get("rol_id", "Editor")  # Default a Editor
-        rol = Role.query.filter_by(name=rol_name).first()
-        rol_id = rol.id if rol else 2  # Default a Editor (ID 2)
+     #   rol_name = user_data.get("rol_id", "Editor")  # Default a Editor
+    #    rol = Role.query.filter_by(name=rol_name).first()
+    #    rol_id = rol.id if rol else 2  # Default a Editor (ID 2)
     
     nuevo_usuario = User(
         email=user_data.get("email"),
@@ -75,7 +75,7 @@ def add_user(user_data):
         username=user_data.get("username"),
         apellido=user_data.get("apellido"),
         contraseña_cifrada=bcrypt.generate_password_hash(user_data.get("contraseña")).decode('utf-8'),
-        rol_id=int(rol_id),
+        #rol_id=int(rol_id),
     )
 
     #Revisa si el usuario ya existe
@@ -100,6 +100,12 @@ def get_username_by_email(email):
     user = User.query.filter_by(email=email, eliminado=False).first()
     return user.username if user else None
 
+def get_username_by_email(email):
+    """
+    Retorna el nombre de usuario por su correo electrónico
+    """
+    user = User.query.filter_by(email=email, eliminado=False).first()
+    return user.username if user else None
 
 def get_user_by_email(email):
     """
@@ -112,6 +118,7 @@ def update_user(user_id, user_data):
     Modifica los datos de un usuario existente, en caso de tener los campos habilitados.
     """
     usuario = User.query.get(user_id)
+    usuario = User.query.get(user_id)
     if usuario:
         if "nombre" in user_data and user_data["nombre"] and user_data["nombre"] != usuario.nombre:
             usuario.nombre = user_data["nombre"]
@@ -123,10 +130,9 @@ def update_user(user_id, user_data):
             usuario.username = user_data["username"]
         if "contraseña" in user_data and user_data["contraseña"] and user_data["contraseña"] != usuario.contraseña_cifrada:
             usuario.contraseña_cifrada = bcrypt.generate_password_hash(user_data["contraseña"]).decode('utf-8')
-        if "rol_id" in user_data and user_data["rol_id"]:
-            usuario.rol_id = int(user_data["rol_id"])
         
         db.session.commit()
+        return usuario
         return usuario
 
 def assign_role_to_user(user_id, role_id):

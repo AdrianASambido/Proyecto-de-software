@@ -270,6 +270,34 @@ def seeds_db():
         },
     ]
 
+    user1 = {
+        "email": "user1@gmail.com",
+        "nombre": "Jose",
+        "username": "joseuser",
+        "apellido": "Perez",
+        "contraseña": "jose123",
+    }
+    
+    user2 = {
+        "email": "user2@gmail.com",
+        "nombre": "Pedrito",
+        "username": "pedrouser",
+        "apellido": "Martinez",
+        "contraseña": "pedro123",
+    }
+
+    user3 = {
+        "email": "user3@gmail.com",
+        "nombre": "Juan",
+        "username": "juanuser",
+        "apellido": "Soria",
+        "contraseña": "juan324",
+    }
+
+    add_user(user1)
+    add_user(user2)
+    add_user(user3)
+
     add_site(sites_data[0])
     result = add_site(sites_data[1])
 
