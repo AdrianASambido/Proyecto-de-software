@@ -9,7 +9,7 @@ from flask import render_template, request, redirect, url_for
 
 from src.core.services import sites as board_sites
 from src.core.services import tags as board_tags
-
+from flask import session
 from src.core.services.sites import list_sites, add_site, get_site, modify_site
 from src.core.services.tags import list_tags
 from flask import flash
@@ -22,6 +22,7 @@ bp = Blueprint("sites", __name__, url_prefix="/sitios")
 provincias_arg = [sub.name for sub in pycountry.subdivisions.get(country_code="AR")]
 
 
+
 @bp.get("/")
 @permission_required('site_index')
 @login_required
@@ -30,7 +31,7 @@ def index():
     Muestra la lista de sitios históricos.
     """
     page = request.args.get("page", 1, type=int)
-    per_page = 3
+    per_page = 25
 
     filtros = request.args.to_dict()
     filtros.pop("page", None)
@@ -96,8 +97,8 @@ def add_site():
             "longitud": float(siteForm.longitud.data) if siteForm.longitud.data else None,
             "tags": siteForm.tags.data,
         }
-
-        board_sites.add_site(site_data)
+        user_id=session.get("user_id")
+        board_sites.add_site(site_data,user_id)
         flash("Sitio histórico creado exitosamente.", "success")
         return redirect(url_for("sites.index"))
 
@@ -126,7 +127,8 @@ def modify(site_id):
   
     form.tags.data = [t.id for t in site.tags] 
     if form.validate_on_submit():
-        board_sites.modify_site(site_id, form.data)
+        user_id=session.get("user_id")
+        board_sites.modify_site(site_id, form.data,user_id)
         flash("Sitio actualizado correctamente.", "success")
         return redirect(url_for("sites.index"))
 
@@ -145,8 +147,8 @@ def delete(site_id):
 
     if not sitio:
         return render_template("404.html"), 404
-
-    board_sites.delete_site(site_id)
+    user_id=session.get("user_id")
+    board_sites.delete_site(site_id,user_id)
     flash("Sitio histórico eliminado exitosamente.", "success")
     return redirect(url_for("sites.index"))
 

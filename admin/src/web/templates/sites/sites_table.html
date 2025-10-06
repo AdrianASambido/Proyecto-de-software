@@ -1,5 +1,6 @@
 {% extends "common/tables_base.html" %}
 {% from "common/filters_sidebar.html" import render_filters_sidebar, render_filter_button %}
+{% from "common/order_selector.html" import render_order_selector %}
 
 {% block table_title %}Sitios Históricos{% endblock %}
 {% block add_url %}{{ url_for('sites.add_site') }}{% endblock %}
@@ -17,22 +18,32 @@
      request.args.getlist('tags'))
      and 1 or 0
   ) %}
-  
-  <!-- Botón de apertura del sidebar -->
-  {{ render_filter_button(active_filters_count, reset_url=url_for('sites.index')) }}
-{% endblock %}
 
+  <div class="flex items-center gap-3">
+    <!-- Botón de filtros -->
+    {{ render_filter_button(active_filters_count, reset_url=url_for('sites.index')) }}
+
+    <!-- Selector de orden -->
+    {% set order_options = [
+      {'value': 'fecha_desc', 'label': 'Fecha (más recientes)'},
+      {'value': 'fecha_asc', 'label': 'Fecha (más antiguos)'},
+      {'value': 'nombre_asc', 'label': 'Nombre (A–Z)'},
+      {'value': 'nombre_desc', 'label': 'Nombre (Z–A)'},
+      {'value': 'ciudad_asc', 'label': 'Ciudad (A–Z)'},
+      {'value': 'ciudad_desc', 'label': 'Ciudad (Z–A)'}
+    ] %}
+    {{ render_order_selector(order_options, order or '', url_for('sites.index'), request.args.to_dict(flat=False)) }}
+  </div>
+{% endblock %}
 
 {% block extra_actions %}
-{% if has_permission('site_export') %}
- <a href="{{ url_for('sites.export', **request.args.to_dict(flat=False)) }}"
-     class="rounded-lg bg-green-600 px-4 py-2 text-sm text-white font-medium shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2">
-    Exportar CSV
-  </a>
+  {% if has_permission('site_export') %}
+    <a href="{{ url_for('sites.export', **request.args.to_dict(flat=False)) }}"
+       class="rounded-lg bg-green-600 px-4 py-2 text-sm text-white font-medium shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2">
+      Exportar CSV
+    </a>
   {% endif %}
 {% endblock %}
-
-
 
 {% block table_headers %}
   <th class="px-3 py-2 text-left">Nombre</th>
@@ -58,14 +69,9 @@
     <td class="flex gap-2">
       {% set details_url = url_for('sites.detail', sitio_id=sitio.id) %}
       {% set edit_url = url_for('sites.modify', site_id=sitio.id) %}
-    
-     
       {% if has_permission('site_destroy') %}
-      {% set delete_url = url_for('sites.delete', site_id=sitio.id) %}
-     
+        {% set delete_url = url_for('sites.delete', site_id=sitio.id) %}
       {% endif %}
-     
-      
       {% include "common/actions.html" %}
     </td>
   </tr>
@@ -103,64 +109,21 @@
   {% endif %}
 {% endblock %}
 
-
 {% block content %}
   {{ super() }}
 
- 
   {% set filters_config = [
-    {
-      'id': 'busqueda',
-      'title': 'Buscar',
-      'type': 'text',
-      'name': 'busqueda'
-    },
-    {
-      'id': 'ciudad',
-      'title': 'Ciudad',
-      'type': 'text',
-      'name': 'ciudad'
-    },
-    {
-      'id': 'provincia',
-      'title': 'Provincia',
-      'type': 'select',
-      'name': 'provincia',
-      'options': provincias  
-    },
-    {
-      'id':'tags',
-      'title':'Tags',
-      'type':'multiselect',
-      'name':'tags',
-      'options':tags
-    },
-    {
-      'id': 'estado',
-      'title': 'Estado de conservación',
-      'type': 'radio',
-      'name': 'estado_conservacion',
-      'options': [
+    {'id': 'busqueda', 'title': 'Buscar', 'type': 'text', 'name': 'busqueda'},
+    {'id': 'ciudad', 'title': 'Ciudad', 'type': 'text', 'name': 'ciudad'},
+    {'id': 'provincia', 'title': 'Provincia', 'type': 'select', 'name': 'provincia', 'options': provincias},
+    {'id':'tags', 'title':'Tags', 'type':'multiselect', 'name':'tags','options':tags},
+    {'id': 'estado', 'title': 'Estado de conservación', 'type': 'radio', 'name': 'estado_conservacion', 'options': [
         {'value': 'Bueno', 'label': 'Bueno'},
         {'value': 'Regular', 'label': 'Regular'},
         {'value': 'Malo', 'label': 'Malo'}
-      ]
-    },
-   
-    {
-      'id': 'fecha',
-      'title': 'Fecha de creación',
-      'type': 'date_range',
-      'name_from': 'fecha_desde',
-      'name_to': 'fecha_hasta'
-    },
-    {
-      'id': 'visible',
-      'title': 'Visibilidad',
-      'type': 'checkbox',
-      'name': 'visible',
-      'options': [{'value': '1', 'label': 'Visible'}]
-    }
+    ]},
+    {'id': 'fecha', 'title': 'Fecha de creación', 'type': 'date_range', 'name_from': 'fecha_desde','name_to': 'fecha_hasta'},
+    {'id': 'visible', 'title': 'Visibilidad', 'type': 'checkbox', 'name': 'visible','options': [{'value': '1', 'label': 'Visible'}]}
   ] %}
 
   {{ render_filters_sidebar(filters_config, url_for('sites.index'), request.args.to_dict(flat=False)) }}

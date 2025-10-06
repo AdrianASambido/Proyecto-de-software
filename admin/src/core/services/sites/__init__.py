@@ -19,7 +19,7 @@ from sqlalchemy.orm import joinedload
 import csv
 from io import StringIO
 
-def list_sites(filtros: dict, page: int = 1, per_page: int = 3):
+def list_sites(filtros: dict, page: int = 1, per_page: int = 25):
     """
     Retorna un objeto de paginación con los sitios históricos aplicando filtros y orden.
     """
@@ -112,7 +112,7 @@ def get_site(site_id):
         return None
 
 
-def modify_site(site_id, site_data):
+def modify_site(site_id, site_data,user_id):
     """
     Modifica un sitio historico existente.
     """
@@ -148,14 +148,13 @@ def modify_site(site_id, site_data):
         "estado_conservacion", sitio.estado_conservacion
     )
     # actualizar tags si vienen
-    if "tags" in site_data:
-        sitio.tags = []  # limpiar las tags actuales
-        tags_data = site_data.get("tags", [])
-        for tag_id in tags_data:
-            tag = get_tag_by_id(tag_id)
-            if tag is None:
-                raise ValueError(f"Tag '{tag_id}' no encontrado")
-            sitio.tags.append(tag)
+    tags_data = site_data.get("tags", [])
+    for tag_id in tags_data:
+        sitio.tags=[]
+        tag = get_tag_by_id(tag_id)
+        if tag is None:
+            raise ValueError(f"Tag '{tag_id}' no encontrado")
+        sitio.tags.append(tag)
     db.session.commit()
 
     nuevo_snapshot = {
@@ -168,7 +167,7 @@ def modify_site(site_id, site_data):
     add_site_history(
         site_id,
         HistoryAction.EDITAR,
-        1,
+        user_id,
         nuevo_snapshot,
         original_snapshot,
         list(site_data.keys()),
@@ -191,7 +190,7 @@ def modify_site(site_id, site_data):
     return sitio
 
 
-def add_site(site_data):
+def add_site(site_data,user_id):
     """
     Agrega un nuevo sitio historico.
     """
@@ -233,7 +232,7 @@ def add_site(site_data):
     historial_data = site_data.copy()
     historial_data["visible"] = "Sí" if visible else "No"
     add_site_history(
-        nuevo_sitio.id, HistoryAction.CREAR, 1, historial_data, None, list(site_data.keys())
+        nuevo_sitio.id, HistoryAction.CREAR, user_id, historial_data, None, list(site_data.keys())
     )
 
     return nuevo_sitio
@@ -241,7 +240,7 @@ def add_site(site_data):
 def actualizar_historial(nuevo,accion,original=None):
     pass
 
-def delete_site(site_id):
+def delete_site(site_id,user_id):
     """
     borra un sitio
     """
@@ -275,9 +274,9 @@ def delete_site(site_id):
     add_site_history(
         site_id=sitio.id,
         accion=HistoryAction.ELIMINAR,
-        usuario_modificador_id=1,
-        sitio_cambiado=None,  # 🔹 porque estamos borrando
-        sitio_original=original_snapshot,  # 🔹 snapshot antes del borrado
+        usuario_modificador_id=user_id,
+        sitio_cambiado=None, 
+        sitio_original=original_snapshot,  
         campos_modificados=list(original_snapshot.keys()),
     )
 
