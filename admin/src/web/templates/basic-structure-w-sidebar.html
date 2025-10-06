@@ -19,10 +19,10 @@
   </script>
   <title>{% block title %}My App{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-  <link rel="stylesheet" type="text/css"
-      href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-  <script type="text/javascript"
-        src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+  <!-- favicon -->
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
 
 <body class="relative h-auto min-h-screen w-full overflow-x-hidden">
@@ -34,8 +34,8 @@
           <div class="flex flex-1 flex-col items-center justify-center sm:flex-row sm:justify-start sm:gap-8">
             <div class="mr-8 w-fit">
               <a href="/" class="relative flex h-16 w-56 flex-shrink-0 items-center justify-center p-2 drop-shadow-lg">
-                <img width="200" height="50" class="h-8 w-32 object-contain"
-                  src="{{ url_for('static', filename='publico/assets/logo_only.svg') }}" alt="Imagen del logo" />
+                <img width="100" height="100" class="size-16 object-contain"
+                  src="{{ url_for('static', filename='logo_no_bg.png') }}" alt="Imagen del logo" />
               </a>
             </div>
           </div>
@@ -67,10 +67,10 @@
             <div
               class="absolute right-0 top-14 h-0 w-48 origin-top-right scale-95 select-none overflow-hidden rounded-md bg-neutral-700/90 opacity-0 shadow-sm backdrop-blur transition-all duration-300 ease-in-out peer-checked/usermenuopen:block peer-checked/usermenuopen:h-auto peer-checked/usermenuopen:scale-100 peer-checked/usermenuopen:opacity-100">
               <p class="flex items-center text-center gap-4 underline text-sm font-medium px-4 py-2 text-orange-200">
-                Hola, nombre
+                ¡Hola, {{session.get('username')}}!
               </p>
 
-              <a href="/perfil"
+              <a href="{{url_for('users.edit_user', user_id=session.get('user_id'))}}"
                 class="flex items-center gap-4 hover:bg-neutral-900 px-4 py-2 text-sm text-neutral-200 hover:text-orange-200"
                 role="menuitem" tabindex="-1" id="user-menu-item-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -195,7 +195,7 @@
 
               <!-- aca permitir o no la visualizacion del link segun rol del usuario -->
               <a class="flex transform items-center rounded-lg px-3 py-2 text-gray-300 transition-colors duration-300 hover:bg-gray-100 hover:text-gray-700"
-                href="/gestion-usuarios">
+                href="{{url_for('users.index')}}">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                   stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                   class="icon icon-tabler icons-tabler-outline icon-tabler-rosette-discount">
@@ -221,65 +221,59 @@
     </aside>
 
     <!-- aca el contenido principal de la pagina -->
-    <main class="flex h-full w-full flex-col items-center justify-start pt-32 sm:pt-24 sm:basis-8/12 lg:basis-9/12 peer-checked/sidebaropen:basis-full">
+    <main
+      class="flex h-full w-full flex-col items-center justify-start pt-32 sm:pt-24 sm:basis-8/12 lg:basis-9/12 peer-checked/sidebaropen:basis-full">
       {% block content %}{% endblock %}
     </main>
   </div>
 
-
-<!-- Loader -->
-<div id="loader"
-     class="fixed inset-0 flex items-center justify-center bg-white z-[9999]">
-  <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-600"></div>
-</div>
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-  const loader = document.getElementById("loader");
-  if (loader) {
-    loader.classList.add("opacity-0", "transition-opacity", "duration-500");
-    setTimeout(() => loader.remove(), 500);
-  }
-});
-</script>
+  <!-- Loader -->
+  <div id="loader" class="fixed inset-0 flex items-center justify-center bg-white z-[9999]">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-blue-600"></div>
+  </div>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const loader = document.getElementById("loader");
+      if (loader) {
+        loader.classList.add("opacity-0", "transition-opacity", "duration-500");
+        setTimeout(() => loader.remove(), 500);
+      }
+    });
+  </script>
 
   <script>
     function openDeleteModal(actionUrl) {
       console.log('modal!')
       const modal = document.getElementById('deleteModal');
       modal.classList.remove('hidden');
-
       modal.style.display = 'flex';
-
       document.getElementById('deleteForm').action = actionUrl;
     }
     function closeDeleteModal() {
-      document.getElementById('deleteModal').classList.add('hidden');
+    const modal = document.getElementById('deleteModal');
+        modal.classList.add('hidden');
+        modal.style.display = 'none'; 
     }
-</script>
-
-
-{% with messages = get_flashed_messages(with_categories=true) %}
+  </script>
+  {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        {% for category, message in messages %}
-          Toastify({
-            text: "{{ message }}",
-            duration: 3000,
-            close: true,
-            gravity: "top",
-            position: "right",
-            backgroundColor: "{{ 'linear-gradient(to right, #16a34a, #4ade80)' if category=='success' else 'linear-gradient(to right, #2563eb, #60a5fa)' if category=='info' else 'linear-gradient(to right, #dc2626, #f87171)' }}",
-            stopOnFocus: true
-          }).showToast();
-        {% endfor %}
-      });
-    </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      {% for category, message in messages %}
+      Toastify({
+        text: "{{ message }}",
+        duration: 3000,
+        close: true,
+        gravity: "top",
+        position: "right",
+        backgroundColor: "{{ 'linear-gradient(to right, #16a34a, #4ade80)' if category=='success' else 'linear-gradient(to right, #2563eb, #60a5fa)' if category=='info' else 'linear-gradient(to right, #dc2626, #f87171)' }}",
+        stopOnFocus: true
+      }).showToast();
+      {% endfor %}
+    });
+  </script>
   {% endif %}
-{% endwith %}
-
-
-
+  {% endwith %}
 
 </body>
 

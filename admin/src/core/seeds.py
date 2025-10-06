@@ -7,6 +7,13 @@ from src.core.services.sites import add_site
 from datetime import datetime, timezone, date
 from time import sleep
 
+
+
+from src.core.services.sites import add_site
+
+from datetime import datetime, timezone, date
+from time import sleep
+
 from geoalchemy2 import WKTElement
 # db
 from src.core.database import db
@@ -14,11 +21,13 @@ from src.core.database import db
 from src.core.services.sites import add_site, modify_site
 from src.core.services.history import add_site_history
 from src.core.services import roles
+from src.core.services.users import add_user
 # entidades
 from src.core.Entities import FeatureFlag
 from src.core.Entities.site_history import HistoryAction
 from src.core.Entities.role import Role
 from src.core.Entities.permission import Permission
+from src.core.Entities.user import User
 # para agregar datos de prueba a la base de datos se usa "flask seeddb"
 def seeds_db():
     print("\n\n==== SEEDING BASE DE DATOS ====")
@@ -79,6 +88,10 @@ def seeds_db():
         {
             "name": "Administrador", 
             "description": "Usuario con todos los permisos del sistema"
+        },
+        {
+            "name": "Usuario Público",
+            "description": "Usuario con permisos muy limitados"
         }
     ]
     
@@ -130,7 +143,7 @@ def seeds_db():
 
     # Seed para Feature Flags
     print("\n==== CREANDO FEATURE FLAGS ====")
-    
+
     feature_flags_data = [
         {
             "name": "admin_maintenance_mode",
@@ -138,26 +151,26 @@ def seeds_db():
             "is_enabled": False,
             "maintenance_message": "",
             "last_modified_by": "System",
-            "last_modified_at": datetime.now(timezone.utc)
+            "last_modified_at": datetime.now(timezone.utc),
         },
         {
-            "name": "portal_maintenance_mode", 
+            "name": "portal_maintenance_mode",
             "description": "Modo mantenimiento del portal web. Cuando está activo, pone el portal público en modo mantenimiento.",
             "is_enabled": False,
             "maintenance_message": "",
             "last_modified_by": "System",
-            "last_modified_at": datetime.now(timezone.utc)
+            "last_modified_at": datetime.now(timezone.utc),
         },
         {
             "name": "reviews_enabled",
             "description": "Permitir nuevas reseñas. Cuando está desactivado, oculta/deshabilita la creación de reseñas en el portal.",
             "is_enabled": True,
             "maintenance_message": "",
-            "last_modified_by": "System", 
-            "last_modified_at": datetime.now(timezone.utc)
-        }
+            "last_modified_by": "System",
+            "last_modified_at": datetime.now(timezone.utc),
+        },
     ]
-    
+
     for flag_data in feature_flags_data:
         # Verificar si el flag ya existe
         existing_flag = FeatureFlag.query.filter_by(name=flag_data["name"]).first()
@@ -167,14 +180,13 @@ def seeds_db():
             print(f"✓ Feature flag '{flag_data['name']}' creado")
         else:
             print(f"⚠ Feature flag '{flag_data['name']}' ya existe")
-    
+
     try:
         db.session.commit()
         print("✓ Feature flags guardados en la base de datos")
     except Exception as e:
         db.session.rollback()
         print(f"✗ Error al guardar feature flags: {e}")
-
 
     # Seed para sitios
    
@@ -226,12 +238,41 @@ def seeds_db():
         },
     ]
 
+    user1 = {
+        "email": "user1@gmail.com",
+        "nombre": "Jose",
+        "username": "joseuser",
+        "apellido": "Perez",
+        "contraseña": "jose123",
+        "rol_id": 1
+    }
+    
+    user2 = {
+        "email": "user2@gmail.com",
+        "nombre": "Pedrito",
+        "username": "pedrouser",
+        "apellido": "Martinez",
+        "contraseña": "pedro123",
+        "rol_id": 2,
+    }
+
+    user3 = {
+        "email": "user3@gmail.com",
+        "nombre": "Juan",
+        "username": "juanuser",
+        "apellido": "Soria",
+        "contraseña": "juan324",
+        "rol_id": 3,
+    }
+
+    add_user(user1)
+    add_user(user2)
+    add_user(user3)
+
     add_site(sites_data[0])
     result = add_site(sites_data[1])
 
     add_site(sites_data[2])
-
-   
 
 
     # sleep(5)
@@ -267,11 +308,10 @@ def seeds_db():
 
 
     # sleep(5)
-    modify_site(result.id, {
-        "nombre":"Chichen Itza",
-        "estado_conservacion":"Malo",
-        "visible":False
-    })
+    modify_site(
+        result.id,
+        {"nombre": "Chichen Itza", "estado_conservacion": "Malo", "visible": False},
+    )
 
     # sleep(5)
     modify_site(
@@ -283,21 +323,37 @@ def seeds_db():
     )
 
     # sleep(5)
-    modify_site(result.id, {
-        "latitud":19.8712,
-        "longitud":-87.2856,
-    })
+    modify_site(
+        result.id,
+        {
+            "latitud": 19.8712,
+            "longitud": -87.2856,
+        },
+    )
 
     # sleep(5)
-    modify_site(result.id, {
-        "ciudad":"Tuxtla Gutiérrez",
-        "provincia":"Chiapas",
-    })
+    modify_site(
+        result.id,
+        {
+            "ciudad": "Tuxtla Gutiérrez",
+            "provincia": "Chiapas",
+        },
+    )
 
-    # eliminar efectivamente el site con la funcion que lo maneje al eliminado 
+    # sleep(5)
+    modify_site(
+        result.id,
+        {
+            "ciudad": "Tuxtla Gutiérrez",
+            "provincia": "Chiapas",
+        },
+    )
+
+    # eliminar efectivamente el site con la funcion que lo maneje al eliminado
     add_site_history(result.id, HistoryAction.ELIMINAR, 1, None, result, None)
 
 
 
 
     print(f"\n==== SEEDING LISTO ====\n\n")
+
