@@ -39,7 +39,14 @@ def index():
     # Ya devuelve un objeto paginado
     pagination = board_sites.list_sites(filtros, page=page, per_page=per_page)
 
-    tags = [{"id": tag.id, "nombre": tag.name} for tag in board_tags.list_tags()]
+    tags = [{"value": tag.id, "label": tag.name} for tag in board_tags.list_tags()]
+
+    #el filtro de provincias necesita las provincias en formato {'value': 'Buenos Aires', 'label': 'Buenos Aires'}
+    provincias_arg = [
+    {"value": sub.name, "label": sub.name}
+    for sub in pycountry.subdivisions.get(country_code="AR")
+]
+
     return render_template(
         "sites/sites_table.html",
         items=pagination.items,
@@ -52,42 +59,55 @@ def index():
 
 
 @bp.route("/nuevo", methods=["GET", "POST"])
-@permission_required('site_new')
+@permission_required("site_new")
 @login_required
 def add_site():
     """
-    GET: muestra el formulario para crear un nuevo sitio.
+    GET: muestra el formulario para crear un nuevo sitio histórico.
     POST: procesa el formulario y crea el sitio.
-   
     """
-    siteForm=SiteForm()
+    siteForm = SiteForm()
+
+    # Provincias
     provincias_opts = [(prov, prov) for prov in provincias_arg]
     siteForm.provincia.choices = provincias_opts
 
-    tags= [(tag.id, tag.name) for tag in board_tags.list_tags()]
+    # Tags
+    tags = [(tag.id, tag.name) for tag in board_tags.list_tags()]
     siteForm.tags.choices = tags
-    if request.method == "POST":
-        if siteForm.validate_on_submit():
-            site_data = {
-                "nombre": siteForm.nombre.data,
-                "descripcion_breve": siteForm.descripcion_breve.data,
-                "descripcion_completa": siteForm.descripcion_completa.data,
-                "ciudad": siteForm.ciudad.data,
-                "provincia": siteForm.provincia.data,
-                "inauguracion": siteForm.inauguracion.data,
-                "visible": siteForm.visible.data,
-                "categoria": siteForm.categoria.data,
-                "estado_conservacion": siteForm.estado_conservacion.data,
-                "latitud": float(siteForm.latitud.data),
-                "longitud": float(siteForm.longitud.data),
-                "tags": siteForm.tags.data,
-            }
 
-            board_sites.add_site(site_data)
-            flash("Sitio histórico creado exitosamente.", "success")
-            return redirect(url_for("sites.index"))
-   
-    return render_template("sites/add_site.html", provincias=provincias_opts, tags=tags,form=siteForm)
+  
+    if siteForm.tags.data is None:
+        siteForm.tags.data = []
+
+    # Procesar POST
+    if siteForm.validate_on_submit():
+        site_data = {
+            "nombre": siteForm.nombre.data,
+            "descripcion_breve": siteForm.descripcion_breve.data,
+            "descripcion_completa": siteForm.descripcion_completa.data,
+            "ciudad": siteForm.ciudad.data,
+            "provincia": siteForm.provincia.data,
+            "inauguracion": siteForm.inauguracion.data,
+            "visible": siteForm.visible.data,
+            "categoria": siteForm.categoria.data,
+            "estado_conservacion": siteForm.estado_conservacion.data,
+            "latitud": float(siteForm.latitud.data) if siteForm.latitud.data else None,
+            "longitud": float(siteForm.longitud.data) if siteForm.longitud.data else None,
+            "tags": siteForm.tags.data,
+        }
+
+        board_sites.add_site(site_data)
+        flash("Sitio histórico creado exitosamente.", "success")
+        return redirect(url_for("sites.index"))
+
+    # Renderizar formulario
+    return render_template(
+        "sites/add_site.html",
+        form=siteForm,
+        provincias=provincias_opts,
+        tags=tags
+    )
 
 
 @bp.route("/modificar/<int:site_id>", methods=["GET", "POST"])
@@ -102,7 +122,9 @@ def modify(site_id):
     form = SiteForm(obj=site)
     form.provincia.choices = [(p, p) for p in provincias_arg]
     form.tags.choices = [(t.id, t.name) for t in board_tags.list_tags()]
-
+   
+  
+    form.tags.data = [t.id for t in site.tags] 
     if form.validate_on_submit():
         board_sites.modify_site(site_id, form.data)
         flash("Sitio actualizado correctamente.", "success")

@@ -8,13 +8,13 @@
 
 <h2 class="text-2xl font-bold mb-4">{{ title }}</h2>
 
-<form method="POST" class="bg-white shadow-md rounded-lg p-6 max-w-2xl">
+<form method="POST" class="bg-white shadow-md rounded-lg p-6  mx-auto">
     {{ form.hidden_tag() }}
 
     <!-- Nombre -->
     <div class="mb-4">
         {{ form.nombre.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-        {{ form.nombre(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500") }}
+        {{ form.nombre(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500",required=true) }}
         {% for error in form.nombre.errors %}
             <span class="text-red-500 text-sm">{{ error }}</span>
         {% endfor %}
@@ -23,7 +23,7 @@
     <!-- Descripción breve -->
     <div class="mb-4">
         {{ form.descripcion_breve.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-        {{ form.descripcion_breve(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500") }}
+        {{ form.descripcion_breve(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500",required=true) }}
         {% for error in form.descripcion_breve.errors %}
             <span class="text-red-500 text-sm">{{ error }}</span>
         {% endfor %}
@@ -32,13 +32,13 @@
     <!-- Descripción completa -->
     <div class="mb-4">
         {{ form.descripcion_completa.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-        {{ form.descripcion_completa(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500") }}
+        {{ form.descripcion_completa(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500",required=true) }}
     </div>
 
     <!-- Ciudad -->
     <div class="mb-4">
         {{ form.ciudad.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-        {{ form.ciudad(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500") }}
+        {{ form.ciudad(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500",required=true) }}
     </div>
 
     <!-- Provincia -->
@@ -50,26 +50,44 @@
     <!-- Inauguración -->
     <div class="mb-4">
         {{ form.inauguracion.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-        {{ form.inauguracion(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500") }}
+        {{ form.inauguracion(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500",required=true,max=2025) }}
     </div>
 
     <!-- Estado de conservación -->
     <div class="mb-4">
         {{ form.estado_conservacion.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-        {{ form.estado_conservacion(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500") }}
+        {{ form.estado_conservacion(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500",required=true) }}
     </div>
 
     <!-- Categoría -->
     <div class="mb-4">
         {{ form.categoria.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-        {{ form.categoria(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500") }}
+        {{ form.categoria(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500",required=true) }}
     </div>
 
-    <!-- Tags -->
-    <div class="mb-4">
-        {{ form.tags.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-        {{ form.tags(class="w-full border border-gray-300 rounded-lg px-3 py-2", multiple=True) }}
+<!-- Tags -->
+<div class="mb-4">
+    <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+    <div class="flex flex-wrap gap-3">
+        {% for value, label in form.tags.choices %}
+            <label class="flex items-center space-x-2 cursor-pointer">
+                <input
+                    type="checkbox"
+                    name="{{ form.tags.name }}"
+                    value="{{ value }}"
+                    {% if value in form.tags.data %}checked{% endif %}
+                    class="appearance-none h-4 w-4 rounded-full border border-gray-400
+                           checked:bg-indigo-600 checked:border-indigo-600 focus:ring-2 focus:ring-indigo-400"
+                >
+                <span class="text-gray-700 text-sm">{{ label }}</span>
+            </label>
+        {% endfor %}
     </div>
+    {% for error in form.tags.errors %}
+        <span class="text-red-500 text-sm">{{ error }}</span>
+    {% endfor %}
+</div>
+
 
     <!-- Visible -->
     <div class="mb-4 flex items-center gap-2">
@@ -86,7 +104,9 @@
         <label class="block font-semibold mb-2">Ubicación en el mapa</label>
         <div id="map" class="w-full h-96 border border-gray-300 rounded-lg mt-2"></div>
     </div>
-
+     {% for error in form.latitud.errors %}
+        <span class="text-red-500 text-sm">{{ error }}</span>
+    {% endfor %}
     <!-- Botón -->
     <button type="submit"
         class="w-full bg-blue-900 text-white py-2 px-4 rounded-lg hover:bg-gray-700">

@@ -13,8 +13,8 @@ class SiteForm(FlaskForm):
     categoria = StringField("Categoría", validators=[DataRequired(), Length(max=50)])
     estado_conservacion = SelectField("Estado de conservación", validators=[DataRequired()],
                                       choices=[("Bueno", "Bueno"), ("Regular", "Regular"), ("Malo", "Malo")])
-    latitud = DecimalField("Latitud", places=6)
-    longitud = DecimalField("Longitud", places=6)
+    latitud = DecimalField("Latitud", places=6, validators=[DataRequired(message="Debe seleccionar una ubicación en el mapa")])
+    longitud = DecimalField("Longitud", places=6, validators=[DataRequired(message="Debe seleccionar una ubicación en el mapa")])
     tags = SelectMultipleField("Tags", coerce=int) 
     submit = SubmitField("Guardar")
     

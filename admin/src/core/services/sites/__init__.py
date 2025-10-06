@@ -126,8 +126,7 @@ def modify_site(site_id, site_data):
         campo.name: getattr(sitio, campo.name, None) for campo in campos_site
     }
 
-    if "visible" in site_data:
-        sitio.visible = True if site_data["visible"] == "on" else False
+    sitio.visible = site_data.get("visible", False)
 
     sitio.nombre = site_data.get("nombre", sitio.nombre)
     sitio.descripcion_breve = site_data.get(
@@ -148,22 +147,36 @@ def modify_site(site_id, site_data):
     sitio.estado_conservacion = site_data.get(
         "estado_conservacion", sitio.estado_conservacion
     )
-
+    # actualizar tags si vienen
+    if "tags" in site_data:
+        sitio.tags = []  # limpiar las tags actuales
+        tags_data = site_data.get("tags", [])
+        for tag_id in tags_data:
+            tag = get_tag_by_id(tag_id)
+            if tag is None:
+                raise ValueError(f"Tag '{tag_id}' no encontrado")
+            sitio.tags.append(tag)
     db.session.commit()
 
+    nuevo_snapshot = {
+    campo.name: getattr(sitio, campo.name, None) for campo in Site.__table__.columns
+}
+    original_snapshot["visible"] = "Sí" if original_snapshot["visible"] else "No"
+    nuevo_snapshot["visible"] = "Sí" if nuevo_snapshot["visible"] else "No"
 
     # aca agregar a la tabla de historial
     add_site_history(
         site_id,
         HistoryAction.EDITAR,
         1,
-        sitio,
+        nuevo_snapshot,
         original_snapshot,
         list(site_data.keys()),
     )
 
-    tags_viejas = [t.nombre for t in sitio.tags]  # relación many-to-many
+    tags_viejas = [t.id for t in sitio.tags]  # relación many-to-many
     tags_nuevas = site_data.get("tags")
+    
     # Si cambiaron las tags, registrar en historial aparte
     if tags_nuevas is not None and sorted(tags_viejas) != sorted(tags_nuevas):
         add_site_history(
@@ -182,8 +195,7 @@ def add_site(site_data):
     """
     Agrega un nuevo sitio historico.
     """
-    visible_value = site_data.get("visible")
-    visible = True if visible_value == "on" else False
+   
 
     lat = site_data.get("latitud")
     lng = site_data.get("longitud")
@@ -203,7 +215,7 @@ def add_site(site_data):
         punto=punto,
         categoria=site_data.get("categoria"),
         estado_conservacion=site_data.get("estado_conservacion"),
-        visible=visible,
+        visible=site_data.get("visible",False),
     )
 
     tags_data = site_data.get("tags", [])
@@ -216,11 +228,18 @@ def add_site(site_data):
     db.session.add(nuevo_sitio)
     db.session.commit()
 
+    #en el historial se muestra si  o no , no true o false
+    visible=site_data.get("visible")
+    historial_data = site_data.copy()
+    historial_data["visible"] = "Sí" if visible else "No"
     add_site_history(
-        nuevo_sitio.id, HistoryAction.CREAR, 1, site_data, None, list(site_data.keys())
+        nuevo_sitio.id, HistoryAction.CREAR, 1, historial_data, None, list(site_data.keys())
     )
 
     return nuevo_sitio
+
+def actualizar_historial(nuevo,accion,original=None):
+    pass
 
 def delete_site(site_id):
     """
