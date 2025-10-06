@@ -17,6 +17,9 @@ from src.web.controllers.login import bp as login_bp
 from src.web.controllers.sites_history import bp as sites_history_bp
 from flask_session import Session
 from src.core.auth import login_required
+from src.core.auth import has_permission
+
+from datetime import timedelta
 
 sess=Session()
 
@@ -24,7 +27,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
 
     app = Flask(__name__, static_folder=static_folder)
     app.config.from_object(config[env])
-
+    app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=1)
     database.init_app(app)
     sess.init_app(app)
    
@@ -103,6 +106,10 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     def throw_500_error_for_test():
         abort(500)
         return render_template("throw_500_error_for_test.html")
+    
+
+    #helpers para jinja
+    app.jinja_env.globals["has_permission"] = has_permission
 
     # definir todos los blueprints
     app.register_blueprint(users_bp)

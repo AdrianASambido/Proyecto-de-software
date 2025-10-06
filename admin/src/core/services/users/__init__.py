@@ -92,12 +92,14 @@ def get_user_by_id(user_id):
     """
     return User.query.get(user_id)
 
+
 def get_username_by_email(email):
     """
     Retorna el nombre de usuario por su correo electrónico
     """
     user = User.query.filter_by(email=email, eliminado=False).first()
     return user.username if user else None
+
 
 def get_user_by_email(email):
     """
