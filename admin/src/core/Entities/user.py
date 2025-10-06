@@ -3,6 +3,13 @@ from src.core.database import db
 from sqlalchemy import Enum
 from datetime import datetime, timezone
 
+
+class rolEnum(enum.Enum):
+    PUBLICO = "Usuario Público"
+    EDITOR = "Editor"
+    ADMINISTRADOR = "Administrador"
+
+
 class User(db.Model):
     """Modelo que representa un usuario en la base de datos"""
 
@@ -15,15 +22,12 @@ class User(db.Model):
     contraseña_cifrada=db.Column(db.String(128), nullable=False)
     is_system_admin=db.Column(db.Boolean, default=False)
     activo=db.Column(db.Boolean, default=True)
-    bloqueado=db.Column(db.Boolean, default=False)  # Nuevo campo para bloqueo
     rol_id=db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=False)
     created_at=db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at=db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
     eliminado=db.Column(db.Boolean, default=False)
 
     role=db.relationship("Role", back_populates="users")
-
-    __table_args__ = {'extend_existing': True}
 
     def __repr__(self):
         return f"<User {self.email}>"

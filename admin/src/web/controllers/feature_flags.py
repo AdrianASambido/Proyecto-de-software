@@ -9,11 +9,11 @@ from src.core.services.feature_flags import (
     update_feature_flag,
     get_feature_flag_by_name,
 )
-
+from src.core.auth import login_required
 bp = Blueprint("feature_flags", __name__, url_prefix="/admin/feature-flags")
 
-
 @bp.get("/")
+@login_required
 def index():
     """
     Muestra la lista de feature flags
@@ -23,6 +23,7 @@ def index():
 
 
 @bp.post("/toggle/<int:flag_id>")
+@login_required
 def toggle_flag(flag_id):
     """
     Cambia el estado de un feature flag
@@ -53,6 +54,7 @@ def toggle_flag(flag_id):
 
 
 @bp.get("/status")
+@login_required
 def get_flags_status():
     """
     Obtiene el estado actual de todos los flags (API endpoint)

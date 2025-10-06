@@ -1,5 +1,6 @@
 """
 Este controlador maneja las rutas relacionadas con las operaciones de sitios históricos.
+Este controlador maneja las rutas relacionadas con las operaciones de sitios históricos.
 """
 
 from flask import Blueprint
@@ -13,18 +14,18 @@ from src.core.services.sites import list_sites, add_site, get_site, modify_site
 from src.core.services.tags import list_tags
 from flask import flash
 import pycountry
-
+from flask import current_app as app
+from src.core.auth import login_required
 bp = Blueprint("sites", __name__, url_prefix="/sitios")
 
 provincias_arg = [sub.name for sub in pycountry.subdivisions.get(country_code="AR")]
 
 
 @bp.get("/")
+@login_required
 def index():
     """
     Muestra la lista de sitios históricos.
-
-    Renderiza la plantilla con la lista de sitios.
     """
     page = request.args.get("page", 1, type=int)
     per_page = 3
@@ -33,7 +34,9 @@ def index():
     filtros.pop("page", None)
     filtros.pop("per_page", None)
 
-    pagination = board_sites.list_sites(filtros).paginate(page=page, per_page=per_page)
+    # Ya devuelve un objeto paginado
+    pagination = board_sites.list_sites(filtros, page=page, per_page=per_page)
+
     tags = [{"id": tag.id, "nombre": tag.name} for tag in board_tags.list_tags()]
     return render_template(
         "sites/sites_table.html",
@@ -45,9 +48,13 @@ def index():
     )
 
 
+
 @bp.route("/nuevo", methods=["GET", "POST"])
+@login_required
 def add_site():
     """
+    GET: muestra el formulario para crear un nuevo sitio.
+    POST: procesa el formulario y crea el sitio.
     GET: muestra el formulario para crear un nuevo sitio.
     POST: procesa el formulario y crea el sitio.
     """
@@ -63,6 +70,7 @@ def add_site():
 
 
 @bp.route("/modificar/<int:site_id>", methods=["GET", "POST"])
+@login_required
 def modify(site_id):
     """
     GET: muestra el formulario para modificar un sitio histórico.
@@ -88,6 +96,7 @@ def modify(site_id):
 
 
 @bp.post("/eliminar/<int:site_id>")
+@login_required
 def delete(site_id):
     """
     Elimina un sitio histórico.
@@ -101,3 +110,37 @@ def delete(site_id):
     board_sites.delete_site(site_id)
     flash("Sitio histórico eliminado exitosamente.", "success")
     return redirect(url_for("sites.index"))
+
+@bp.get("/exportar")
+@login_required
+def export():
+    """
+    Exporta la lista de sitios históricos en formato CSV.
+    """
+    filtros = request.args.to_dict()
+    filtros.pop("exportar", None)
+
+    csv_data = board_sites.export_sites_csv(filtros if len(filtros.keys()) > 0 else None)
+
+    response = app.response_class(
+        response=csv_data,
+        status=200,
+        mimetype="text/csv",
+    )
+    response.headers.set(
+        "Content-Disposition",
+        "attachment",
+        filename=f"sitios_{board_sites.get_current_timestamp_str()}.csv",
+    )
+
+    return response
+
+
+@bp.route("/<int:sitio_id>")
+@login_required
+def detail(sitio_id):
+    """
+    renderiza los detalles del sitio
+    """
+    sitio = board_sites.get_site(sitio_id)
+    return render_template("sites/detail.html", sitio=sitio)
