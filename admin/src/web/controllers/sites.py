@@ -97,8 +97,13 @@ def add_site():
             "longitud": float(siteForm.longitud.data) if siteForm.longitud.data else None,
             "tags": siteForm.tags.data,
         }
+<<<<<<< HEAD
         user_id=session.get("user_id")
         board_sites.add_site(site_data,user_id)
+=======
+
+        board_sites.add_site(site_data)
+>>>>>>> 3622861 (fix:detalles en sitios/tags)
         flash("Sitio histórico creado exitosamente.", "success")
         return redirect(url_for("sites.index"))
 

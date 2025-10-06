@@ -148,6 +148,7 @@ def modify_site(site_id, site_data,user_id):
         "estado_conservacion", sitio.estado_conservacion
     )
     # actualizar tags si vienen
+<<<<<<< HEAD
     tags_data = site_data.get("tags", [])
     for tag_id in tags_data:
         sitio.tags=[]
@@ -155,6 +156,16 @@ def modify_site(site_id, site_data,user_id):
         if tag is None:
             raise ValueError(f"Tag '{tag_id}' no encontrado")
         sitio.tags.append(tag)
+=======
+    if "tags" in site_data:
+        sitio.tags = []  # limpiar las tags actuales
+        tags_data = site_data.get("tags", [])
+        for tag_id in tags_data:
+            tag = get_tag_by_id(tag_id)
+            if tag is None:
+                raise ValueError(f"Tag '{tag_id}' no encontrado")
+            sitio.tags.append(tag)
+>>>>>>> 3622861 (fix:detalles en sitios/tags)
     db.session.commit()
 
     nuevo_snapshot = {
@@ -167,7 +178,11 @@ def modify_site(site_id, site_data,user_id):
     add_site_history(
         site_id,
         HistoryAction.EDITAR,
+<<<<<<< HEAD
         user_id,
+=======
+        1,
+>>>>>>> 3622861 (fix:detalles en sitios/tags)
         nuevo_snapshot,
         original_snapshot,
         list(site_data.keys()),
@@ -232,7 +247,11 @@ def add_site(site_data,user_id):
     historial_data = site_data.copy()
     historial_data["visible"] = "Sí" if visible else "No"
     add_site_history(
+<<<<<<< HEAD
         nuevo_sitio.id, HistoryAction.CREAR, user_id, historial_data, None, list(site_data.keys())
+=======
+        nuevo_sitio.id, HistoryAction.CREAR, 1, historial_data, None, list(site_data.keys())
+>>>>>>> 3622861 (fix:detalles en sitios/tags)
     )
 
     return nuevo_sitio
@@ -240,7 +259,11 @@ def add_site(site_data,user_id):
 def actualizar_historial(nuevo,accion,original=None):
     pass
 
+<<<<<<< HEAD
 def delete_site(site_id,user_id):
+=======
+def delete_site(site_id):
+>>>>>>> 3622861 (fix:detalles en sitios/tags)
     """
     borra un sitio
     """
