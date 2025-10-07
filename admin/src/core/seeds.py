@@ -7,7 +7,7 @@ from src.core.services.sites import add_site
 from datetime import datetime, timezone, date
 from time import sleep
 
-
+from src.core.Entities.role import user_roles
 
 from src.core.services.sites import add_site
 
@@ -190,51 +190,39 @@ def seeds_db():
         db.session.rollback()
         print(f"✗ Error al guardar feature flags: {e}")
 
-    # Seed para sitios
-    user1 = {
+    # crear usuarios (sin commit)
+    u1 = add_user({
         "email": "user1@gmail.com",
         "nombre": "Jose",
         "username": "joseuser",
         "apellido": "Perez",
-        "contraseña": "jose123",
-        "rolws": [admin_role]
-    }
-    
-    user2 = {
+        "contraseña": "jose123"
+    })
+    u2 = add_user({
         "email": "user2@gmail.com",
         "nombre": "Pedrito",
         "username": "pedrouser",
         "apellido": "Martinez",
-        "contraseña": "pedro123",
-        "rolws": [editor_role]
-    }
-
-    user3 = {
+        "contraseña": "pedro123"
+    })
+    u3 = add_user({
         "email": "user3@gmail.com",
         "nombre": "Juan",
         "username": "juanuser",
         "apellido": "Soria",
-        "contraseña": "juan324",
-        "roles": [editor_role] ,
-    }
-
-   # crear sin roles en el dict
-    add_user(user1)
-    add_user(user2)
-    add_user(user3)
-
-    # luego recuperar los objetos User reales
-    u1 = User.query.filter_by(email="user1@gmail.com").first()
-    u2 = User.query.filter_by(email="user2@gmail.com").first()
-    u3 = User.query.filter_by(email="user3@gmail.com").first()
+        "contraseña": "juan324"
+    })
 
     # obtener roles
     admin_role = Role.query.filter_by(name="Administrador").first()
     editor_role = Role.query.filter_by(name="Editor").first()
 
-    # asignar
+    # asignar roles (antes del commit)
     u1.roles.append(admin_role)
     u2.roles.append(editor_role)
+    u3.roles.append(editor_role)
+
+    # un solo commit al final
     db.session.commit()
 
     print("\n==== CREANDO SITES ====")
@@ -286,7 +274,9 @@ def seeds_db():
 
     add_site(sites_data[0],1)
 
-
+    db.session.execute(user_roles.insert().values(user_id=1, role_id=2))
+    db.session.execute(user_roles.insert().values(user_id=2, role_id=1))
+    db.session.commit()
 
 
     print(f"\n==== SEEDING LISTO ====\n\n")
