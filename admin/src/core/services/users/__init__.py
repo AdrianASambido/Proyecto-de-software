@@ -30,7 +30,7 @@ def list_users(filtros: dict):
 
     rol = filtros.get("rol")
     if rol:
-        query = query.filter(User.rol_id == rol)
+        query = query.join(User.roles).filter(Role.id == rol)
 
     activo = filtros.get("activo")
     if activo:
@@ -118,7 +118,6 @@ def update_user(user_id, user_data):
     Modifica los datos de un usuario existente, en caso de tener los campos habilitados.
     """
     usuario = User.query.get(user_id)
-    usuario = User.query.get(user_id)
     if usuario:
         if "nombre" in user_data and user_data["nombre"] and user_data["nombre"] != usuario.nombre:
             usuario.nombre = user_data["nombre"]
@@ -133,20 +132,21 @@ def update_user(user_id, user_data):
         
         db.session.commit()
         return usuario
-        return usuario
 
-def assign_role_to_user(user_id, role_id):
+def assign_roles_to_user(user_id, role_ids):
     """
-    Asigna un rol a un usuario.
+    Asigna varios roles a un usuario.
     """
-    usuario = get_user_by_id(user_id)
-    rol = Role.query.get(role_id)
-    
-    if usuario and rol:
-        usuario.rol_id = role_id
+    usuario = User.query.get(user_id)
+    if usuario:
+        roles = Role.query.filter(Role.id.in_(role_ids)).all()
+        if not roles:
+            raise ValueError("Roles no encontrados.")
+        usuario.roles = roles
         db.session.commit()
-        return True
-    return False
+        return usuario
+    else:
+        raise ValueError("Usuario no encontrado.")
 
 
 def block_user(user_id):
