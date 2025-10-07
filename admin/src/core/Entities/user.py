@@ -59,3 +59,6 @@ class User(db.Model):
         """Desbloquea al usuario"""
         self.bloqueado = False
         return True
+
+    def is_system_admin_user(self):
+        return bool(self.is_system_admin)
