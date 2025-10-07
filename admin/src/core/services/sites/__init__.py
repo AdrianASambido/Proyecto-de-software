@@ -49,7 +49,7 @@ def order_sites(query, filtros):
 
 def filter_sites(filtros):
     """
-    filtra los sitios
+    Filtra los sitios según los filtros proporcionados.
     """
     query = Site.query.filter(Site.eliminated_at.is_(None))
 
@@ -63,12 +63,12 @@ def filter_sites(filtros):
             )
         )
 
-    # Ciudad (texto )
+    # Ciudad
     ciudad = filtros.get("ciudad")
     if ciudad:
         query = query.filter(Site.ciudad.ilike(f"%{ciudad}%"))
 
-    # Provincia (exacta)
+    # Provincia
     provincia = filtros.get("provincia")
     if provincia:
         query = query.filter(Site.provincia == provincia)
@@ -79,11 +79,30 @@ def filter_sites(filtros):
         query = query.filter(Site.estado_conservacion == estado)
 
     # Rango de fechas
-    fecha_desde = filtros.get("fecha_desde")
+    fecha_desde_str = filtros.get("fecha_desde")
+    fecha_hasta_str = filtros.get("fecha_hasta")
+
+    fecha_desde = None
+    fecha_hasta = None
+
+    if fecha_desde_str:
+        try:
+            fecha_desde = datetime.strptime(fecha_desde_str, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError(f"Fecha desde inválida: {fecha_desde_str}")
+
+    if fecha_hasta_str:
+        try:
+            fecha_hasta = datetime.strptime(fecha_hasta_str, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError(f"Fecha hasta inválida: {fecha_hasta_str}")
+
+    if fecha_desde and fecha_hasta:
+        if fecha_desde > fecha_hasta:
+            raise ValueError("El rango de fechas no es válido: desde mayor que hasta.")
+
     if fecha_desde:
         query = query.filter(Site.created_at >= fecha_desde)
-
-    fecha_hasta = filtros.get("fecha_hasta")
     if fecha_hasta:
         query = query.filter(Site.created_at <= fecha_hasta)
 
@@ -92,7 +111,7 @@ def filter_sites(filtros):
     if visible in ("on", "1", True):
         query = query.filter(Site.visible.is_(True))
 
-    # Tags (ids)
+    # Tags
     tags_ids = filtros.get("tags")
     if tags_ids:
         tags_ids = [int(t) for t in tags_ids if str(t).isdigit()]
@@ -112,32 +131,36 @@ def get_site(site_id):
         return None
 
 
-def modify_site(site_id, site_data,user_id):
+def modify_site(site_id, site_data, user_id):
     """
-    Modifica un sitio historico existente.
+    Modifica un sitio histórico existente.
     """
+   
     sitio = Site.query.get(site_id)
     if not sitio:
         return None
 
-    # tomar un snapshot dict de los valores originales ANTES de actualizar
+    # Snapshot de valores originales ANTES de actualizar
     campos_site = Site.__table__.columns
     original_snapshot = {
         campo.name: getattr(sitio, campo.name, None) for campo in campos_site
     }
 
-    sitio.visible = site_data.get("visible", False)
+    # Guardar las tags viejas antes de modificarlas
+    tags_viejas = [t.id for t in sitio.tags]
 
+    # Actualizar campos simples
+    sitio.visible = site_data.get("visible", False)
     sitio.nombre = site_data.get("nombre", sitio.nombre)
-    sitio.descripcion_breve = site_data.get(
-        "descripcion_breve", sitio.descripcion_breve
-    )
-    sitio.descripcion_completa = site_data.get(
-        "descripcion_completa", sitio.descripcion_completa
-    )
+    sitio.descripcion_breve = site_data.get("descripcion_breve", sitio.descripcion_breve)
+    sitio.descripcion_completa = site_data.get("descripcion_completa", sitio.descripcion_completa)
     sitio.ciudad = site_data.get("ciudad", sitio.ciudad)
     sitio.provincia = site_data.get("provincia", sitio.provincia)
     sitio.inauguracion = site_data.get("inauguracion", sitio.inauguracion)
+    sitio.categoria = site_data.get("categoria", sitio.categoria)
+    sitio.estado_conservacion = site_data.get("estado_conservacion", sitio.estado_conservacion)
+
+    # Coordenadas (si vienen)
     lat = site_data.get("latitud")
     lng = site_data.get("longitud")
     if lat and lng:
@@ -168,13 +191,16 @@ def modify_site(site_id, site_data,user_id):
 >>>>>>> 3622861 (fix:detalles en sitios/tags)
     db.session.commit()
 
+    # Nuevo snapshot después de la modificación
     nuevo_snapshot = {
-    campo.name: getattr(sitio, campo.name, None) for campo in Site.__table__.columns
-}
+        campo.name: getattr(sitio, campo.name, None) for campo in campos_site
+    }
+
+    # Convertir booleanos a texto legible
     original_snapshot["visible"] = "Sí" if original_snapshot["visible"] else "No"
     nuevo_snapshot["visible"] = "Sí" if nuevo_snapshot["visible"] else "No"
 
-    # aca agregar a la tabla de historial
+    # Agregar registro general de modificación
     add_site_history(
         site_id,
         HistoryAction.EDITAR,
@@ -188,15 +214,13 @@ def modify_site(site_id, site_data,user_id):
         list(site_data.keys()),
     )
 
-    tags_viejas = [t.id for t in sitio.tags]  # relación many-to-many
-    tags_nuevas = site_data.get("tags")
-    
-    # Si cambiaron las tags, registrar en historial aparte
-    if tags_nuevas is not None and sorted(tags_viejas) != sorted(tags_nuevas):
+    # Comparar tags antes y después
+    tags_nuevas = [t.id for t in sitio.tags]
+    if sorted(tags_viejas) != sorted(tags_nuevas):
         add_site_history(
             site_id,
             HistoryAction.CAMBIAR_TAGS,
-            1,
+            user_id,
             {"tags": tags_nuevas},
             {"tags": tags_viejas},
             ["tags"],
@@ -293,7 +317,7 @@ def delete_site(site_id):
     #     original_snapshot["tags"] = [tag.id for tag in sitio.tags]
 
 
-    # guardamos historial
+
     add_site_history(
         site_id=sitio.id,
         accion=HistoryAction.ELIMINAR,
