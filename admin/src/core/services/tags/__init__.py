@@ -4,21 +4,18 @@ from datetime import date
 import unicodedata
 import re
 
-def list_tags():
-    tags=Tag.query.all()
-    return tags
-
 
 def list_tags(filtros: dict | None = None):
+    """Devuelve una consulta SQLAlchemy con los tags que cumplen los filtros dados."""
     if filtros is None:
         filtros = {}
-    
+
     query = Tag.query.filter(Tag.deleted_at.is_(None))
 
     busqueda = filtros.get("busqueda")
     if busqueda:
         query = query.filter(Tag.name.ilike(f"%{busqueda}%"))
-    
+
     orden = filtros.get("orden", "fecha_desc")
     opciones_orden = {
         "fecha_asc": Tag.created_at.asc(),
@@ -31,10 +28,8 @@ def list_tags(filtros: dict | None = None):
     return query
 
 
-
-
-
 def add_tag(tag_data):
+    """Crea una nueva etiqueta si no existe una con el mismo nombre."""
     new_tag = Tag(
         name=convert_to_lowercase(tag_data.get("nombre")),
         slug=generate_slug(tag_data.get("nombre")),
@@ -43,7 +38,9 @@ def add_tag(tag_data):
     db.session.commit()
     return new_tag
 
+
 def update_tag(tag_id, tag_data):
+    """Actualiza una etiqueta existente."""
     tag = Tag.query.get(tag_id)
     if not tag:
         return None
@@ -55,27 +52,34 @@ def update_tag(tag_id, tag_data):
 
 
 def delete_tag(tag_id):
+    """Elimina una etiqueta si no está asociada a ningún sitio."""
     tag = Tag.query.get(tag_id)
     if not tag:
         return None
 
     if tag.sites and len(tag.sites) > 0:
-        raise ValueError("No se puede eliminar una etiqueta que está asociada a sitios.")
+        raise ValueError(
+            "No se puede eliminar una etiqueta que está asociada a sitios."
+        )
 
     tag.deleted_at = date.today()
     db.session.commit()
     return tag
 
+
 def get_tag_by_id(tag_id):
     tag = Tag.query.get(tag_id)
     return tag
+
 
 def get_tag_by_name(name):
     tag = Tag.query.filter_by(name=name, deleted_at=None).first()
     return tag
 
+
 def convert_to_lowercase(text):
     return text.lower()
+
 
 def generate_slug(name):
     # Normalizar caracteres (quitar acentos)
