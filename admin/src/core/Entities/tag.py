@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from src.core.database import db
 
-# Tabla intermedia para muchos-a-muchos
+# Tabla de asociación muchos-a-muchos entre sites y tags
 site_tags = db.Table(
     "site_tags",
     db.Column("site_id", db.Integer, db.ForeignKey("sites.id"), primary_key=True),
@@ -10,6 +10,8 @@ site_tags = db.Table(
 
 
 class Tag(db.Model):
+    """Modelo que representa una etiqueta en la base de datos"""
+
     __tablename__ = "tags"
 
     id = db.Column(db.Integer, primary_key=True)
@@ -29,8 +31,8 @@ class Tag(db.Model):
     sites = db.relationship(
         "Site",  # name del modelo de sites
         secondary=site_tags,
-        #backref="tags",
-        back_populates="tags"
+        # backref="tags",
+        back_populates="tags",
     )
 
     # Relación muchos-a-muchos con sites

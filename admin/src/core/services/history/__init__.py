@@ -15,7 +15,7 @@ from geoalchemy2.elements import WKBElement
 import enum
 from src.core.database import db
 from datetime import datetime, timezone, date
-
+from sqlalchemy.orm import AppenderQuery
 
 def _serialize_value(val):
     """Convierte valores no serializables por JSON a tipos compatibles."""
@@ -23,9 +23,14 @@ def _serialize_value(val):
         return val.value
     if isinstance(val, (datetime, date)):
         return val.isoformat()
-    if isinstance(val, (WKTElement,WKBElement)):
-        geom = to_shape(val)   
-        return mapping(geom)  
+    if isinstance(val, (WKTElement, WKBElement)):
+        geom = to_shape(val)
+        return mapping(geom)
+    if isinstance(val, AppenderQuery):
+        # Convierte la relación dinámica en una lista de IDs o nombres
+        return [v.id for v in val.all()]
+    if isinstance(val, list):
+        return [_serialize_value(v) for v in val]
     return val
 
 

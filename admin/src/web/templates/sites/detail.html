@@ -46,6 +46,22 @@
     <p><span class="font-semibold">Año de inauguración:</span> {{ sitio.inauguracion }}</p>
     <p><span class="font-semibold">Visible:</span> {{ 'Sí' if sitio.visible else 'No' }}</p>
     <p><span class="font-semibold">Fecha de registro:</span> {{ sitio.created_at.strftime("%d/%m/%Y %H:%M") }}</p>
+    <div class="grid grid-cols-1 gap-2 sm:grid-cols-12">
+                <div class="sm:col-span-5 flex flex-col">
+                    <div class="font-semibold">Tags:</div>
+                    <div class="flex flex-wrap gap-1 mt-1">
+                        {% if sitio.tags|length > 0 %}
+                        {% for tag in sitio.tags %}
+                        <span
+                            class="inline-flex items-center px-2 py-1 text-xs font-medium bg-neutral-700 text-neutral-300 rounded">
+                             #{{ tag.name }}
+                        </span>
+                        {% endfor %}
+                        {% else %}
+                        <span class="font-semibold">Sin tags</span>
+                        {% endif %}
+                    </div>
+                </div>
   </div>
 
   <!-- Mapa -->

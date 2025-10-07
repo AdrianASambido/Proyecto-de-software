@@ -56,7 +56,7 @@ class Site(db.Model):
         "Tag",
         secondary=site_tags,
         back_populates="sites",
-        lazy="dynamic",
+        lazy="select",
     )
 
     history = db.relationship(
