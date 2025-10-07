@@ -1,13 +1,7 @@
-import enum
 from src.core.database import db
-from sqlalchemy import Enum
 from datetime import datetime, timezone
 
 
-class rolEnum(enum.Enum):
-    PUBLICO = "Usuario Público"
-    EDITOR = "Editor"
-    ADMINISTRADOR = "Administrador"
 
 
 class User(db.Model):
@@ -22,12 +16,12 @@ class User(db.Model):
     contraseña_cifrada=db.Column(db.String(128), nullable=False)
     is_system_admin=db.Column(db.Boolean, default=False)
     activo=db.Column(db.Boolean, default=True)
-    rol_id=db.Column(db.Integer, db.ForeignKey("roles.id"), nullable=False)
     created_at=db.Column(db.DateTime, default=datetime.now(timezone.utc))
     updated_at=db.Column(db.DateTime, default=datetime.now(timezone.utc), onupdate=datetime.now(timezone.utc))
     eliminado=db.Column(db.Boolean, default=False)
+    bloqueado=db.Column(db.Boolean, default=False)
 
-    role=db.relationship("Role", back_populates="users")
+    roles=db.relationship("Role", secondary="user_roles", back_populates="users")
 
     def __repr__(self):
         return f"<User {self.email}>"
@@ -51,10 +45,11 @@ class User(db.Model):
         return not self.is_admin
     
     def has_permission(self, permission_name):
-        """Verifica si el usuario tiene un permiso específico a través de su rol"""
-        if not self.role:
+        """Verifica si el usuario tiene un permiso específico a través de sus roles"""
+        if not self.roles:
             return False
-        return self.role.has_permission(permission_name)
+        return any(role.has_permission(permission_name) for role in self.roles)
+
     
     def block(self):
         """Bloquea al usuario si es posible"""

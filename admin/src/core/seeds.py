@@ -7,7 +7,7 @@ from src.core.services.sites import add_site
 from datetime import datetime, timezone, date
 from time import sleep
 
-
+from src.core.Entities.role import user_roles
 
 from src.core.services.sites import add_site
 
@@ -51,6 +51,8 @@ def seeds_db():
         {"name": "site_update", "description": "Actualizar sitio", "module": "site", "action": "update"},
         {"name": "site_destroy", "description": "Eliminar sitio", "module": "site", "action": "destroy"},
         {"name": "site_show", "description": "Ver detalle de sitio", "module": "site", "action": "show"},
+        {"name": "site_export", "description": "Exportar sitios", "module": "site", "action": "export"},
+        {"name": "site_history", "description": "Ver historial de sitios", "module": "site", "action": "history"},
     ]
     
     # Crear permisos del módulo de tags
@@ -119,11 +121,11 @@ def seeds_db():
     admin_role = Role.query.filter_by(name="Administrador").first()
     
     if editor_role and admin_role:
-        # Editor: permisos limitados (solo sitios y tags)
+        # Editor: permisos limitados (solo sitios y tags) sin eliminacion de sitios
         editor_permissions = site_permissions + tag_permissions
         for perm_data in editor_permissions:
             perm = Permission.query.filter_by(name=perm_data["name"]).first()
-            if perm and perm not in editor_role.permissions:
+            if perm and perm not in editor_role.permissions and (perm.name != "site_destroy") and (perm.name != "site_export"):
                 editor_role.add_permission(perm)
                 print(f"✓ Permiso '{perm_data['name']}' asignado a Editor")
         
@@ -188,9 +190,41 @@ def seeds_db():
         db.session.rollback()
         print(f"✗ Error al guardar feature flags: {e}")
 
-    # Seed para sitios
-   
-   
+    # crear usuarios (sin commit)
+    u1 = add_user({
+        "email": "user1@gmail.com",
+        "nombre": "Jose",
+        "username": "joseuser",
+        "apellido": "Perez",
+        "contraseña": "jose123"
+    })
+    u2 = add_user({
+        "email": "user2@gmail.com",
+        "nombre": "Pedrito",
+        "username": "pedrouser",
+        "apellido": "Martinez",
+        "contraseña": "pedro123"
+    })
+    u3 = add_user({
+        "email": "user3@gmail.com",
+        "nombre": "Juan",
+        "username": "juanuser",
+        "apellido": "Soria",
+        "contraseña": "juan324"
+    })
+
+    # obtener roles
+    admin_role = Role.query.filter_by(name="Administrador").first()
+    editor_role = Role.query.filter_by(name="Editor").first()
+
+    # asignar roles (antes del commit)
+    u1.roles.append(admin_role)
+    u2.roles.append(editor_role)
+    u3.roles.append(editor_role)
+
+    # un solo commit al final
+    db.session.commit()
+
     print("\n==== CREANDO SITES ====")
 
     sites_data = [
@@ -238,121 +272,10 @@ def seeds_db():
         },
     ]
 
-    user1 = {
-        "email": "user1@gmail.com",
-        "nombre": "Jose",
-        "username": "joseuser",
-        "apellido": "Perez",
-        "contraseña": "jose123",
-        "rol_id": 1
-    }
-    
-    user2 = {
-        "email": "user2@gmail.com",
-        "nombre": "Pedrito",
-        "username": "pedrouser",
-        "apellido": "Martinez",
-        "contraseña": "pedro123",
-        "rol_id": 2,
-    }
-
-    user3 = {
-        "email": "user3@gmail.com",
-        "nombre": "Juan",
-        "username": "juanuser",
-        "apellido": "Soria",
-        "contraseña": "juan324",
-        "rol_id": 3,
-    }
-
-    add_user(user1)
-    add_user(user2)
-    add_user(user3)
-
-    add_site(sites_data[0])
-    result = add_site(sites_data[1])
-
-    add_site(sites_data[2])
-
-
-    # sleep(5)
-    modify_site(result.id, {
-        "nombre":"Chichen Itza",
-        "estado_conservacion":"Malo",
-        "visible":False
-    })
-
-    # sleep(5)
-    modify_site(
-        result.id,
-        {
-           
-            "punto": WKTElement('POINT(-87.2856 19.8712)', srid=4326),
-        },
-    )
-
-    # sleep(5)
-    modify_site(result.id, {
-        "latitud":19.8712,
-        "longitud":-87.2856,
-    })
-
-    # sleep(5)
-    modify_site(result.id, {
-        "ciudad":"Tuxtla Gutiérrez",
-        "provincia":"Chiapas",
-    })
-
-    # eliminar efectivamente el site con la funcion que lo maneje al eliminado 
-    add_site_history(result.id, HistoryAction.ELIMINAR, 1, None, result, None)
-
-
-    # sleep(5)
-    modify_site(
-        result.id,
-        {"nombre": "Chichen Itza", "estado_conservacion": "Malo", "visible": False},
-    )
-
-    # sleep(5)
-    modify_site(
-        result.id,
-        {
-            
-            "punto": WKTElement('POINT(-87.2856 19.8712)', srid=4326),
-        },
-    )
-
-    # sleep(5)
-    modify_site(
-        result.id,
-        {
-            "latitud": 19.8712,
-            "longitud": -87.2856,
-        },
-    )
-
-    # sleep(5)
-    modify_site(
-        result.id,
-        {
-            "ciudad": "Tuxtla Gutiérrez",
-            "provincia": "Chiapas",
-        },
-    )
-
-    # sleep(5)
-    modify_site(
-        result.id,
-        {
-            "ciudad": "Tuxtla Gutiérrez",
-            "provincia": "Chiapas",
-        },
-    )
-
-    # eliminar efectivamente el site con la funcion que lo maneje al eliminado
-    add_site_history(result.id, HistoryAction.ELIMINAR, 1, None, result, None)
-
-
+    add_site(sites_data[0],1)
+    add_site(sites_data[1],2)
+    add_site(sites_data[2],3)
+    db.session.commit()
 
 
     print(f"\n==== SEEDING LISTO ====\n\n")

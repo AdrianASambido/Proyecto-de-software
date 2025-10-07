@@ -43,6 +43,6 @@ def authenticate():
         return redirect(url_for("login.login"))
     
     session["user_id"] = user.id
-    session["username"] = board_usuarios.get_username_by_email(email)
+    session.permanent = True
     flash("Inicio de sesión exitoso.", "success")
     return redirect(url_for("home"))

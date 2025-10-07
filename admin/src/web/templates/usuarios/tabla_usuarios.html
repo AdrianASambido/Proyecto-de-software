@@ -31,19 +31,20 @@
     <select name="orden" class="h-8 w-28 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200">
         <option value="fecha_desc" {% if request.args.get('orden')=='fecha_desc' %}selected{% endif %}>Fecha ↓</option>
         <option value="fecha_asc" {% if request.args.get('orden')=='fecha_asc' %}selected{% endif %}>Fecha ↑</option>
+    </select>
 </form>
 {% endblock %}
 
 {% block table_headers %}
-<th>Email</th>
-<th>Nombre</th>
-<th>Apellido|s|</th>
-<th>Contraseña</th>
-<th>Activo</th>
-<th>Rol</th>
+<th class="px-3 py-2 text-left">Email</th>
+<th class="px-3 py-2 text-left">Nombre</th>
+<th class="px-3 py-2 text-left">Apellido|s|</th>
+<th class="px-3 py-2 text-left">Activo</th>
+<th class="px-3 py-2 text-left">Rol</th>
 {% endblock %}
 
-{% block table_row %}
+{% block table_rows %}
+    <p>kjdsfjdsfjjds</p>
     {% for user in items %}
     <tr>
         <td>{{ user.email }}</td>
@@ -56,9 +57,8 @@
                 <span class="text-red-500 font-semibold">Inactivo</span>
             {% endif %}
         </td>
-        <td>{{ user.rol }}</td>
         <td class="text-right">
-            <a href="{{ url_for('users.edit_user', user_id=user.id) }}"
+            <a href="{{ url_for('users.edit_user_admin', user_id=user.id) }}"
                class="text-blue-600 hover:underline">Editar Usuario</a>
             <form method="post" action="{{ url_for('users.delete_user', user_id=user.id) }}" class="inline">
                 <button type="submit" class="text-red-600 hover:underline"
@@ -66,7 +66,7 @@
                     Eliminar Usuario
                 </button>
             </form>
-        {% include "common/actions.html" %}
+        <!-- {% include "common/actions.html" %} -->
     </tr>
     {% else %}
     <tr>
@@ -75,6 +75,4 @@
       </td>
     </tr>
     {% endfor %}
-  <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 {% endblock %}
