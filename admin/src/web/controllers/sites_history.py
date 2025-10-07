@@ -23,7 +23,7 @@ def index(sitio_id):
     """
 
     page = request.args.get("page", default=1, type=int)
-    order = request.args.get("order", default="asc", type=str)
+    order = request.args.get("order", default="", type=str)
     filtros = {}
     if (
         request.args.get("usuario") is not None

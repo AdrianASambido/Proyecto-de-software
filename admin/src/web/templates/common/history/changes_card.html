@@ -93,24 +93,28 @@
                 </div>
 
                 {% if c.valor_anterior and c.valor_anterior is mapping %}
-                <input type="hidden" id="latitud_anterior_{{ change.id }}_{{ loop.index }}" value="{{ c.valor_anterior['latitud'] }}">
-                <input type="hidden" id="longitud_anterior_{{ change.id }}_{{ loop.index }}" value="{{ c.valor_anterior['longitud'] }}">
+                <input type="hidden" id="latitud_anterior_{{ change.id }}_{{ loop.index }}"
+                    value="{{ c.valor_anterior['latitud'] }}">
+                <input type="hidden" id="longitud_anterior_{{ change.id }}_{{ loop.index }}"
+                    value="{{ c.valor_anterior['longitud'] }}">
                 {% endif %}
                 {% if c.valor_nuevo and c.valor_nuevo is mapping %}
-                <input type="hidden" id="latitud_nuevo_{{ change.id }}_{{ loop.index }}" value="{{ c.valor_nuevo['latitud'] }}">
-                <input type="hidden" id="longitud_nuevo_{{ change.id }}_{{ loop.index }}" value="{{ c.valor_nuevo['longitud'] }}">
+                <input type="hidden" id="latitud_nuevo_{{ change.id }}_{{ loop.index }}"
+                    value="{{ c.valor_nuevo['latitud'] }}">
+                <input type="hidden" id="longitud_nuevo_{{ change.id }}_{{ loop.index }}"
+                    value="{{ c.valor_nuevo['longitud'] }}">
                 {% endif %}
 
                 <script>
-                (function() {
-                    // Esperar a que el DOM esté listo
-                    if (document.readyState === 'loading') {
-                        document.addEventListener('DOMContentLoaded', initMaps{{ change.id }}_{{ loop.index }});
+                    (function () {
+                        // Esperar a que el DOM esté listo
+                        if (document.readyState === 'loading') {
+                            document.addEventListener('DOMContentLoaded', initMaps{{ change.id }}_{ { loop.index } });
                     } else {
-                        initMaps{{ change.id }}_{{ loop.index }}();
+                        initMaps{ { change.id } }_{ { loop.index } } ();
                     }
 
-                    function initMaps{{ change.id }}_{{ loop.index }}() {
+                    function initMaps{ { change.id } }_{ { loop.index } } () {
                         const oldLatEl = document.getElementById('latitud_anterior_{{ change.id }}_{{ loop.index }}');
                         const oldLngEl = document.getElementById('longitud_anterior_{{ change.id }}_{{ loop.index }}');
                         const newLatEl = document.getElementById('latitud_nuevo_{{ change.id }}_{{ loop.index }}');
@@ -142,7 +146,7 @@
                             }
                         }
                     }
-                })();
+                }) ();
                 </script>
             </div>
 
@@ -152,11 +156,11 @@
                 <div class="sm:col-span-5 flex flex-col">
                     <div class="text-xs uppercase tracking-widest text-neutral-400">Tags</div>
                     <div class="flex flex-wrap gap-1 mt-1">
-                        {% if c.valor_anterior and c.valor_anterior|length > 0 %}
-                        {% for tag_id in c.valor_anterior %}
+                        {% if c.valor_anterior_detalle and c.valor_anterior_detalle|length > 0 %}
+                        {% for tag in c.valor_anterior_detalle %}
                         <span
                             class="inline-flex items-center px-2 py-1 text-xs font-medium bg-neutral-700 text-neutral-300 rounded">
-                            Tag #{{ tag_id }}
+                            Tag #{{ tag.name }}
                         </span>
                         {% endfor %}
                         {% else %}
@@ -175,11 +179,11 @@
 
                 <div class="sm:col-span-5 flex items-end">
                     <div class="flex flex-wrap gap-1 mt-1">
-                        {% if c.valor_nuevo and c.valor_nuevo|length > 0 %}
-                        {% for tag_id in c.valor_nuevo %}
+                        {% if c.valor_nuevo_detalle and c.valor_nuevo_detalle|length > 0 %}
+                        {% for tag in c.valor_nuevo_detalle %}
                         <span
                             class="inline-flex items-center px-2 py-1 text-xs font-medium bg-emerald-700 text-emerald-100 rounded">
-                            Tag #{{ tag_id }}
+                            #{{ tag.name }}
                         </span>
                         {% endfor %}
                         {% else %}
