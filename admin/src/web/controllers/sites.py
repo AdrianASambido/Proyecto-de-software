@@ -83,31 +83,33 @@ def add_site():
     if siteForm.tags.data is None:
         siteForm.tags.data = []
 
-    # Procesar POST
-    if siteForm.validate_on_submit():
-        site_data = {
-            "nombre": siteForm.nombre.data,
-            "descripcion_breve": siteForm.descripcion_breve.data,
-            "descripcion_completa": siteForm.descripcion_completa.data,
-            "ciudad": siteForm.ciudad.data,
-            "provincia": siteForm.provincia.data,
-            "inauguracion": siteForm.inauguracion.data,
-            "visible": siteForm.visible.data,
-            "categoria": siteForm.categoria.data,
-            "estado_conservacion": siteForm.estado_conservacion.data,
-            "latitud": float(siteForm.latitud.data) if siteForm.latitud.data else None,
-            "longitud": float(siteForm.longitud.data) if siteForm.longitud.data else None,
-            "tags": siteForm.tags.data,
-        }
-<<<<<<< HEAD
-        user_id=session.get("user_id")
-        board_sites.add_site(site_data,user_id)
-=======
+    try:
+        # Procesar POST
+        if siteForm.validate_on_submit():
+            
+            tags_seleccionados = request.form.getlist("tags[]")
+          
 
-        board_sites.add_site(site_data)
->>>>>>> 3622861 (fix:detalles en sitios/tags)
-        flash("Sitio histórico creado exitosamente.", "success")
-        return redirect(url_for("sites.index"))
+            site_data = {
+                "nombre": siteForm.nombre.data,
+                "descripcion_breve": siteForm.descripcion_breve.data,
+                "descripcion_completa": siteForm.descripcion_completa.data,
+                "ciudad": siteForm.ciudad.data,
+                "provincia": siteForm.provincia.data,
+                "inauguracion": siteForm.inauguracion.data,
+                "visible": siteForm.visible.data,
+                "categoria": siteForm.categoria.data,
+                "estado_conservacion": siteForm.estado_conservacion.data,
+                "latitud": float(siteForm.latitud.data) if siteForm.latitud.data else None,
+                "longitud": float(siteForm.longitud.data) if siteForm.longitud.data else None,
+                "tags": [int(t) for t in tags_seleccionados], 
+            }
+
+            user_id = session.get("user_id")
+            board_sites.add_site(site_data, user_id)
+
+            flash("Sitio histórico creado exitosamente.", "success")
+            return redirect(url_for("sites.index"))
 
     except Exception as e:
         flash(str(e), "error")

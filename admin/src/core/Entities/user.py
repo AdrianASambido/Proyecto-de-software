@@ -1,13 +1,6 @@
 from src.core.database import db
 from datetime import datetime, timezone
 
-
-class rolEnum(enum.Enum):
-    PUBLICO = "Usuario Público"
-    EDITOR = "Editor"
-    ADMINISTRADOR = "Administrador"
-
-
 class User(db.Model):
     """Modelo que representa un usuario en la base de datos"""
 
@@ -49,10 +42,11 @@ class User(db.Model):
         return not self.is_admin
     
     def has_permission(self, permission_name):
-        """Verifica si el usuario tiene un permiso específico a través de su rol"""
-        if not self.role:
+        """Verifica si el usuario tiene un permiso específico a través de sus roles"""
+        if not self.roles:
             return False
-        return self.role.has_permission(permission_name)
+        return any(role.has_permission(permission_name) for role in self.roles)
+
     
     def block(self):
         """Bloquea al usuario si es posible"""

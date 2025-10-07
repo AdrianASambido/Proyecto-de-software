@@ -197,7 +197,7 @@ def seeds_db():
         "username": "joseuser",
         "apellido": "Perez",
         "contraseña": "jose123",
-        "rol_id": 1
+        "rolws": [admin_role]
     }
     
     user2 = {
@@ -206,7 +206,7 @@ def seeds_db():
         "username": "pedrouser",
         "apellido": "Martinez",
         "contraseña": "pedro123",
-        "rol_id": 2,
+        "rolws": [editor_role]
     }
 
     user3 = {
@@ -215,14 +215,28 @@ def seeds_db():
         "username": "juanuser",
         "apellido": "Soria",
         "contraseña": "juan324",
-        "rol_id": 3,
+        "roles": [editor_role] ,
     }
 
+   # crear sin roles en el dict
     add_user(user1)
     add_user(user2)
     add_user(user3)
 
-   
+    # luego recuperar los objetos User reales
+    u1 = User.query.filter_by(email="user1@gmail.com").first()
+    u2 = User.query.filter_by(email="user2@gmail.com").first()
+    u3 = User.query.filter_by(email="user3@gmail.com").first()
+
+    # obtener roles
+    admin_role = Role.query.filter_by(name="Administrador").first()
+    editor_role = Role.query.filter_by(name="Editor").first()
+
+    # asignar
+    u1.roles.append(admin_role)
+    u2.roles.append(editor_role)
+    db.session.commit()
+
     print("\n==== CREANDO SITES ====")
 
     sites_data = [
@@ -270,117 +284,7 @@ def seeds_db():
         },
     ]
 
-    user1 = {
-        "email": "user1@gmail.com",
-        "nombre": "Jose",
-        "username": "joseuser",
-        "apellido": "Perez",
-        "contraseña": "jose123",
-    }
-    
-    user2 = {
-        "email": "user2@gmail.com",
-        "nombre": "Pedrito",
-        "username": "pedrouser",
-        "apellido": "Martinez",
-        "contraseña": "pedro123",
-    }
-
-    user3 = {
-        "email": "user3@gmail.com",
-        "nombre": "Juan",
-        "username": "juanuser",
-        "apellido": "Soria",
-        "contraseña": "juan324",
-    }
-
-    add_user(user1)
-    add_user(user2)
-    add_user(user3)
-
-    add_site(sites_data[0])
-    result = add_site(sites_data[1])
-
-    add_site(sites_data[2])
-
-  
-
-    # sleep(5)
-    modify_site(result.id, {
-        "nombre":"Chichen Itza",
-        "estado_conservacion":"Malo",
-        "visible":False
-    })
-
-    # sleep(5)
-    modify_site(
-        result.id,
-        {
-           
-            "punto": WKTElement('POINT(-87.2856 19.8712)', srid=4326),
-        },
-    )
-
-    # sleep(5)
-    modify_site(result.id, {
-        "latitud":19.8712,
-        "longitud":-87.2856,
-    })
-
-    # sleep(5)
-    modify_site(result.id, {
-        "ciudad":"Tuxtla Gutiérrez",
-        "provincia":"Chiapas",
-    })
-
-    # eliminar efectivamente el site con la funcion que lo maneje al eliminado 
-    add_site_history(result.id, HistoryAction.ELIMINAR, 1, None, result, None)
-
-
-    # sleep(5)
-    modify_site(
-        result.id,
-        {"nombre": "Chichen Itza", "estado_conservacion": "Malo", "visible": False},
-    )
-
-    # sleep(5)
-    modify_site(
-        result.id,
-        {
-            
-            "punto": WKTElement('POINT(-87.2856 19.8712)', srid=4326),
-        },
-    )
-
-    # sleep(5)
-    modify_site(
-        result.id,
-        {
-            "latitud": 19.8712,
-            "longitud": -87.2856,
-        },
-    )
-
-    # sleep(5)
-    modify_site(
-        result.id,
-        {
-            "ciudad": "Tuxtla Gutiérrez",
-            "provincia": "Chiapas",
-        },
-    )
-
-    # sleep(5)
-    modify_site(
-        result.id,
-        {
-            "ciudad": "Tuxtla Gutiérrez",
-            "provincia": "Chiapas",
-        },
-    )
-
-    # eliminar efectivamente el site con la funcion que lo maneje al eliminado
-    add_site_history(result.id, HistoryAction.ELIMINAR, 1, None, result, None)
+    add_site(sites_data[0],1)
 
 
 
