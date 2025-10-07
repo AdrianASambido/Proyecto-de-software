@@ -9,6 +9,12 @@ role_permissions = db.Table(
     db.Column('permission_id', db.Integer, db.ForeignKey('permissions.id'), primary_key=True)
 )
 
+#Tabla de asociación many-to-many entre roles y usuarios
+user_roles = db.Table(
+    'user_roles',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('role_id', db.Integer, db.ForeignKey('roles.id'), primary_key=True)
+)
 
 class Role(db.Model):
     """
@@ -27,7 +33,7 @@ class Role(db.Model):
     back_populates="roles"
 )
 
-    users = db.relationship("User", back_populates="role")
+    users = db.relationship("User", secondary="user_roles", back_populates="roles")
     
     def __repr__(self):
         return f"<Role {self.name}>"

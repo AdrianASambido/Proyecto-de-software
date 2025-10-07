@@ -19,7 +19,7 @@ from sqlalchemy.orm import joinedload
 import csv
 from io import StringIO
 
-def list_sites(filtros: dict, page: int = 1, per_page: int = 3):
+def list_sites(filtros: dict, page: int = 1, per_page: int = 25):
     """
     Retorna un objeto de paginación con los sitios históricos aplicando filtros y orden.
     """
@@ -49,7 +49,7 @@ def order_sites(query, filtros):
 
 def filter_sites(filtros):
     """
-    filtra los sitios
+    Filtra los sitios según los filtros proporcionados.
     """
     query = Site.query.filter(Site.eliminated_at.is_(None))
 
@@ -63,12 +63,12 @@ def filter_sites(filtros):
             )
         )
 
-    # Ciudad (texto )
+    # Ciudad
     ciudad = filtros.get("ciudad")
     if ciudad:
         query = query.filter(Site.ciudad.ilike(f"%{ciudad}%"))
 
-    # Provincia (exacta)
+    # Provincia
     provincia = filtros.get("provincia")
     if provincia:
         query = query.filter(Site.provincia == provincia)
@@ -79,11 +79,30 @@ def filter_sites(filtros):
         query = query.filter(Site.estado_conservacion == estado)
 
     # Rango de fechas
-    fecha_desde = filtros.get("fecha_desde")
+    fecha_desde_str = filtros.get("fecha_desde")
+    fecha_hasta_str = filtros.get("fecha_hasta")
+
+    fecha_desde = None
+    fecha_hasta = None
+
+    if fecha_desde_str:
+        try:
+            fecha_desde = datetime.strptime(fecha_desde_str, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError(f"Fecha desde inválida: {fecha_desde_str}")
+
+    if fecha_hasta_str:
+        try:
+            fecha_hasta = datetime.strptime(fecha_hasta_str, "%Y-%m-%d")
+        except ValueError:
+            raise ValueError(f"Fecha hasta inválida: {fecha_hasta_str}")
+
+    if fecha_desde and fecha_hasta:
+        if fecha_desde > fecha_hasta:
+            raise ValueError("El rango de fechas no es válido: desde mayor que hasta.")
+
     if fecha_desde:
         query = query.filter(Site.created_at >= fecha_desde)
-
-    fecha_hasta = filtros.get("fecha_hasta")
     if fecha_hasta:
         query = query.filter(Site.created_at <= fecha_hasta)
 
@@ -92,7 +111,7 @@ def filter_sites(filtros):
     if visible in ("on", "1", True):
         query = query.filter(Site.visible.is_(True))
 
-    # Tags (ids)
+    # Tags
     tags_ids = filtros.get("tags")
     if tags_ids:
         tags_ids = [int(t) for t in tags_ids if str(t).isdigit()]
@@ -112,33 +131,36 @@ def get_site(site_id):
         return None
 
 
-def modify_site(site_id, site_data):
+def modify_site(site_id, site_data, user_id):
     """
-    Modifica un sitio historico existente.
+    Modifica un sitio histórico existente.
     """
+   
     sitio = Site.query.get(site_id)
     if not sitio:
         return None
 
-    # tomar un snapshot dict de los valores originales ANTES de actualizar
+    # Snapshot de valores originales ANTES de actualizar
     campos_site = Site.__table__.columns
     original_snapshot = {
         campo.name: getattr(sitio, campo.name, None) for campo in campos_site
     }
 
-    if "visible" in site_data:
-        sitio.visible = True if site_data["visible"] == "on" else False
+    # Guardar las tags viejas antes de modificarlas
+    tags_viejas = [t.id for t in sitio.tags]
 
+    # Actualizar campos simples
+    sitio.visible = site_data.get("visible", False)
     sitio.nombre = site_data.get("nombre", sitio.nombre)
-    sitio.descripcion_breve = site_data.get(
-        "descripcion_breve", sitio.descripcion_breve
-    )
-    sitio.descripcion_completa = site_data.get(
-        "descripcion_completa", sitio.descripcion_completa
-    )
+    sitio.descripcion_breve = site_data.get("descripcion_breve", sitio.descripcion_breve)
+    sitio.descripcion_completa = site_data.get("descripcion_completa", sitio.descripcion_completa)
     sitio.ciudad = site_data.get("ciudad", sitio.ciudad)
     sitio.provincia = site_data.get("provincia", sitio.provincia)
     sitio.inauguracion = site_data.get("inauguracion", sitio.inauguracion)
+    sitio.categoria = site_data.get("categoria", sitio.categoria)
+    sitio.estado_conservacion = site_data.get("estado_conservacion", sitio.estado_conservacion)
+
+    # Coordenadas (si vienen)
     lat = site_data.get("latitud")
     lng = site_data.get("longitud")
     if lat and lng:
@@ -148,28 +170,42 @@ def modify_site(site_id, site_data):
     sitio.estado_conservacion = site_data.get(
         "estado_conservacion", sitio.estado_conservacion
     )
-
+    # actualizar tags si vienen
+    tags_data = site_data.get("tags", [])
+    for tag_id in tags_data:
+        sitio.tags=[]
+        tag = get_tag_by_id(tag_id)
+        if tag is None:
+            raise ValueError(f"Tag '{tag_id}' no encontrado")
+        sitio.tags.append(tag)
     db.session.commit()
 
+    # Nuevo snapshot después de la modificación
+    nuevo_snapshot = {
+        campo.name: getattr(sitio, campo.name, None) for campo in campos_site
+    }
 
-    # aca agregar a la tabla de historial
+    # Convertir booleanos a texto legible
+    original_snapshot["visible"] = "Sí" if original_snapshot["visible"] else "No"
+    nuevo_snapshot["visible"] = "Sí" if nuevo_snapshot["visible"] else "No"
+
+    # Agregar registro general de modificación
     add_site_history(
         site_id,
         HistoryAction.EDITAR,
-        1,
-        sitio,
+        user_id,
+        nuevo_snapshot,
         original_snapshot,
         list(site_data.keys()),
     )
 
-    tags_viejas = [t.nombre for t in sitio.tags]  # relación many-to-many
-    tags_nuevas = site_data.get("tags")
-    # Si cambiaron las tags, registrar en historial aparte
-    if tags_nuevas is not None and sorted(tags_viejas) != sorted(tags_nuevas):
+    # Comparar tags antes y después
+    tags_nuevas = [t.id for t in sitio.tags]
+    if sorted(tags_viejas) != sorted(tags_nuevas):
         add_site_history(
             site_id,
             HistoryAction.CAMBIAR_TAGS,
-            1,
+            user_id,
             {"tags": tags_nuevas},
             {"tags": tags_viejas},
             ["tags"],
@@ -178,12 +214,11 @@ def modify_site(site_id, site_data):
     return sitio
 
 
-def add_site(site_data):
+def add_site(site_data,user_id):
     """
     Agrega un nuevo sitio historico.
     """
-    visible_value = site_data.get("visible")
-    visible = True if visible_value == "on" else False
+   
 
     lat = site_data.get("latitud")
     lng = site_data.get("longitud")
@@ -203,7 +238,7 @@ def add_site(site_data):
         punto=punto,
         categoria=site_data.get("categoria"),
         estado_conservacion=site_data.get("estado_conservacion"),
-        visible=visible,
+        visible=site_data.get("visible",False),
     )
 
     tags_data = site_data.get("tags", [])
@@ -216,13 +251,20 @@ def add_site(site_data):
     db.session.add(nuevo_sitio)
     db.session.commit()
 
+    #en el historial se muestra si  o no , no true o false
+    visible=site_data.get("visible")
+    historial_data = site_data.copy()
+    historial_data["visible"] = "Sí" if visible else "No"
     add_site_history(
-        nuevo_sitio.id, HistoryAction.CREAR, 1, site_data, None, list(site_data.keys())
+        nuevo_sitio.id, HistoryAction.CREAR, user_id, historial_data, None, list(site_data.keys())
     )
 
     return nuevo_sitio
 
-def delete_site(site_id):
+def actualizar_historial(nuevo,accion,original=None):
+    pass
+
+def delete_site(site_id,user_id):
     """
     borra un sitio
     """
@@ -252,13 +294,13 @@ def delete_site(site_id):
     #     original_snapshot["tags"] = [tag.id for tag in sitio.tags]
 
 
-    # guardamos historial
+
     add_site_history(
         site_id=sitio.id,
         accion=HistoryAction.ELIMINAR,
-        usuario_modificador_id=1,
-        sitio_cambiado=None,  # 🔹 porque estamos borrando
-        sitio_original=original_snapshot,  # 🔹 snapshot antes del borrado
+        usuario_modificador_id=user_id,
+        sitio_cambiado=None, 
+        sitio_original=original_snapshot,  
         campos_modificados=list(original_snapshot.keys()),
     )
 
@@ -270,37 +312,38 @@ def export_sites_csv(filtros: dict = None):
     Exporta la lista de sitios históricos en formato CSV.
     Aplica los mismos filtros que list_sites.
     """
-
-    query = list_sites(filtros if filtros else {}, page=1, per_page=10000)
+    query = list_sites(filtros=filtros if filtros else {}, page=1, per_page=10000)
 
     output = StringIO()
     writer = csv.writer(output)
 
-    # Escribir encabezados
+    # Encabezados
     writer.writerow([
         "ID", "Nombre", "Descripción Breve", "Ciudad", "Provincia", 
         "Latitud", "Longitud", "Estado de Conservación", "Fecha de registro", "Tags"
     ])
 
-    for sitio in query.all():
+    for sitio in query.items:
         punto_shape = to_shape(sitio.punto) if sitio.punto else None
         latitud = punto_shape.y if punto_shape else None
         longitud = punto_shape.x if punto_shape else None
 
         writer.writerow([
-            sitio.id, sitio.nombre,
+            sitio.id,
+            sitio.nombre,
             sitio.descripcion_breve,
             sitio.ciudad,
             sitio.provincia,
             latitud,
             longitud,
             sitio.estado_conservacion,
-            sitio.created_at,
-            ";".join([tag.name for tag in sitio.tags])
+            sitio.created_at.strftime("%d/%m/%Y %H:%M"),
+            ";".join(tag.name for tag in sitio.tags)
         ])
 
     output.seek(0)
     return output.getvalue()
+
 
 def get_current_timestamp_str():
     """

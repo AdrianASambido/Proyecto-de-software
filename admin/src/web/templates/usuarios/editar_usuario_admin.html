@@ -2,10 +2,10 @@
 
 {% block content %}
 <a 
-    href="{{ url_for('home') }}"
+    href="{{ url_for('users.index') }}"
     class="mb-4 inline-block rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-200"
 >
-    ← Volver al menú principal
+    ← Volver al listado
 </a>
 <h2 class="text-2xl font-bold mb-4">Editar datos de usuario</h2>
 <form method="POST" action="{{ url_for('users.edit_user', user_id=user.id) }}">
@@ -27,8 +27,8 @@
         {{ form.email(class="form-control", placeholder="Email del usuario") }}
     </div>
     <div class="mb-3">
-        {{ form.contraseña.label }}
-        {{ form.contraseña(class="form-control", placeholder="Nueva contraseña del usuario") }}
+        {{ form.rol_id.label }}
+        {{ form.rol_id(class="form-select") }}
     </div>
     {{ form.submit(class="btn btn-primary") }}
 </form>

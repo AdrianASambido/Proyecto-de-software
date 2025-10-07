@@ -1,0 +1,155 @@
+{% extends "basic-structure-w-sidebar.html" %}
+
+{% block content %}
+<a href="{{ url_for('sites.index') }}"
+   class="mb-4 inline-block rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-200">
+   ← Volver al listado
+</a>
+
+<h2 class="text-2xl font-bold mb-4">{{ title }}</h2>
+
+<form method="POST" class="bg-white shadow-md rounded-lg p-6  mx-auto">
+    {{ form.hidden_tag() }}
+
+    <!-- Nombre -->
+    <div class="mb-4">
+        {{ form.nombre.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+        {{ form.nombre(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500",required=true) }}
+        {% for error in form.nombre.errors %}
+            <span class="text-red-500 text-sm">{{ error }}</span>
+        {% endfor %}
+    </div>
+
+    <!-- Descripción breve -->
+    <div class="mb-4">
+        {{ form.descripcion_breve.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+        {{ form.descripcion_breve(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500",required=true) }}
+        {% for error in form.descripcion_breve.errors %}
+            <span class="text-red-500 text-sm">{{ error }}</span>
+        {% endfor %}
+    </div>
+
+    <!-- Descripción completa -->
+    <div class="mb-4">
+        {{ form.descripcion_completa.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+        {{ form.descripcion_completa(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500",required=true) }}
+    </div>
+
+    <!-- Ciudad -->
+    <div class="mb-4">
+        {{ form.ciudad.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+        {{ form.ciudad(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500",required=true) }}
+    </div>
+
+    <!-- Provincia -->
+    <div class="mb-4">
+        {{ form.provincia.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+        {{ form.provincia(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500") }}
+    </div>
+
+    <!-- Inauguración -->
+    <div class="mb-4">
+        {{ form.inauguracion.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+        {{ form.inauguracion(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500",required=true,max=2025) }}
+    </div>
+
+    <!-- Estado de conservación -->
+    <div class="mb-4">
+        {{ form.estado_conservacion.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+        {{ form.estado_conservacion(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500",required=true) }}
+    </div>
+
+    <!-- Categoría -->
+    <div class="mb-4">
+        {{ form.categoria.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+        {{ form.categoria(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500",required=true) }}
+    </div>
+
+<!-- Tags -->
+<div class="mb-4">
+    <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
+    <div class="flex flex-wrap gap-3">
+        {% for value, label in form.tags.choices %}
+            <label class="flex items-center space-x-2 cursor-pointer">
+                <input
+                    type="checkbox"
+                    name="{{ form.tags.name }}[]"
+                    value="{{ value }}"
+                    {% if value in form.tags.data %}checked{% endif %}
+                    class="appearance-none h-4 w-4 rounded-full border border-gray-400
+                           checked:bg-indigo-600 checked:border-indigo-600 focus:ring-2 focus:ring-indigo-400"
+                >
+                <span class="text-gray-700 text-sm">{{ label }}</span>
+            </label>
+        {% endfor %}
+    </div>
+    {% for error in form.tags.errors %}
+        <span class="text-red-500 text-sm">{{ error }}</span>
+    {% endfor %}
+</div>
+
+
+    <!-- Visible -->
+    <div class="mb-4 flex items-center gap-2">
+        {{ form.visible(class="h-4 w-4 text-indigo-600 border-gray-300 rounded") }}
+        {{ form.visible.label(class="text-sm font-medium text-gray-700") }}
+    </div>
+
+    <!-- Campos ocultos de ubicación -->
+    {{ form.latitud(type="hidden", id="latitud") }}
+    {{ form.longitud(type="hidden", id="longitud") }}
+
+    <!-- Mapa -->
+    <div class="mb-6">
+        <label class="block font-semibold mb-2">Ubicación en el mapa</label>
+        <div id="map" class="w-full h-96 border border-gray-300 rounded-lg mt-2"></div>
+    </div>
+     {% for error in form.latitud.errors %}
+        <span class="text-red-500 text-sm">{{ error }}</span>
+    {% endfor %}
+    <!-- Botón -->
+    <button type="submit"
+        class="w-full bg-blue-900 text-white py-2 px-4 rounded-lg hover:bg-gray-700">
+        {{ form.submit.label.text or "Guardar" }}
+    </button>
+</form>
+
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+<script>
+    const bounds = [[-55.0, -73.0], [-21.0, -53.0]];
+    const map = L.map("map", { maxBounds: bounds, maxBoundsViscosity: 1.0 })
+        .setView([-34.6037, -58.3816], 5);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: '&copy; OpenStreetMap contributors',
+    }).addTo(map);
+
+    let marker;
+    map.on("click", function (e) {
+        const lat = e.latlng.lat.toFixed(6);
+        const lng = e.latlng.lng.toFixed(6);
+        if (lat >= -55.05 && lat <= -21.78 && lng >= -73.56 && lng <= -53.64) {
+            if (marker) map.removeLayer(marker);
+            marker = L.marker([lat, lng]).addTo(map);
+        } else {
+            alert("Solo puedes marcar puntos dentro de Argentina 🇦🇷");
+        }
+        document.getElementById("latitud").value = lat;
+        document.getElementById("longitud").value = lng;
+    });
+
+    // Si se está editando y ya hay coordenadas:
+    const latField = document.getElementById("latitud");
+    const lngField = document.getElementById("longitud");
+    if (latField.value && lngField.value) {
+        const lat = parseFloat(latField.value);
+        const lng = parseFloat(lngField.value);
+        if (!isNaN(lat) && !isNaN(lng)) {
+            marker = L.marker([lat, lng]).addTo(map);
+            map.setView([lat, lng], 12);
+        }
+    }
+</script>
+{% endblock %}
