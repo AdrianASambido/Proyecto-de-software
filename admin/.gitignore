@@ -152,3 +152,8 @@ cython_debug/
 admin/*.md
 
 .env
+
+# Documentos internos de mapeo y flujo
+admin/MAPA_PROYECTO_FEATURE_FLAGS.md
+admin/MAPA_PROYECTO_ROLES_PERMISOS.md
+admin/FLUJO_SOLICITUDES_ROLES.md
