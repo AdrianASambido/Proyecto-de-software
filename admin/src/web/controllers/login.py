@@ -2,7 +2,7 @@ from flask import Blueprint
 from flask import render_template, request, redirect, url_for, flash, session
 from src.core.services import users as board_usuarios
 from flask_bcrypt import Bcrypt
-
+from src.core.services.feature_flags import is_admin_maintenance_mode, get_admin_maintenance_message
 bp = Blueprint("login", __name__, url_prefix=("/auth"))
 bcrypt = Bcrypt()
 
@@ -25,11 +25,18 @@ def logout():
 
 @bp.post("/authenticate")
 def authenticate():
+   
     params = request.form
     email = params.get("email")
     password = params.get("password")
     
     user = board_usuarios.get_user_by_email(email)
+    if is_admin_maintenance_mode() and not user.is_system_admin_user():
+        return render_template(
+            "errores/maintenance.html",
+            message=get_admin_maintenance_message(),
+            title="Sistema en Mantenimiento"
+        ), 503
     if not user or not bcrypt.check_password_hash(user.contraseña_cifrada, password):
         flash("Credenciales inválidas. Por favor, intente de nuevo.", "error")
         return redirect(url_for("login.login"))

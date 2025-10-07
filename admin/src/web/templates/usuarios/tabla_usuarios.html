@@ -12,8 +12,8 @@
     <!-- Rol -->
     <select name="rol" class="h-8 w-32 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200">
         <option value="">Rol</option>
-        {% for role in ["Público", "Editor", "Administrador"] %}
-        <option value="{{ role }}" {% if request.args.get('rol')==role %}selected{% endif %}>{{ role }}</option>
+        {% for role in ["Editor", "Administrador"] %}
+            <option value="{{ role.id }}" {% if request.args.get('rol')==role %}selected{% endif %}>{{ role }}</option>
         {% endfor %}
     </select>
     <!-- Activo-->
@@ -40,11 +40,10 @@
 <th class="px-3 py-2 text-left">Nombre</th>
 <th class="px-3 py-2 text-left">Apellido|s|</th>
 <th class="px-3 py-2 text-left">Activo</th>
-<th class="px-3 py-2 text-left">Rol</th>
+<th class="px-3 py-2 text-left">Rol|es|</th>
 {% endblock %}
 
 {% block table_rows %}
-    <p>kjdsfjdsfjjds</p>
     {% for user in items %}
     <tr>
         <td>{{ user.email }}</td>
@@ -56,6 +55,13 @@
             {% else %}
                 <span class="text-red-500 font-semibold">Inactivo</span>
             {% endif %}
+        </td>
+        <td>
+            {% for role in user.roles %}
+                <span class="px-2 py-1 bg-blue-900 text-blue-300 rounded">{{ role.name }}</span>
+            {% else %}
+                <span class="text-neutral-400 italic">Sin rol</span>
+        {% endfor %}
         </td>
         <td class="text-right">
             <a href="{{ url_for('users.edit_user_admin', user_id=user.id) }}"
