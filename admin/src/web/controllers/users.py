@@ -35,7 +35,7 @@ def index():
 
 @bp.route("/agregar_usuario", methods=["GET", "POST"])
 @login_required
-@permission_required("user_create")
+@permission_required("user_new")
 def add_user():
     form = RegistrationForm()
 
@@ -46,9 +46,15 @@ def add_user():
             "username": form.username.data,
             "email": form.email.data,
             "contraseña": form.contraseña.data,  # el servicio se encarga de encriptar
-            "rol_id": form.rol_id.data,
         }
         board_users.add_user(user_data)
+
+        #Recupero el usuario creado
+        user = board_users.get_user_by_email(form.email.data)
+
+        if user and form.rol.data:
+            board_users.assign_roles_to_user(user.id, form.rol.data)
+
         flash("Usuario agregado exitosamente.", "success")
         return redirect(url_for("users.index"))
     else:
