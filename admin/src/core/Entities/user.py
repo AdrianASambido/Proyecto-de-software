@@ -1,9 +1,6 @@
 from src.core.database import db
 from datetime import datetime, timezone
 
-
-
-
 class User(db.Model):
     """Modelo que representa un usuario en la base de datos"""
 
