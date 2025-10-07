@@ -196,7 +196,8 @@ def seeds_db():
         "nombre": "Jose",
         "username": "joseuser",
         "apellido": "Perez",
-        "contraseña": "jose123"
+        "contraseña": "jose123",
+       
     })
     u2 = add_user({
         "email": "user2@gmail.com",
@@ -221,7 +222,24 @@ def seeds_db():
     u1.roles.append(admin_role)
     u2.roles.append(editor_role)
     u3.roles.append(editor_role)
+    system_admin = add_user({
+    "email": "admin@system.com",
+    "nombre": "System",
+    "username": "sysadmin",
+    "apellido": "Administrator",
+    "contraseña": "admin123"
+})
 
+    # marcarlo como system admin
+    system_admin.is_system_admin = True
+
+    # opcional: asignarle también el rol "Administrador"
+    admin_role = Role.query.filter_by(name="Administrador").first()
+    if admin_role:
+        system_admin.roles.append(admin_role)
+
+    # agregar a la sesión
+    db.session.add(system_admin)
     # un solo commit al final
     db.session.commit()
 

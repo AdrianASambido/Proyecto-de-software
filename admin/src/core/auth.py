@@ -23,6 +23,26 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def system_admin_required(f):
+    """
+    decorador que requiere que el usuario sea system_admin
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Debe iniciar sesión para acceder a esta página', 'error')
+            return redirect(url_for('login.login'))
+        
+        user = get_user_by_id(session['user_id'])
+        
+        
+        if not user.is_system_admin_user():
+            flash('No tiene permisos para acceder a esta página', 'error')
+            return redirect(url_for('home'))
+        
+        return f(*args, **kwargs)
+    return decorated_function
+
 
 def admin_required(f):
     """
@@ -87,6 +107,10 @@ def is_admin():
     user = get_current_user()
     return user and user.is_admin
 
+def is_system_admin_user():
+    user = get_current_user()
+   
+    return user and user.is_system_admin_user
 
 def has_permission(permission_name):
     """
