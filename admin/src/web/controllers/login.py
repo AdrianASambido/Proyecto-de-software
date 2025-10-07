@@ -50,7 +50,7 @@ def authenticate():
         return redirect(url_for("login.login"))
     
     session["user_id"] = user.id
-    session["username"] = user.nombre + " " + user.apellido
+    session["username"] = user.nombre + " " + user.apellido if user.nombre and user.apellido else user.username
     session.permanent = True
     flash("Inicio de sesión exitoso.", "success")
     return redirect(url_for("home"))

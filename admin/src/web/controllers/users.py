@@ -15,7 +15,6 @@ bp = Blueprint("users", __name__, url_prefix=("/usuarios"))
 
 @bp.get("/lista_usuarios")
 @login_required
-@admin_required
 @permission_required("user_index")
 def index():
     """Muestra la lista de usuarios.
