@@ -20,7 +20,7 @@ from src.core.auth import login_required
 from src.core.auth import has_permission,is_system_admin_user
 from src.core.services.feature_flags import is_admin_maintenance_mode,get_admin_maintenance_message
 
-from datetime import timedelta,datetime
+from datetime import timedelta
 
 sess=Session()
 
@@ -98,7 +98,6 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
         abort(500)
         return render_template("throw_500_error_for_test.html")
     # helpers para jinja
-    app.jinja_env.globals['datetime'] = datetime
     app.jinja_env.globals["has_permission"] = has_permission
     app.jinja_env.globals["is_system_admin_user"] = is_system_admin_user  
     app.jinja_env.globals["is_admin_maintenance_mode"] = is_admin_maintenance_mode
