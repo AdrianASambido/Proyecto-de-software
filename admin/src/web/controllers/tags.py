@@ -9,7 +9,7 @@ from src.core.services.tags import (
 )
 from src.core.auth import login_required
 
-bp = Blueprint("tags", __name__, url_prefix="/tags")
+bp = Blueprint("tags", __name__, url_prefix="/etiquetas")
 
 
 @bp.get("/")

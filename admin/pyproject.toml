@@ -28,14 +28,6 @@ dependencies = [
 pythonpath = ["."]
 testpaths = ["tests"]
 
-
-
-[tool.pytest.ini_options]
-pythonpath = ["."]
-testpaths = ["tests"]
-
-
-
 [tool.poetry]
 packages = [{include = "web", from = "src"}]
 

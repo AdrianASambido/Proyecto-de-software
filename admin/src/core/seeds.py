@@ -273,9 +273,8 @@ def seeds_db():
     ]
 
     add_site(sites_data[0],1)
-
-    db.session.execute(user_roles.insert().values(user_id=1, role_id=2))
-    db.session.execute(user_roles.insert().values(user_id=2, role_id=1))
+    add_site(sites_data[1],2)
+    add_site(sites_data[2],3)
     db.session.commit()
 
 
