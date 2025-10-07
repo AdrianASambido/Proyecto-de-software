@@ -1,0 +1,44 @@
+{% extends "basic-structure-w-sidebar.html" %}
+
+{% block content %}
+<div class="w-full px-4 py-4 sm:px-6 lg:px-12">
+    <h1 class="text-xl font-bold text-gray-900 sm:text-2xl mb-4">
+        Detalle del Usuario: {{ usuario.username }}
+    </h1>
+
+    <div class="flex flex-wrap gap-2 mt-2 sm:mt-0">
+        <!-- Volver al listado -->
+        <a href="{{ url_for('users.index') }}"
+           class="inline-flex items-center justify-center rounded-md bg-gray-300 px-4 py-2 text-gray-800 font-medium shadow-sm hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-1">
+            ← Volver Al Listado
+        </a>
+
+        <!-- Editar -->
+        <a href="{{ url_for('users.edit_user_admin', user_id=usuario.id) }}"
+           class="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-white font-medium shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1">
+                ✏️ Editar Usuario
+        </a>
+
+        <!-- Eliminar -->
+        <button onclick="openDeleteModal('{{ url_for('users.delete_user', user_id=usuario.id) }}')"
+                class="inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-white font-medium shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1">
+            🗑️ Eliminar Usuario
+        </button>
+    </div>
+
+    <!-- Información principal -->
+    <div class="bg-white rounded-lg shadow p-4 sm:p-6 space-y-4">
+        <p><span class="font-semibold">Nombre Real de Usuario:</span> {{ usuario.nombre }}</p>
+        <p><span class="font-semibold">Apellido Real de Usuario:</span> {{ usuario.apellido }}</p>
+        <p><span class="font-semibold">Nombre de Usuario:</span> {{ usuario.username }}</p>
+        <p><span class="font-semibold">Correo electrónico:</span> {{ usuario.email }}</p>
+        <p><span class="font-semibold">Roles:</span>
+            {% for role in usuario.roles %}
+                {{ role.name }}{% if not loop.last %}, {% endif %}
+            {% endfor %}
+        </p>
+        <p><span class="font-semibold">Activo:</span> {{ 'Sí' if usuario.activo else 'No' }}</p>
+        <p><span class="font-semibold">Fecha de registro:</span> {{ usuario.created_at.strftime("%d/%m/%Y %H:%M") }}</p>
+    </div>
+</div>
+{% endblock %}

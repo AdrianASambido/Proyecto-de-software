@@ -7,25 +7,27 @@
 {% block table_filters %}
 <form method="get" class="mb-3 flex flex-wrap items-center gap-2 text-sm">
     <!-- Búsqueda -->
-    <input type="text" name="search" placeholder="Buscar..." value="{{ request.args.get('search','') }}"
+    <input type="text" name="email" placeholder="Buscar email..." value="{{ request.args.get('email','') }}"
         class="h-8 w-40 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200" />
     <!-- Rol -->
     <select name="rol" class="h-8 w-32 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200">
         <option value="">Rol</option>
-        {% for role in ["Editor", "Administrador"] %}
-            <option value="{{ role.id }}" {% if request.args.get('rol')==role %}selected{% endif %}>{{ role }}</option>
+        {% for role in roles %}
+            <option value="{{ role.id }}" {% if filtros.get('rol')|int == role.id %}selected{% endif %}>
+                {{ role.name }}
+            </option>
         {% endfor %}
     </select>
     <!-- Activo-->
-    <label class="flex items-center gap-1 text-black-300">
-        <input type="checkbox" name="activo" value="1" {% if request.args.get('activo') %}checked{% endif %}
-            class="h-4 w-4 rounded border-neutral-600" />
-        Activo
-    </label>
+    <select name="activo" class="h-8 w-24 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200">
+        <option value="">Todos</option>
+        <option value="1" {% if filtros.get('activo') == '1' %}selected{% endif %}>Sí</option>
+        <option value="0" {% if filtros.get('activo') == '0' %}selected{% endif %}>No</option>
+    </select>
 
     <!-- Botones -->
     <button type="submit" class="h-8 rounded bg-blue-600 px-3 text-white hover:bg-blue-500">Aplicar</button>
-    <a class="h-8 rounded bg-blue-600 px-3 text-white hover:bg-blue-500">Limpiar</a>
+    <a href="{{url_for('users.index')}}" class="h-8 rounded bg-blue-600 px-3 text-white hover:bg-blue-500">Limpiar</a>
 
     <!-- Orden -->
     <select name="orden" class="h-8 w-28 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200">
@@ -64,6 +66,7 @@
         {% endfor %}
         </td>
         <td class="text-right">
+            <a href="{{url_for('users.user_detail', user_id = user.id)}}" class="text-blue-600 hover:underline">Ver Detalle de Usuario</a>
             <a href="{{ url_for('users.edit_user_admin', user_id=user.id) }}"
                class="text-blue-600 hover:underline">Editar Usuario</a>
             <form method="post" action="{{ url_for('users.delete_user', user_id=user.id) }}" class="inline">
