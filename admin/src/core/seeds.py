@@ -228,7 +228,7 @@ def seeds_db():
     "username": "sysadmin",
     "apellido": "Administrator",
     "contraseña": "admin123"
-})
+    })
 
     # marcarlo como system admin
     system_admin.is_system_admin = True
@@ -292,8 +292,8 @@ def seeds_db():
 
     add_site(sites_data[0],1)
 
-    db.session.execute(user_roles.insert().values(user_id=1, role_id=2))
-    db.session.execute(user_roles.insert().values(user_id=2, role_id=1))
+    # db.session.execute(user_roles.insert().values(user_id=1, role_id=2))
+    # db.session.execute(user_roles.insert().values(user_id=2, role_id=1))
     db.session.commit()
 
 
