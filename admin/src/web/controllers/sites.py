@@ -38,10 +38,13 @@ def index():
     filtros.pop("per_page", None)
 
     # Ya devuelve un objeto paginado
-    pagination = board_sites.list_sites(filtros, page=page, per_page=per_page)
-
+    try:
+        pagination = board_sites.list_sites(filtros, page=page, per_page=per_page)
+        
+    except ValueError as e:
+        flash(str(e),"error")
+        pagination= board_sites.list_sites({},page=page,per_page=per_page)
     tags = [{"value": tag.id, "label": tag.name} for tag in board_tags.list_tags()]
-
     #el filtro de provincias necesita las provincias en formato {'value': 'Buenos Aires', 'label': 'Buenos Aires'}
     provincias_arg = [
     {"value": sub.name, "label": sub.name}
@@ -77,30 +80,39 @@ def add_site():
     tags = [(tag.id, tag.name) for tag in board_tags.list_tags()]
     siteForm.tags.choices = tags
 
-  
     if siteForm.tags.data is None:
         siteForm.tags.data = []
 
-    # Procesar POST
-    if siteForm.validate_on_submit():
-        site_data = {
-            "nombre": siteForm.nombre.data,
-            "descripcion_breve": siteForm.descripcion_breve.data,
-            "descripcion_completa": siteForm.descripcion_completa.data,
-            "ciudad": siteForm.ciudad.data,
-            "provincia": siteForm.provincia.data,
-            "inauguracion": siteForm.inauguracion.data,
-            "visible": siteForm.visible.data,
-            "categoria": siteForm.categoria.data,
-            "estado_conservacion": siteForm.estado_conservacion.data,
-            "latitud": float(siteForm.latitud.data) if siteForm.latitud.data else None,
-            "longitud": float(siteForm.longitud.data) if siteForm.longitud.data else None,
-            "tags": siteForm.tags.data,
-        }
-        user_id=session.get("user_id")
-        board_sites.add_site(site_data,user_id)
-        flash("Sitio histórico creado exitosamente.", "success")
-        return redirect(url_for("sites.index"))
+    try:
+        # Procesar POST
+        if siteForm.validate_on_submit():
+            
+            tags_seleccionados = request.form.getlist("tags[]")
+          
+
+            site_data = {
+                "nombre": siteForm.nombre.data,
+                "descripcion_breve": siteForm.descripcion_breve.data,
+                "descripcion_completa": siteForm.descripcion_completa.data,
+                "ciudad": siteForm.ciudad.data,
+                "provincia": siteForm.provincia.data,
+                "inauguracion": siteForm.inauguracion.data,
+                "visible": siteForm.visible.data,
+                "categoria": siteForm.categoria.data,
+                "estado_conservacion": siteForm.estado_conservacion.data,
+                "latitud": float(siteForm.latitud.data) if siteForm.latitud.data else None,
+                "longitud": float(siteForm.longitud.data) if siteForm.longitud.data else None,
+                "tags": [int(t) for t in tags_seleccionados], 
+            }
+
+            user_id = session.get("user_id")
+            board_sites.add_site(site_data, user_id)
+
+            flash("Sitio histórico creado exitosamente.", "success")
+            return redirect(url_for("sites.index"))
+
+    except Exception as e:
+        flash(str(e), "error")
 
     # Renderizar formulario
     return render_template(
@@ -119,18 +131,24 @@ def modify(site_id):
     GET: muestra el formulario para modificar un sitio histórico.
     POST: procesa el formulario y actualiza el sitio.
     """
-    site = board_sites.get_site(site_id)
-    form = SiteForm(obj=site)
-    form.provincia.choices = [(p, p) for p in provincias_arg]
-    form.tags.choices = [(t.id, t.name) for t in board_tags.list_tags()]
-   
-  
-    form.tags.data = [t.id for t in site.tags] 
-    if form.validate_on_submit():
-        user_id=session.get("user_id")
-        board_sites.modify_site(site_id, form.data,user_id)
-        flash("Sitio actualizado correctamente.", "success")
-        return redirect(url_for("sites.index"))
+    
+    try:
+        site = board_sites.get_site(site_id)
+        form = SiteForm(obj=site)
+        form.provincia.choices = [(p, p) for p in provincias_arg]
+        form.tags.choices = [(t.id, t.name) for t in board_tags.list_tags()]
+    
+        
+        form.tags.data = [t.id for t in site.tags] 
+        if form.validate_on_submit():
+            user_id=session.get("user_id")
+            data = form.data
+            data["tags"] = request.form.getlist("tags[]")
+            board_sites.modify_site(site_id, data,user_id)
+            flash("Sitio actualizado correctamente.", "success")
+            return redirect(url_for("sites.index"))
+    except Exception as e:
+        flash(str(e),"error")
 
     return render_template("sites/modify_site.html", form=form)
 
@@ -142,14 +160,16 @@ def delete(site_id):
     """
     Elimina un sitio histórico.
     """
+    try:
+        sitio = board_sites.get_site(site_id)
 
-    sitio = board_sites.get_site(site_id)
-
-    if not sitio:
-        return render_template("404.html"), 404
-    user_id=session.get("user_id")
-    board_sites.delete_site(site_id,user_id)
-    flash("Sitio histórico eliminado exitosamente.", "success")
+        if not sitio:
+            return render_template("404.html"), 404
+        user_id=session.get("user_id")
+        board_sites.delete_site(site_id,user_id)
+        flash("Sitio histórico eliminado exitosamente.", "success")
+    except Exception as e:
+        flash(str(e),"error")
     return redirect(url_for("sites.index"))
 
 @bp.get("/exportar")
