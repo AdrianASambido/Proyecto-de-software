@@ -60,7 +60,7 @@ def admin_required(f):
             flash('Su cuenta está bloqueada o inactiva', 'error')
             return redirect(url_for('login.login'))
         
-        if not user.is_admin:
+        if not user.is_system_admin:
             flash('No tiene permisos para acceder a esta página', 'error')
             return redirect(url_for('home'))
         

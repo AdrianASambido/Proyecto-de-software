@@ -9,7 +9,7 @@ bcrypt = Bcrypt()
 @bp.get("/")
 def login():
     if "user_id" in session:
-       
+
         return redirect(url_for("home"))
     return render_template("login/login_usuario.html"), 200
 
@@ -50,6 +50,7 @@ def authenticate():
         return redirect(url_for("login.login"))
     
     session["user_id"] = user.id
+    session["username"] = user.nombre + " " + user.apellido
     session.permanent = True
     flash("Inicio de sesión exitoso.", "success")
     return redirect(url_for("home"))
