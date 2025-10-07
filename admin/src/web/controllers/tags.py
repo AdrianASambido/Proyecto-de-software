@@ -9,12 +9,13 @@ from src.core.services.tags import (
 )
 from src.core.auth import login_required
 
-bp = Blueprint("tags", __name__, url_prefix="/tags")
+bp = Blueprint("tags", __name__, url_prefix="/etiquetas")
 
 
 @bp.get("/")
 @login_required
 def index():
+    """Muestra el listado paginado de etiquetas con filtros opcionales."""
     page = request.args.get("page", 1, type=int)
     per_page = 3
 
@@ -38,12 +39,14 @@ def index():
 @bp.get("/nuevo")
 @login_required
 def add_tag():
+    """Renderiza el formulario para crear una nueva etiqueta."""
     return render_template("tags/add_tag.html"), 200
 
 
 @bp.get("/editar/<int:tag_id>")
 @login_required
 def edit_tag(tag_id):
+    """Renderiza el formulario para editar una etiqueta existente."""
     tag = svc_get_tag_by_id(tag_id)
     return render_template("tags/edit_tag.html", tag=tag)
 
@@ -51,6 +54,7 @@ def edit_tag(tag_id):
 @bp.post("/create")
 @login_required
 def add_tag_handler():
+    """Crea una nueva etiqueta si no existe una con el mismo nombre."""
     tag_data = dict(request.form)
     isExistingTag = svc_get_tag_by_name(tag_data.get("nombre").lower())
 
@@ -66,6 +70,7 @@ def add_tag_handler():
 @bp.post("/editar/<int:tag_id>")
 @login_required
 def edit_tag_handler(tag_id):
+    """Actualiza una etiqueta existente."""
     tag_data = dict(request.form)
     svc_update_tag(tag_id, tag_data)
     flash("Etiqueta modificada exitosamente.", "success")
@@ -75,6 +80,7 @@ def edit_tag_handler(tag_id):
 @bp.post("/eliminar/<int:tag_id>")
 @login_required
 def delete_tag_handler(tag_id):
+    """Elimina una etiqueta si no está asociada a ningún sitio."""
     try:
         svc_delete_tag(tag_id)
         flash("Etiqueta eliminada exitosamente.", "success")

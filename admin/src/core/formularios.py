@@ -10,7 +10,7 @@ class RegistrationForm(FlaskForm):
     username = StringField('Nombre de usuario', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email', validators=[DataRequired()])
     contraseña = PasswordField('Contraseña', validators=[DataRequired()])
-    rol_id = SelectMultipleField('Rol', choices=[('', 'Ninguno'), ('1', 'Administrador'), ('2', 'Editor')])
+    rol = SelectMultipleField('Rol', choices=[(1, 'Administrador'), (2, 'Editor')], validators=[DataRequired()], coerce=int)
     submit = SubmitField('Guardar Usuario')
 
     def validate_email(self, email):
