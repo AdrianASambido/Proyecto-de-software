@@ -1,39 +1,71 @@
 {% extends "basic-structure-w-sidebar.html" %}
 
 {% block content %}
+<!-- Botón Volver -->
 <a 
     href="{{ url_for('users.index') }}"
-    class="mb-4 inline-block rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-200"
+    class="mb-4 inline-block rounded-lg bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 shadow hover:bg-gray-200 transition-colors duration-300"
 >
     ← Volver al listado
 </a>
-<h2 class="text-2xl font-bold mb-4">Editar datos de usuario</h2>
-<form method="POST" action="{{ url_for('users.edit_user_admin', user_id=user.id) }}">
+
+<h2 class="text-2xl font-bold mb-6 text-gray-800">Editar datos de usuario</h2>
+
+<form method="POST" action="{{ url_for('users.edit_user_admin', user_id=user.id) }}" 
+      class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto space-y-5">
     {{ form.hidden_tag() }}
-    <div class="mb-3">
-        {{ form.nombre.label }}  
-        {{ form.nombre(class="form-control", placeholder="Nombre Real del usuario") }}
+
+ 
+    <div>
+        <label for="nombre" class="block text-sm font-medium text-gray-700 mb-1">
+            {{ form.nombre.label }}
+        </label>
+        {{ form.nombre(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none", placeholder="Nombre Real del usuario") }}
     </div>
-    <div class="mb-3">
-        {{ form.apellido.label }}
-        {{ form.apellido(class="form-control", placeholder="Apellido del usuario") }}
+
+
+    <div>
+        <label for="apellido" class="block text-sm font-medium text-gray-700 mb-1">
+            {{ form.apellido.label }}
+        </label>
+        {{ form.apellido(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none", placeholder="Apellido del usuario") }}
     </div>
-    <div class="mb-3">
-        {{ form.username.label }}
-        {{ form.username(class="form-control", placeholder="Nombre de Usuario") }}
+
+
+    <div>
+        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">
+            {{ form.username.label }}
+        </label>
+        {{ form.username(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none", placeholder="Nombre de Usuario") }}
     </div>
-    <div class="mb-3">
-        {{ form.email.label }}
-        {{ form.email(class="form-control", placeholder="Email del usuario") }}
+
+
+    <div>
+        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">
+            {{ form.email.label }}
+        </label>
+        {{ form.email(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none", placeholder="Email del usuario") }}
     </div>
-    <div class="mb-3">
-        {{ form.rol_id.label }}
-        {{ form.rol_id(class="form-select") }}
+
+
+    <div>
+        <label for="rol_id" class="block text-sm font-medium text-gray-700 mb-1">
+            {{ form.rol_id.label }}
+        </label>
+        {{ form.rol_id(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white") }}
     </div>
-    <div class="mb-3">
-        {{ form.is_active.label }}
-        {{ form.is_active(class="form-check-input") }}
-        <label class="form-check-label" for="is_active">Activo</label>
-    {{ form.submit(class="btn btn-primary") }}
+
+  
+    <div class="flex items-center">
+        {{ form.is_active(class="h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500") }}
+        <label for="is_active" class="ml-2 text-sm text-gray-700">
+            {{ form.is_active.label.text or "Activo" }}
+        </label>
+    </div>
+
+
+    <div class="pt-2">
+        {{ form.submit(class="w-full bg-blue-900 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors duration-300") }}
+    </div>
 </form>
 {% endblock %}

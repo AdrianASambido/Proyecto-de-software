@@ -104,7 +104,6 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.jinja_env.globals["is_admin_maintenance_mode"] = is_admin_maintenance_mode
     app.jinja_env.globals["get_admin_maintenance_message"] = get_admin_maintenance_message  
 
-     
     @app.context_processor
     def inject_user_flags():
         return dict(is_system_admin_user=is_system_admin_user())

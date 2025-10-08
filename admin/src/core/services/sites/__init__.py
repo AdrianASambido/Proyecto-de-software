@@ -314,7 +314,9 @@ def export_sites_csv(filtros: dict = None):
     Aplica los mismos filtros que list_sites.
     """
     query = list_sites(filtros=filtros if filtros else {}, page=1, per_page=10000)
-
+    if not query.items:
+        return None
+    
     output = StringIO()
     writer = csv.writer(output)
 
