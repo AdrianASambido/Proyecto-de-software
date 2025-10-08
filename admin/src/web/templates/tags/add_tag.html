@@ -1,16 +1,5 @@
-{% extends "basic-structure-w-sidebar.html" %}k
-{% from "common/_form.html" import render_form %}
-
-<!-- {% block title %}Nuevo Tag{% endblock %} -->
-
+{% extends "tags/tag_form.html" %}
 {% block content %}
-  <h1 class="text-2xl font-bold mb-6">Crear Etiqueta</h1>
-  {{ render_form(
-      action=url_for('tags.add_tag' ),
-      fields=[
-        {"name": "nombre", "label": "Nombre de la etiqueta", "type": "text", "placeholder": "Ingrese un nombre para la etiqueta",
-      "minlength": 3, "maxlength": 50, "required": True},
-      ],
-      submit_text="Crear"
-  ) }}
+    {% set title = "Agregar etiqueta" %}
+    {{ super() }}
 {% endblock %}

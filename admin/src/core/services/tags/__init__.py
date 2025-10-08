@@ -16,7 +16,7 @@ def list_tags(filtros: dict | None = None):
     if busqueda:
         query = query.filter(Tag.name.ilike(f"%{busqueda}%"))
 
-    orden = filtros.get("orden", "fecha_desc")
+    orden = filtros.get("order", "fecha_desc")
     opciones_orden = {
         "fecha_asc": Tag.created_at.asc(),
         "fecha_desc": Tag.created_at.desc(),
