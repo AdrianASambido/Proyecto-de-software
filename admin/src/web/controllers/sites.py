@@ -16,7 +16,7 @@ from flask import flash
 from src.core.siteForm import SiteForm
 import pycountry
 from flask import current_app as app
-from src.core.auth import login_required,permission_required,admin_required
+from src.core.auth import login_required,permission_required
 bp = Blueprint("sites", __name__, url_prefix="/sitios")
 
 provincias_arg = [sub.name for sub in pycountry.subdivisions.get(country_code="AR")]
@@ -69,8 +69,7 @@ def add_site():
     """
     GET: muestra el formulario para crear un nuevo sitio histórico.
     POST: procesa el formulario y crea el sitio.
-    GET: muestra el formulario para crear un nuevo sitio.
-    POST: procesa el formulario y crea el sitio.
+    
     """
     siteForm = SiteForm()
 
@@ -186,19 +185,23 @@ def export():
     
 
     csv_data = board_sites.export_sites_csv(filtros if len(filtros.keys()) > 0 else None)
+    if(csv_data is None):
+        flash("No hay datos para exportar","error")
+        return redirect(url_for("sites.index"))
+    else:
+        response = app.response_class(
+            response=csv_data,
+            status=200,
+            mimetype="text/csv",
+        )
+        response.headers.set(
+            "Content-Disposition",
+            "attachment",
+            filename=f"sitios_{board_sites.get_current_timestamp_str()}.csv",
+        )
 
-    response = app.response_class(
-        response=csv_data,
-        status=200,
-        mimetype="text/csv",
-    )
-    response.headers.set(
-        "Content-Disposition",
-        "attachment",
-        filename=f"sitios_{board_sites.get_current_timestamp_str()}.csv",
-    )
-
-    return response
+        return response
+        
 
 
 @bp.route("/<int:sitio_id>")
@@ -208,5 +211,8 @@ def detail(sitio_id):
     """
     renderiza los detalles del sitio
     """
+  
     sitio = board_sites.get_site(sitio_id)
     return render_template("sites/detail.html", sitio=sitio)
+  
+

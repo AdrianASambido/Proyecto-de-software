@@ -4,23 +4,17 @@ from datetime import date
 import unicodedata
 import re
 
-def list_tags():
-    tags=Tag.query.all()
-    return tags
-
 
 def list_tags(filtros: dict | None = None):
     """Devuelve una consulta SQLAlchemy con los tags que cumplen los filtros dados."""
     if filtros is None:
         filtros = {}
 
-
     query = Tag.query.filter(Tag.deleted_at.is_(None))
 
     busqueda = filtros.get("busqueda")
     if busqueda:
         query = query.filter(Tag.name.ilike(f"%{busqueda}%"))
-
 
     orden = filtros.get("orden", "fecha_desc")
     opciones_orden = {
@@ -77,11 +71,17 @@ def delete_tag(tag_id):
 
 
 def get_tag_by_id(tag_id):
+    """
+    retorna un tag por id
+    """
     tag = Tag.query.get(tag_id)
     return tag
 
 
 def get_tag_by_name(name):
+    """
+    retorna un tag por nombre
+    """
     tag = Tag.query.filter_by(name=name, deleted_at=None).first()
     return tag
 

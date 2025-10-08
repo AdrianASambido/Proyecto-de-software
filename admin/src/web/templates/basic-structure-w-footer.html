@@ -21,6 +21,9 @@
   <title>{% block title %}My App{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   <link rel="stylesheet" href="/static/flash.css">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+  <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
 
 <body class="relative h-auto min-h-screen w-full overflow-x-hidden">
@@ -69,6 +72,25 @@
     </footer> -->
 
   </div>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      {% for category, message in messages %}
+      Toastify({
+        text: "{{ message }}",
+        duration: 3000,
+        close: true,
+        gravity: "top",
+        position: "right",
+        backgroundColor: "{{ 'linear-gradient(to right, #16a34a, #4ade80)' if category=='success' else 'linear-gradient(to right, #2563eb, #60a5fa)' if category=='info' else 'linear-gradient(to right, #dc2626, #f87171)' }}",
+        stopOnFocus: true
+      }).showToast();
+      {% endfor %}
+    });
+  </script>
+  {% endif %}
+  {% endwith %}
 </body>
 
 </html>

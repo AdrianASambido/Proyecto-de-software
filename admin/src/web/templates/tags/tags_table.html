@@ -55,7 +55,7 @@
     <td>{{ tag.updated_at.strftime("%d/%m/%Y %H:%M") }}</td>
 
     {% set edit_url = url_for('tags.edit_tag', tag_id=tag.id) %}
-    {% set delete_url = url_for('tags.delete_tag_handler', tag_id=tag.id) %}
+    {% set delete_url = url_for('tags.delete_tag', tag_id=tag.id) %}
     {% include "common/actions.html" %}
   </tr>
   {% endfor %}

@@ -88,7 +88,7 @@ def list_site_history(sitio_id, page: int = 1, order: str = "desc", filtros: dic
     pagination = db.paginate(
         stmt.order_by(
             SiteHistory.fecha_modificacion.desc() 
-            if order == "desc" 
+            if order == "desc" or order == "" 
             else SiteHistory.fecha_modificacion.asc()
         ),
         page=page,
