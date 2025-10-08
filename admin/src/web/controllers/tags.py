@@ -19,7 +19,7 @@ bp = Blueprint("tags", __name__, url_prefix="/etiquetas")
 def index():
     """Muestra el listado paginado de etiquetas con filtros opcionales."""
     page = request.args.get("page", 1, type=int)
-    per_page = 3
+    per_page = 25
 
     filtros = request.args.to_dict()
     filtros.pop("page", None)
@@ -42,18 +42,23 @@ def index():
 @login_required
 def add_tag():
     """Crea una nueva etiqueta o renderiza el formulario."""
-    if request.method == "POST":
-        tag_data = dict(request.form)
-        isExistingTag = svc_get_tag_by_name(tag_data.get("nombre").lower())
+    form = TagForm()
 
-        if isExistingTag:
+    if form.validate_on_submit():
+        nombre = form.name.data.strip()
+        # Validación adicional: existencia en BD
+        is_existing = svc_get_tag_by_name(nombre.lower())
+        if is_existing:
             flash("Ya existe una etiqueta con ese nombre.", "error")
             return redirect(url_for("tags.add_tag"))
-        else:
-            svc_add_tag(tag_data)
-            flash("Etiqueta creada exitosamente.", "success")
-            return redirect(url_for("tags.index"))
-    return render_template("tags/add_tag.html")
+
+        # Crear la etiqueta
+        svc_add_tag({"nombre": nombre})
+        flash("Etiqueta creada exitosamente.", "success")
+        return redirect(url_for("tags.index"))
+
+    # Si GET o si hay errores, renderizar el formulario
+    return render_template("tags/add_tag.html", form=form)
 
 
 @bp.route("/editar/<int:tag_id>", methods=["GET", "POST"])
