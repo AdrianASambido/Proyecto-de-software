@@ -182,17 +182,23 @@ def export():
     """
     filtros = request.args.to_dict()
     filtros.pop("exportar", None)
-    
 
     csv_data = board_sites.export_sites_csv(filtros if len(filtros.keys()) > 0 else None)
-    if(csv_data is None):
-        flash("No hay datos para exportar","error")
+    if csv_data is None:
+        flash("No hay datos para exportar", "error")
         return redirect(url_for("sites.index"))
     else:
+        # Asegúrate de que csv_data sea una cadena (str) antes de codificar
+        if not isinstance(csv_data, str):
+            # Si export_sites_csv devuelve otra cosa, conviértela a string
+            csv_data = str(csv_data) 
+
         response = app.response_class(
-            response=csv_data,
+            # 1. Codificar la respuesta a bytes usando 'utf-8-sig' para compatibilidad con Excel
+            response=csv_data.encode('utf-8-sig'),
             status=200,
-            mimetype="text/csv",
+            # 2. Especificar el charset en el mimetype
+            mimetype="text/csv; charset=utf-8",
         )
         response.headers.set(
             "Content-Disposition",
