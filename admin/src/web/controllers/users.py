@@ -101,7 +101,6 @@ def delete_user(user_id):
 def edit_user_admin(user_id):
     usuario = board_users.get_user_by_id(user_id)
     form = EditUserAdminForm(obj=usuario, original_email=usuario.email)
-    form.rol_id.data = [r.id for r in usuario.roles]
     if form.validate_on_submit():
         nuevos_datos = form.data
         
