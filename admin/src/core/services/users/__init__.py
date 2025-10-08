@@ -162,7 +162,10 @@ def update_user_admin(user_id, user_data):
             else:
                 usuario.roles = []
         
+        #si es admin no se puede desactivar
         if "is_active" in user_data:
+            if usuario.is_admin and not user_data["is_active"]:
+                raise ValueError("No se puede desactivar un usuario Administrador.")
             usuario.activo = bool(user_data["is_active"])
         
         db.session.commit()

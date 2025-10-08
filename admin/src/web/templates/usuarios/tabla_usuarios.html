@@ -43,6 +43,7 @@
 <th class="px-3 py-2 text-left">Apellido|s|</th>
 <th class="px-3 py-2 text-left">Activo</th>
 <th class="px-3 py-2 text-left">Rol|es|</th>
+<th class="px-3 py-2 text-left">Acciones</th>
 {% endblock %}
 
 {% block table_rows %}
@@ -66,13 +67,15 @@
         {% endfor %}
         </td>
         <td class="text-right">
-         
-            {% set details_url = url_for('users.user_detail', user_id = user.id) %}
-      {% set edit_url = url_for('users.edit_user_admin', user_id=user.id) %}
-     
+    {% if user.id != current_user_id %}
+        {% set details_url = url_for('users.user_detail', user_id = user.id) %}
+        {% set edit_url = url_for('users.edit_user_admin', user_id=user.id) %}
         {% set delete_url = url_for('users.delete_user', user_id=user.id) %}
-     
         {% include "common/actions.html" %} 
+    {% endif %}
+</td>
+
+
     </tr>
     {% else %}
     <tr>

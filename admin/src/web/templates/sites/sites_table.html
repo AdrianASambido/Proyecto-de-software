@@ -123,7 +123,7 @@
         {'value': 'Malo', 'label': 'Malo'}
     ]},
     {'id': 'fecha', 'title': 'Fecha de creación', 'type': 'date_range', 'name_from': 'fecha_desde','name_to': 'fecha_hasta'},
-    {'id': 'visible', 'title': 'Visibilidad', 'type': 'checkbox', 'name': 'visible','options': [{'value': '1', 'label': 'Visible'}]}
+    {'id': 'visible', 'title': 'Visibilidad', 'type': 'radio', 'name': 'visible','options': [{'value': 'Si', 'label': 'Si'},{'value':'No','label':'No'}]}
   ] %}
 
   {{ render_filters_sidebar(filters_config, url_for('sites.index'), request.args.to_dict(flat=False)) }}

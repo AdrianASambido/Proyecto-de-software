@@ -59,7 +59,7 @@ def permission_required(permission_name):
            
             
             if not user.has_permission(permission_name):
-                flash(f'No tiene permisos para realizar esta acción: {permission_name}', 'error')
+                flash(f'No tiene permisos para realizar esta acción', 'error')
                 return redirect(url_for('home'))
           
             return f(*args, **kwargs)

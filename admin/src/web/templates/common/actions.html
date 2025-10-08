@@ -2,20 +2,24 @@
 
   {% if details_url %}
   <a href="{{ details_url }}"
-    class="flex items-center justify-center w-8 h-8 rounded bg-blue-500 text-white hover:bg-blue-600">
+     title="Ver detalles"
+     class="flex items-center justify-center w-8 h-8 rounded bg-blue-500 text-white hover:bg-blue-600">
     <img src="{{ url_for('static', filename='icons/details.svg') }}" alt="Detalles" class="h-4 w-4 inline" />
   </a>
   {% endif %}
+
   {% if edit_url %}
   <a href="{{ edit_url }}"
-    class="flex items-center justify-center w-8 h-8 rounded bg-blue-500 text-white hover:bg-blue-600">
+     title="Editar "
+     class="flex items-center justify-center w-8 h-8 rounded bg-blue-500 text-white hover:bg-blue-600">
     <img src="{{ url_for('static', filename='icons/edit.svg') }}" alt="Modificar" class="h-4 w-4 inline" />
   </a>
   {% endif %}
 
   {% if delete_url %}
   <button type="button" onclick="openDeleteModal('{{ delete_url }}')"
-    class="flex items-center justify-center w-8 h-8 rounded bg-red-500 text-white hover:bg-gray-600">
+          title="Eliminar "
+          class="flex items-center justify-center w-8 h-8 rounded bg-red-500 text-white hover:bg-gray-600">
     <img src="{{ url_for('static', filename='icons/delete.svg') }}" alt="Eliminar" class="h-4 w-4 inline" />
   </button>
   {% endif %}

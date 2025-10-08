@@ -69,8 +69,7 @@ def add_site():
     """
     GET: muestra el formulario para crear un nuevo sitio histórico.
     POST: procesa el formulario y crea el sitio.
-    GET: muestra el formulario para crear un nuevo sitio.
-    POST: procesa el formulario y crea el sitio.
+    
     """
     siteForm = SiteForm()
 
@@ -212,5 +211,8 @@ def detail(sitio_id):
     """
     renderiza los detalles del sitio
     """
+  
     sitio = board_sites.get_site(sitio_id)
     return render_template("sites/detail.html", sitio=sitio)
+  
+
