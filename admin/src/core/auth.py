@@ -44,30 +44,6 @@ def system_admin_required(f):
     return decorated_function
 
 
-def admin_required(f):
-    """
-    Decorador que requiere que el usuario sea administrador
-    """
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
-            flash('Debe iniciar sesión para acceder a esta página', 'error')
-            return redirect(url_for('login.login'))
-        
-        user = get_user_by_id(session['user_id'])
-        if not user or not user.can_login():
-            session.clear()
-            flash('Su cuenta está bloqueada o inactiva', 'error')
-            return redirect(url_for('login.login'))
-        
-        if not user.is_admin:
-            flash('No tiene permisos para acceder a esta página', 'error')
-            return redirect(url_for('home'))
-        
-        return f(*args, **kwargs)
-    return decorated_function
-
-
 def permission_required(permission_name):
     """
     Decorador que requiere un permiso específico
@@ -83,7 +59,7 @@ def permission_required(permission_name):
            
             
             if not user.has_permission(permission_name):
-                flash(f'No tiene permisos para realizar esta acción: {permission_name}', 'error')
+                flash(f'No tiene permisos para realizar esta acción', 'error')
                 return redirect(url_for('home'))
           
             return f(*args, **kwargs)

@@ -10,6 +10,8 @@ from src.core.services.feature_flags import (
     get_feature_flag_by_name,
 )
 from src.core.auth import login_required,system_admin_required
+from src.core.services.users import get_user_by_id
+from flask import session
 bp = Blueprint("feature_flags", __name__, url_prefix="/admin/feature-flags")
 
 @bp.get("/")
@@ -33,7 +35,8 @@ def toggle_flag(flag_id):
     data = request.get_json()
     is_enabled = data.get("is_enabled", False)
     maintenance_message = data.get("maintenance_message", "")
-    modified_by = data.get("modified_by", "System Admin")  # Por ahora hardcodeado
+    user = get_user_by_id(session.get("user_id"))
+    modified_by = data.get("modified_by", user.nombre) 
 
     success = update_feature_flag(
         flag_id=flag_id,

@@ -26,7 +26,7 @@ class User(db.Model):
     @property
     def is_admin(self):
         """Verifica si el usuario es administrador"""
-        return self.role and self.role.name == "Administrador"
+        return any(role.name.lower() == "administrador" for role in self.roles)
     
     @property
     def is_editor(self):

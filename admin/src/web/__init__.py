@@ -30,6 +30,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.config.from_object(config[env])
     app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=1)
     database.init_app(app)
+    database.config_db(app)
     sess.init_app(app)
    
 
@@ -47,7 +48,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
         # Si es una ruta de administración y está en modo mantenimiento
         if (
             request.endpoint
-            and (request.endpoint.startswith("sites.") or request.endpoint.startswith("sites_history."))
+            and (request.endpoint.startswith("sites") or request.endpoint.startswith("tags") or request.endpoint.startswith("users"))
             and is_admin_maintenance_mode()
         ):
             # Permitir acceso a feature flags para system admin
@@ -103,7 +104,6 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.jinja_env.globals["is_admin_maintenance_mode"] = is_admin_maintenance_mode
     app.jinja_env.globals["get_admin_maintenance_message"] = get_admin_maintenance_message  
 
-    # O si querés evitar los paréntesis:
     @app.context_processor
     def inject_user_flags():
         return dict(is_system_admin_user=is_system_admin_user())
