@@ -186,19 +186,23 @@ def export():
     
 
     csv_data = board_sites.export_sites_csv(filtros if len(filtros.keys()) > 0 else None)
+    if(csv_data is None):
+        flash("No hay datos para exportar","error")
+        return redirect(url_for("sites.index"))
+    else:
+        response = app.response_class(
+            response=csv_data,
+            status=200,
+            mimetype="text/csv",
+        )
+        response.headers.set(
+            "Content-Disposition",
+            "attachment",
+            filename=f"sitios_{board_sites.get_current_timestamp_str()}.csv",
+        )
 
-    response = app.response_class(
-        response=csv_data,
-        status=200,
-        mimetype="text/csv",
-    )
-    response.headers.set(
-        "Content-Disposition",
-        "attachment",
-        filename=f"sitios_{board_sites.get_current_timestamp_str()}.csv",
-    )
-
-    return response
+        return response
+        
 
 
 @bp.route("/<int:sitio_id>")

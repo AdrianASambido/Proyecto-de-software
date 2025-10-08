@@ -291,10 +291,5 @@ def seeds_db():
     ]
 
     add_site(sites_data[0],1)
-    add_site(sites_data[1],2)
-    add_site(sites_data[2],3)
-    db.session.commit()
-
 
     print(f"\n==== SEEDING LISTO ====\n\n")
-
