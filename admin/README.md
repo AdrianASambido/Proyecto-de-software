@@ -2,7 +2,7 @@
 
 Esto es un proyecto web flask
 
-## Dependencies
+## Usuarios
 
 Usuarios :
     .System admin: admin@system.com / admin123
