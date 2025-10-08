@@ -17,7 +17,8 @@ from src.web.controllers.login import bp as login_bp
 from src.web.controllers.sites_history import bp as sites_history_bp
 from flask_session import Session
 from src.core.auth import login_required
-from src.core.auth import has_permission
+from src.core.auth import has_permission,is_system_admin_user
+from src.core.services.feature_flags import is_admin_maintenance_mode,get_admin_maintenance_message
 
 from datetime import timedelta
 
@@ -29,6 +30,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.config.from_object(config[env])
     app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=1)
     database.init_app(app)
+    database.config_db(app)
     sess.init_app(app)
    
 
@@ -37,7 +39,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     def check_maintenance_mode():
         # Rutas que siempre están disponibles (login y feature flags para system admin)
         exempt_routes = [
-            "login",
+            "login.login",
             "feature_flags.index",
             "feature_flags.toggle_flag",
             "feature_flags.get_flags_status",
@@ -61,17 +63,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
                     503,
                 )
 
-        # Si es una ruta del portal y está en modo mantenimiento
-        if request.endpoint == "home" and is_portal_maintenance_mode():
-            message = get_portal_maintenance_message()
-            return (
-                render_template(
-                    "errores/maintenance.html",
-                    message=message,
-                    title="Portal en Mantenimiento",
-                ),
-                503,
-            )
+     
 
     @app.route("/")
     def login():
@@ -106,10 +98,17 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     def throw_500_error_for_test():
         abort(500)
         return render_template("throw_500_error_for_test.html")
-    
-
-    #helpers para jinja
+    # helpers para jinja
     app.jinja_env.globals["has_permission"] = has_permission
+    app.jinja_env.globals["is_system_admin_user"] = is_system_admin_user  
+    app.jinja_env.globals["is_admin_maintenance_mode"] = is_admin_maintenance_mode
+    app.jinja_env.globals["get_admin_maintenance_message"] = get_admin_maintenance_message  
+
+     
+    @app.context_processor
+    def inject_user_flags():
+        return dict(is_system_admin_user=is_system_admin_user())
+
 
     # definir todos los blueprints
     app.register_blueprint(users_bp)

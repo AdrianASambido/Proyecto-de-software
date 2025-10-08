@@ -172,8 +172,9 @@ def modify_site(site_id, site_data, user_id):
     )
     # actualizar tags si vienen
     tags_data = site_data.get("tags", [])
+    sitio.tags=[]
     for tag_id in tags_data:
-        sitio.tags=[]
+        
         tag = get_tag_by_id(tag_id)
         if tag is None:
             raise ValueError(f"Tag '{tag_id}' no encontrado")

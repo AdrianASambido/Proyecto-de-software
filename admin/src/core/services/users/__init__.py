@@ -21,6 +21,7 @@ def list_users(filtros: dict):
       - email (texto parcial)
       - rol (selector)
       - activo (checkbox)
+      - fecha de creación (rango de fechas)
     """
     query = User.query.filter_by(eliminado=False)
 
@@ -30,11 +31,24 @@ def list_users(filtros: dict):
 
     rol = filtros.get("rol")
     if rol:
-        query = query.filter(User.rol_id == rol)
+        try:
+            rol_id = int(rol)
+            query = query.join(User.roles).filter(Role.id == rol_id)
+        except ValueError:
+            pass
 
     activo = filtros.get("activo")
     if activo:
-        query = query.filter(User.activo == True)
+        if activo == '1':
+            query = query.filter(User.activo.is_(True))
+        elif activo == '0':
+            query = query.filter(User.activo.is_(False))
+
+    orden = filtros.get("orden")
+    if orden == "fecha_asc":
+        query = query.order_by(User.created_at.asc())
+    elif orden == "fecha_desc":
+        query = query.order_by(User.created_at.desc())
 
     return query
 
@@ -61,13 +75,6 @@ def add_user(user_data):
     """
     Agrega un nuevo usuario.
     """
-    #Obtener el rol por ID o nombre
-    #rol_id = user_data.get("rol_id")
-    #if not rol_id:
-        # Si no se proporciona rol_id, buscar por nombre
-     #   rol_name = user_data.get("rol_id", "Editor")  # Default a Editor
-    #    rol = Role.query.filter_by(name=rol_name).first()
-    #    rol_id = rol.id if rol else 2  # Default a Editor (ID 2)
     
     nuevo_usuario = User(
         email=user_data.get("email"),
@@ -75,7 +82,6 @@ def add_user(user_data):
         username=user_data.get("username"),
         apellido=user_data.get("apellido"),
         contraseña_cifrada=bcrypt.generate_password_hash(user_data.get("contraseña")).decode('utf-8'),
-        #rol_id=int(rol_id),
     )
 
     #Revisa si el usuario ya existe
@@ -118,7 +124,6 @@ def update_user(user_id, user_data):
     Modifica los datos de un usuario existente, en caso de tener los campos habilitados.
     """
     usuario = User.query.get(user_id)
-    usuario = User.query.get(user_id)
     if usuario:
         if "nombre" in user_data and user_data["nombre"] and user_data["nombre"] != usuario.nombre:
             usuario.nombre = user_data["nombre"]
@@ -133,20 +138,52 @@ def update_user(user_id, user_data):
         
         db.session.commit()
         return usuario
-        return usuario
-
-def assign_role_to_user(user_id, role_id):
-    """
-    Asigna un rol a un usuario.
-    """
-    usuario = get_user_by_id(user_id)
-    rol = Role.query.get(role_id)
     
-    if usuario and rol:
-        usuario.rol_id = role_id
+def update_user_admin(user_id, user_data):
+    """
+    Modifica los datos de un usuario existente, incluyendo campos administrativos.
+    """
+    usuario = User.query.get(user_id)
+    if usuario:
+        if "nombre" in user_data and user_data["nombre"] and user_data["nombre"] != usuario.nombre:
+            usuario.nombre = user_data["nombre"]
+        if "apellido" in user_data and user_data["apellido"] and user_data["apellido"] != usuario.apellido:
+            usuario.apellido = user_data["apellido"]
+        if "email" in user_data and user_data["email"] and user_data["email"] != usuario.email:
+            usuario.email = user_data["email"]
+        if "username" in user_data and user_data["username"] and user_data["username"] != usuario.username:
+            usuario.username = user_data["username"]
+        
+        if "rol_id" in user_data:
+            roles_ids = user_data.get("rol_id", [])
+            if roles_ids:
+                roles = Role.query.filter(Role.id.in_(roles_ids)).all()
+                usuario.roles = roles
+            else:
+                usuario.roles = []
+        
+        if "is_active" in user_data:
+            usuario.activo = bool(user_data["is_active"])
+        
         db.session.commit()
-        return True
-    return False
+        return usuario
+    else:
+        raise ValueError("Usuario no encontrado.")
+
+def assign_roles_to_user(user_id, role_ids):
+    """
+    Asigna varios roles a un usuario.
+    """
+    usuario = User.query.get(user_id)
+    if usuario:
+        roles = Role.query.filter(Role.id.in_(role_ids)).all()
+        if not roles:
+            raise ValueError("Roles no encontrados.")
+        usuario.roles = roles
+        db.session.commit()
+        return usuario
+    else:
+        raise ValueError("Usuario no encontrado.")
 
 
 def block_user(user_id):

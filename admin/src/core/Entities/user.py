@@ -1,9 +1,6 @@
 from src.core.database import db
 from datetime import datetime, timezone
 
-
-
-
 class User(db.Model):
     """Modelo que representa un usuario en la base de datos"""
 
@@ -62,3 +59,6 @@ class User(db.Model):
         """Desbloquea al usuario"""
         self.bloqueado = False
         return True
+
+    def is_system_admin_user(self):
+        return bool(self.is_system_admin)
