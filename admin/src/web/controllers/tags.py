@@ -8,8 +8,10 @@ from src.core.services.tags import (
     delete_tag as svc_delete_tag,
 )
 from src.core.auth import login_required
+from src.core.tagForm import TagForm
 
-bp = Blueprint("tags", __name__, url_prefix="/tags")
+
+bp = Blueprint("tags", __name__, url_prefix="/etiquetas")
 
 
 @bp.get("/")
@@ -36,50 +38,40 @@ def index():
     )
 
 
-@bp.get("/nuevo")
+@bp.route("/nuevo", methods=["GET", "POST"])
 @login_required
 def add_tag():
-    """Renderiza el formulario para crear una nueva etiqueta."""
-    return render_template("tags/add_tag.html"), 200
+    """Crea una nueva etiqueta o renderiza el formulario."""
+    if request.method == "POST":
+        tag_data = dict(request.form)
+        isExistingTag = svc_get_tag_by_name(tag_data.get("nombre").lower())
+
+        if isExistingTag:
+            flash("Ya existe una etiqueta con ese nombre.", "error")
+            return redirect(url_for("tags.add_tag"))
+        else:
+            svc_add_tag(tag_data)
+            flash("Etiqueta creada exitosamente.", "success")
+            return redirect(url_for("tags.index"))
+    return render_template("tags/add_tag.html")
 
 
-@bp.get("/editar/<int:tag_id>")
+@bp.route("/editar/<int:tag_id>", methods=["GET", "POST"])
 @login_required
 def edit_tag(tag_id):
-    """Renderiza el formulario para editar una etiqueta existente."""
+    """Edita una etiqueta existente o renderiza el formulario con los datos actuales."""
+    if request.method == "POST":
+        tag_data = dict(request.form)
+        svc_update_tag(tag_id, tag_data)
+        flash("Etiqueta modificada exitosamente.", "success")
+        return redirect(url_for("tags.index"))
     tag = svc_get_tag_by_id(tag_id)
     return render_template("tags/edit_tag.html", tag=tag)
 
 
-@bp.post("/create")
-@login_required
-def add_tag_handler():
-    """Crea una nueva etiqueta si no existe una con el mismo nombre."""
-    tag_data = dict(request.form)
-    isExistingTag = svc_get_tag_by_name(tag_data.get("nombre").lower())
-
-    if isExistingTag:
-        flash("Ya existe una etiqueta con ese nombre.", "error")
-        return redirect(url_for("tags.add_tag"))
-
-    svc_add_tag(tag_data)
-    flash("Etiqueta creada exitosamente.", "success")
-    return redirect(url_for("tags.index"))
-
-
-@bp.post("/editar/<int:tag_id>")
-@login_required
-def edit_tag_handler(tag_id):
-    """Actualiza una etiqueta existente."""
-    tag_data = dict(request.form)
-    svc_update_tag(tag_id, tag_data)
-    flash("Etiqueta modificada exitosamente.", "success")
-    return redirect(url_for("tags.index"))
-
-
 @bp.post("/eliminar/<int:tag_id>")
 @login_required
-def delete_tag_handler(tag_id):
+def delete_tag(tag_id):
     """Elimina una etiqueta si no está asociada a ningún sitio."""
     try:
         svc_delete_tag(tag_id)

@@ -8,7 +8,7 @@
     ← Volver al listado
 </a>
 <h2 class="text-2xl font-bold mb-4">Editar datos de usuario</h2>
-<form method="POST" action="{{ url_for('users.edit_user', user_id=user.id) }}">
+<form method="POST" action="{{ url_for('users.edit_user_admin', user_id=user.id) }}">
     {{ form.hidden_tag() }}
     <div class="mb-3">
         {{ form.nombre.label }}  
@@ -30,6 +30,10 @@
         {{ form.rol_id.label }}
         {{ form.rol_id(class="form-select") }}
     </div>
+    <div class="mb-3">
+        {{ form.is_active.label }}
+        {{ form.is_active(class="form-check-input") }}
+        <label class="form-check-label" for="is_active">Activo</label>
     {{ form.submit(class="btn btn-primary") }}
 </form>
 {% endblock %}

@@ -16,7 +16,7 @@ from flask import flash
 from src.core.siteForm import SiteForm
 import pycountry
 from flask import current_app as app
-from src.core.auth import login_required,permission_required,admin_required
+from src.core.auth import login_required,permission_required
 bp = Blueprint("sites", __name__, url_prefix="/sitios")
 
 provincias_arg = [sub.name for sub in pycountry.subdivisions.get(country_code="AR")]

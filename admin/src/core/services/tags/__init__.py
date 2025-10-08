@@ -4,10 +4,6 @@ from datetime import date
 import unicodedata
 import re
 
-def list_tags():
-    tags=Tag.query.all()
-    return tags
-
 
 def list_tags(filtros: dict | None = None):
     """Devuelve una consulta SQLAlchemy con los tags que cumplen los filtros dados."""
@@ -42,6 +38,7 @@ def add_tag(tag_data):
     db.session.commit()
     return new_tag
 
+
 def update_tag(tag_id, tag_data):
     """Actualiza una etiqueta existente."""
     tag = Tag.query.get(tag_id)
@@ -64,21 +61,14 @@ def delete_tag(tag_id):
         raise ValueError(
             "No se puede eliminar una etiqueta que está asociada a sitios."
         )
+        raise ValueError(
+            "No se puede eliminar una etiqueta que está asociada a sitios."
+        )
 
     tag.deleted_at = date.today()
     db.session.commit()
     return tag
 
-def get_tag_by_id(tag_id):
-    tag = Tag.query.get(tag_id)
-    return tag
-
-def get_tag_by_name(name):
-    tag = Tag.query.filter_by(name=name, deleted_at=None).first()
-    return tag
-
-def convert_to_lowercase(text):
-    return text.lower()
 
 def get_tag_by_id(tag_id):
     tag = Tag.query.get(tag_id)
