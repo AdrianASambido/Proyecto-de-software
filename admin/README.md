@@ -1,4 +1,4 @@
-# Proyecto we
+# Proyecto web
 
 Esto es un proyecto web flask
 
