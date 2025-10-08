@@ -3,7 +3,9 @@
 {% block content %}
 <div class="h-[calc(100vh-200px)] flex flex-col justify-center items-center">
 
-  <h2 class="text-2xl font-bold mb-4">Crear etiqueta</h2>
+    {% block form_title %}
+      <h2 class="text-2xl font-bold mb-4">Título por Defecto</h2>
+    {% endblock form_title %}
 
   <form method="POST" class="bg-white shadow-md rounded-lg p-6 w-full max-w-md">
     {{ form.hidden_tag() }}

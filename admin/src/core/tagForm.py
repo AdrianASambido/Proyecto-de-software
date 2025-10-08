@@ -12,7 +12,6 @@ class TagForm(FlaskForm):
     name = StringField("Nombre", validators=[
         DataRequired(message="El nombre es obligatorio."),
         Length(min=3, max=50, message="El nombre debe tener entre 3 y 50 caracteres."),
-        Regexp(r'^[a-zA-Z0-9\s]+$', message="El nombre solo puede contener letras, números y espacios.")
     ],  
         render_kw={"placeholder": "Ingresa el nombre de la etiqueta"}
     )

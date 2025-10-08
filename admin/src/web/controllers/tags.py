@@ -65,13 +65,24 @@ def add_tag():
 @login_required
 def edit_tag(tag_id):
     """Edita una etiqueta existente o renderiza el formulario con los datos actuales."""
-    if request.method == "POST":
-        tag_data = dict(request.form)
-        svc_update_tag(tag_id, tag_data)
-        flash("Etiqueta modificada exitosamente.", "success")
-        return redirect(url_for("tags.index"))
     tag = svc_get_tag_by_id(tag_id)
-    return render_template("tags/edit_tag.html", tag=tag)
+    if not tag:
+        flash("Etiqueta no encontrada.", "error")
+        return redirect(url_for("tags.index"))
+    form = TagForm(obj=tag)
+    if form.validate_on_submit():
+        nombre = form.name.data.strip()
+        # Validación adicional: existencia en BD (excluyendo la actual)
+        is_existing = svc_get_tag_by_name(nombre.lower())
+        if is_existing and is_existing.id != tag.id:
+            flash("Ya existe una etiqueta con ese nombre.", "error")
+            return redirect(url_for("tags.edit_tag", tag_id=tag.id))
+
+        # Actualizar la etiqueta
+        svc_update_tag(tag_id, {"nombre": nombre})
+        flash("Etiqueta actualizada exitosamente.", "success")
+        return redirect(url_for("tags.index"))
+    return render_template("tags/edit_tag.html", form=form, tag=tag)
 
 
 @bp.post("/eliminar/<int:tag_id>")
