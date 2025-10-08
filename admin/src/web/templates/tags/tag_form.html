@@ -1,0 +1,23 @@
+{% extends "basic-structure-w-sidebar.html" %}
+
+{% block content %}
+
+<h2 class="text-2xl font-bold mb-4">Crear etiqueta</h2>
+
+<form method="POST" class="bg-white shadow-md rounded-lg p-6  mx-auto">
+    {{ form.hidden_tag() }}
+
+    <!-- name -->
+    <div class="mb-4">
+        {{ form.name.label(class="block text-sm font-medium text-gray-700 mb-1") }}
+        {{ form.name(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500",required=true) }}
+        {% for error in form.name.errors %}
+            <span class="text-red-500 text-sm">{{ error }}</span>
+        {% endfor %}
+    </div>
+    
+    <button type="submit" class="w-full bg-blue-900 text-white py-2 px-4 rounded-lg hover:bg-gray-700">
+        {{ form.submit.label.text or "Guardar" }}
+    </button>
+</form>
+{% endblock %}
