@@ -30,6 +30,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.config.from_object(config[env])
     app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=1)
     database.init_app(app)
+    database.config_db(app)
     sess.init_app(app)
    
 

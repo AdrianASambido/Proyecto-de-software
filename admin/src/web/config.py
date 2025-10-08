@@ -19,6 +19,13 @@ class ProductionConfig(Config):
     DB_PORT = os.getenv("DATABASE_PORT")
     DB_NAME = os.getenv("DATABASE_NAME")
 
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        "pool_recycle": int(os.getenv("SQLALCHEMY_POOL_RECYCLE", 1800)),
+        "pool_size": int(os.getenv("SQLALCHEMY_POOL_SIZE", 5)),
+        "max_overflow": int(os.getenv("SQLALCHEMY_MAX_OVERFLOW", 10)),
+        "pool_timeout": int(os.getenv("SQLALCHEMY_POOL_TIMEOUT", 30)),
+    }
     SQLALCHEMY_TRACK_MODIFICATIONS = (
         os.getenv("SQLALCHEMY_TRACK_MODIFICATIONS", "True").lower() == "true"
     )
@@ -40,6 +47,13 @@ class DevelopmentConfig(Config):
     DB_PORT = os.getenv("GRUPO01_DATABASE_PORT", "5432")
     DB_NAME = os.getenv("GRUPO01_DATABASE_NAME", "postgres")
 
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        "pool_recycle": int(os.getenv("SQLALCHEMY_POOL_RECYCLE", 1800)),
+        "pool_size": int(os.getenv("SQLALCHEMY_POOL_SIZE", 5)),
+        "max_overflow": int(os.getenv("SQLALCHEMY_MAX_OVERFLOW", 10)),
+        "pool_timeout": int(os.getenv("SQLALCHEMY_POOL_TIMEOUT", 30)),
+    }
     SQLALCHEMY_TRACK_MODIFICATIONS = (
         os.getenv("SQLALCHEMY_TRACK_MODIFICATIONS", "True").lower() == "true"
     )
