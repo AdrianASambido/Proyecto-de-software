@@ -48,7 +48,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
         # Si es una ruta de administración y está en modo mantenimiento
         if (
             request.endpoint
-            and request.endpoint.startswith("sites")
+            and (request.endpoint.startswith("sites") or request.endpoint.startswith("tags") or request.endpoint.startswith("users"))
             and is_admin_maintenance_mode()
         ):
             # Permitir acceso a feature flags para system admin

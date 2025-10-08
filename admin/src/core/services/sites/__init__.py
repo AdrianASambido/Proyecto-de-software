@@ -108,8 +108,10 @@ def filter_sites(filtros):
 
     # Visibilidad
     visible = filtros.get("visible")
-    if visible in ("on", "1", True):
+    if visible in ("on", "1", True,"Si"):
         query = query.filter(Site.visible.is_(True))
+    elif visible in ("off",0,False,"No"):
+        query= query.filter(Site.visible.is_(False))
 
     # Tags
     tags_ids = filtros.get("tags")
@@ -223,10 +225,6 @@ def add_site(site_data,user_id):
 
     lat = site_data.get("latitud")
     lng = site_data.get("longitud")
-
-    if not lat or not lng:
-        raise ValueError("Latitud y longitud son obligatorias")
-
     punto = WKTElement(f"POINT({lng} {lat})", srid=4326)
 
     nuevo_sitio = Site(
@@ -279,22 +277,16 @@ def delete_site(site_id,user_id):
         campo.name: getattr(sitio, campo.name, None) for campo in campos_site
     }
 
-    # marcamos como eliminado (eliminación lógica)
+    # marco como eliminado (eliminación lógica)
     sitio.eliminated_at = datetime.now(timezone.utc)
     db.session.add(sitio)
 
-        # Agregar ubicación como un solo campo
+    # Agregar ubicación 
     if sitio.latitud is not None and sitio.longitud is not None:
         original_snapshot["ubicacion"] = {
             "latitud": sitio.latitud,
             "longitud": sitio.longitud
         }
-
-    # Capturar tags si existen (cuando la relación esté activa)
-    # if hasattr(sitio, 'tags') and sitio.tags:
-    #     original_snapshot["tags"] = [tag.id for tag in sitio.tags]
-
-
 
     add_site_history(
         site_id=sitio.id,

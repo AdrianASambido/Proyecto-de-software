@@ -71,11 +71,17 @@ def delete_tag(tag_id):
 
 
 def get_tag_by_id(tag_id):
+    """
+    retorna un tag por id
+    """
     tag = Tag.query.get(tag_id)
     return tag
 
 
 def get_tag_by_name(name):
+    """
+    retorna un tag por nombre
+    """
     tag = Tag.query.filter_by(name=name, deleted_at=None).first()
     return tag
 
