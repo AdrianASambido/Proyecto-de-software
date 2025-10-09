@@ -156,13 +156,17 @@ def update_user_admin(user_id, user_data):
         
         if "rol_id" in user_data:
             roles_ids = user_data.get("rol_id", [])
+            roles_ids = [int(r) for r in roles_ids if r]
             if roles_ids:
                 roles = Role.query.filter(Role.id.in_(roles_ids)).all()
                 usuario.roles = roles
             else:
                 usuario.roles = []
         
+        #si es admin no se puede desactivar
         if "is_active" in user_data:
+            if usuario.is_admin and not user_data["is_active"]:
+                raise ValueError("No se puede desactivar un usuario Administrador.")
             usuario.activo = bool(user_data["is_active"])
         
         db.session.commit()

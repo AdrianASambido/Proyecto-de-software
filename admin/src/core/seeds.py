@@ -291,10 +291,51 @@ def seeds_db():
     ]
 
     add_site(sites_data[0],1)
-    add_site(sites_data[1],2)
-    add_site(sites_data[2],3)
-    db.session.commit()
 
+
+     # -------------------
+    # 1. Crear etiquetas
+    # -------------------
+    print("\n==== CREANDO ETIQUETAS ====")
+    # 26 etiquetas
+    tags_data = [
+        "Aventura",
+        "Cultural",
+        "Familiar",
+        "Ecológico",
+        "Histórico",
+        "Gastronómico",
+        "Playa",
+        "Montaña",
+        "Urbano",
+        "Rural",
+        "Deportes",
+        "Relajación",
+        "Lujo",
+        "Económico",
+        "Romántico",
+        "Fotografía",
+        "Vida Nocturna",
+        "Compras",
+        "Arte y Música",
+        "Naturaleza",
+        "Religioso",
+        "Educativo",
+        "Salud y Bienestar",
+        "Tecnológico",
+        "Voluntariado",
+        "Festividades"
+    ]
+    tags_objs = []
+
+    # crear etiquetas llamando a add_tag
+    from src.core.services.tags import add_tag
+    for tag_name in tags_data:
+        tag = add_tag({"nombre": tag_name})
+        tags_objs.append(tag)
+        print(f"✓ Etiqueta '{tag_name}' creada")
+
+    db.session.commit()
+    print("✓ Todas las etiquetas guardadas en la base de datos")
 
     print(f"\n==== SEEDING LISTO ====\n\n")
-
