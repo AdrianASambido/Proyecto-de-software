@@ -8,6 +8,7 @@ from src.core.services import users as board_users
 from src.core.formularios import RegistrationForm, EditUserForm, EditUserAdminForm
 from src.core.auth import login_required, permission_required
 from src.core.Entities import Role
+from flask import session
 bp = Blueprint("users", __name__, url_prefix=("/usuarios"))
 
 
@@ -26,14 +27,15 @@ def index():
     filtros = request.args.to_dict()
     filtros.pop("page", None)
     filtros.pop("per_page", None)
-
+    current_user_id=session.get("user_id")
     pagination = board_users.list_users(filtros).paginate(page=page, per_page=per_page)
     roles = Role.query.all()
     return render_template("usuarios/tabla_usuarios.html",
                            items=pagination.items,
                            pagination=pagination,
                            filtros=filtros,
-                           roles = roles), 200
+                           roles = roles,
+                           current_user_id=current_user_id), 200
 
 
 @bp.route("/agregar_usuario", methods=["GET", "POST"])
@@ -70,6 +72,8 @@ def add_user():
 def edit_user(user_id):
     usuario = board_users.get_user_by_id(user_id)
     form = EditUserForm(obj=usuario, original_email=usuario.email)
+
+    
     if form.validate_on_submit():
         nuevos_datos = form.data
         board_users.update_user(user_id, nuevos_datos)
@@ -100,7 +104,9 @@ def edit_user_admin(user_id):
 
     if form.validate_on_submit():
         nuevos_datos = form.data
+        
         board_users.update_user_admin(user_id, nuevos_datos)
+        flash("Usuario editado exitosamente","success")
         return redirect(url_for("users.index"))
     else:
         print(form.errors)
