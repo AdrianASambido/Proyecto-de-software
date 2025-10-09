@@ -147,7 +147,9 @@ def modify_site(site_id, site_data, user_id):
     original_snapshot = {
         campo.name: getattr(sitio, campo.name, None) for campo in campos_site
     }
-
+    original_snapshot["latitud"] = sitio.latitud
+    original_snapshot["longitud"] = sitio.longitud
+    
     # Guardar las tags viejas antes de modificarlas
     tags_viejas = [t.id for t in sitio.tags]
 
@@ -187,10 +189,20 @@ def modify_site(site_id, site_data, user_id):
     nuevo_snapshot = {
         campo.name: getattr(sitio, campo.name, None) for campo in campos_site
     }
+    nuevo_snapshot["latitud"] = sitio.latitud
+    nuevo_snapshot["longitud"] = sitio.longitud
 
     # Convertir booleanos a texto legible
     original_snapshot["visible"] = "Sí" if original_snapshot["visible"] else "No"
     nuevo_snapshot["visible"] = "Sí" if nuevo_snapshot["visible"] else "No"
+
+
+    campos_modificados = list(site_data.keys())
+    if (lat is not None) or (lng is not None):
+        if "latitud" not in campos_modificados:
+            campos_modificados.append("latitud")
+        if "longitud" not in campos_modificados:
+            campos_modificados.append("longitud")
 
     # Agregar registro general de modificación
     add_site_history(
