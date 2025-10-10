@@ -109,12 +109,12 @@
                     (function () {
                         // Esperar a que el DOM esté listo
                         if (document.readyState === 'loading') {
-                            document.addEventListener('DOMContentLoaded', initMaps{{ change.id }}_{ { loop.index } });
+                            document.addEventListener('DOMContentLoaded', initMaps{{ change.id }}_{{ loop.index }});
                     } else {
-                        initMaps{ { change.id } }_{ { loop.index } } ();
+                        initMaps{{ change.id }}_{{ loop.index }}();
                     }
 
-                    function initMaps{ { change.id } }_{ { loop.index } } () {
+                    function initMaps{{ change.id }}_{{ loop.index }} () {
                         const oldLatEl = document.getElementById('latitud_anterior_{{ change.id }}_{{ loop.index }}');
                         const oldLngEl = document.getElementById('longitud_anterior_{{ change.id }}_{{ loop.index }}');
                         const newLatEl = document.getElementById('latitud_nuevo_{{ change.id }}_{{ loop.index }}');
