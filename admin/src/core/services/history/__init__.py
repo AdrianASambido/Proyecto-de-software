@@ -42,7 +42,7 @@ def _get_field(obj, campo):
         return obj.get(campo)
     return getattr(obj, campo, None)
 
-per_page = 2
+per_page = 25
 
 def list_site_history(sitio_id, page: int = 1, order: str = "desc", filtros: dict | None = None):
 
