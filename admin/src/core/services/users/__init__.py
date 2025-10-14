@@ -23,13 +23,13 @@ def list_users(filtros: dict):
       - activo (checkbox)
       - fecha de creación (rango de fechas)
     """
-    query = User.query.filter_by(eliminado=False)
+    query = User.query.filter_by(eliminado=False) # Excluye usuarios eliminados
 
-    email = filtros.get("email")
+    email = filtros.get("email") # filtro por email (texto parcial)
     if email:
         query = query.filter(User.email.ilike(f"%{email}%"))
 
-    rol = filtros.get("rol")
+    rol = filtros.get("rol")# filtro por rol (selector)
     if rol:
         try:
             rol_id = int(rol)
@@ -37,20 +37,20 @@ def list_users(filtros: dict):
         except ValueError:
             pass
 
-    activo = filtros.get("activo")
+    activo = filtros.get("activo")# filtro por estado (activo)
     if activo:
         if activo == '1':
             query = query.filter(User.activo.is_(True))
         elif activo == '0':
             query = query.filter(User.activo.is_(False))
 
-    orden = filtros.get("orden")
+    orden = filtros.get("orden")# filtro por orden (fecha creación)
     if orden == "fecha_asc":
         query = query.order_by(User.created_at.asc())
     elif orden == "fecha_desc":
         query = query.order_by(User.created_at.desc())
 
-    return query
+    return query#retorna query con los filtros aplicados para paginación
 
 def get_user_by_email(email):
     """

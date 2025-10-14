@@ -51,14 +51,14 @@ def permission_required(permission_name):
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
-            if 'user_id' not in session:
+            if 'user_id' not in session:      # verifica sesión por si no está logueado
                 flash('Debe iniciar sesión para acceder a esta página', 'error')
                 return redirect(url_for('login.login'))
             
-            user = get_user_by_id(session['user_id'])
+            user = get_user_by_id(session['user_id'])# obtiene el usuario actual
            
             
-            if not user.has_permission(permission_name):
+            if not user.has_permission(permission_name):# verifica el permiso
                 flash(f'No tiene permisos para realizar esta acción', 'error')
                 return redirect(url_for('home'))
           
