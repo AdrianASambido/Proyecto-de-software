@@ -275,12 +275,13 @@
   </script>
 
   <script>
-    function openDeleteModal(actionUrl) {
-      console.log('modal!')
+    function openDeleteModal({url, title, message}) {
       const modal = document.getElementById('deleteModal');
       modal.classList.remove('hidden');
       modal.style.display = 'flex';
-      document.getElementById('deleteForm').action = actionUrl;
+      document.getElementById('deleteForm').action = url;
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalMessage').textContent = message;
     }
     function closeDeleteModal() {
       const modal = document.getElementById('deleteModal');
