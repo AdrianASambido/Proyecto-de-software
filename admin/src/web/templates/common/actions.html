@@ -17,7 +17,11 @@
   {% endif %}
 
   {% if delete_url %}
-  <button type="button" onclick="openDeleteModal('{{ delete_url }}')"
+  <button type="button"  onclick='openDeleteModal({{ {
+      "url": delete_url,
+      "title": modal_title or '¿Eliminar elemento?',
+      "message": modal_message or '¿Estás seguro que deseas eliminar este elemento? Esta acción no se puede deshacer.'
+  } | tojson }})'
           title="Eliminar "
           class="flex items-center justify-center w-8 h-8 rounded bg-red-500 text-white hover:bg-gray-600">
     <img src="{{ url_for('static', filename='icons/delete.svg') }}" alt="Eliminar" class="h-4 w-4 inline" />
