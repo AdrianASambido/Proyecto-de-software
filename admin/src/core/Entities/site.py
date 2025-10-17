@@ -65,3 +65,23 @@ class Site(db.Model):
 
     def __repr__(self):
         return f"<Sitio {self.nombre}>"
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "nombre": self.nombre,
+            "descripcion_breve": self.descripcion_breve,
+            "descripcion_completa": self.descripcion_completa,
+            "ciudad": self.ciudad,
+            "provincia": self.provincia,
+            "inauguracion": self.inauguracion,
+            "visible": self.visible,
+            "latitud": self.latitud,
+            "longitud": self.longitud,
+            "categoria": self.categoria,
+            "estado_conservacion": self.estado_conservacion,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "eliminated_at": self.eliminated_at.isoformat() if self.eliminated_at else None,
+            "tags": [tag.name for tag in self.tags],
+        }

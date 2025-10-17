@@ -55,6 +55,9 @@
 
     {% set edit_url = url_for('tags.edit_tag', tag_id=tag.id) %}
     {% set delete_url = url_for('tags.delete_tag', tag_id=tag.id) %}
+    {% set modal_title = '¿Eliminar Etiqueta?' %}
+    {% set modal_message = 'Estás a punto de eliminar la etiqueta \'' ~ tag.name ~ '\'. Esta acción es permanente.' %}
+
     {% include "common/actions.html" %}
   </tr>
   {% endfor %}
