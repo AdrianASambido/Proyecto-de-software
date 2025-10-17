@@ -11,7 +11,7 @@ from datetime import datetime, timezone
 from sqlalchemy import or_, and_
 from geoalchemy2.shape import to_shape
 from geoalchemy2.elements import WKTElement
-from sqlalchemy import desc, asc
+from sqlalchemy import desc, asc,func
 from src.core.services.tags import get_tag_by_id
 from src.core.Entities.tag import Tag
 from sqlalchemy.orm import joinedload
@@ -24,11 +24,32 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 25):
     Retorna un objeto de paginación con los sitios históricos aplicando filtros y orden.
     """
     query = filter_sites(filtros)
+    query=geoespatial_search(query,filtros)
     query = order_sites(query, filtros)
     return query.paginate(page=page, per_page=per_page, error_out=False)
 
 
+def geoespatial_search(query,filtros):
+    """
+    filtra los sitios dentro del radio dado usando postgis
+    """
 
+    lat=filtros.get("latitud")
+    lon=filtros.get("longitud")
+    rad=filtros.get("radio")
+    if lan and lon and rad:
+        lat=float(lat)
+        lon=float(lon)
+        rad=float(rad)
+
+        query = query.filter(
+            func.ST_DWithin(
+                func.Geography(Site.punto),
+                func.Geography(func.ST_MakePoint(lon, lat)),
+                rad * 1000
+            )
+        )
+    return query
 
 def order_sites(query, filtros):
     """
