@@ -37,7 +37,7 @@ def geoespatial_search(query,filtros):
     lat=filtros.get("latitud")
     lon=filtros.get("longitud")
     rad=filtros.get("radio")
-    if lan and lon and rad:
+    if lat and lon and rad:
         lat=float(lat)
         lon=float(lon)
         rad=float(rad)

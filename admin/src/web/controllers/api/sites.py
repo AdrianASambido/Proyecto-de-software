@@ -28,22 +28,6 @@ def get_sites():
     
     return jsonify(response)
 
-@api_bp.post("/sites")
-def add_site():
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify({"error": "No se recibieron datos JSON"}), 400
-
-        nuevo_sitio = add_site(data, user_id)
-        return jsonify({"message": "Sitio agregado correctamente", "id": nuevo_sitio.id}), 201
-
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
-    except Exception as e:
-        current_app.logger.error(f"Error al agregar sitio: {e}")
-        return jsonify({"error": "Error interno del servidor"}), 500
-
 
 @api_bp.get("/sites/<int:site_id>")
 def get_site_by_id(site_id):
