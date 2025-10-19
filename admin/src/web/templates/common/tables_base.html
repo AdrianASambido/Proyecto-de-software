@@ -22,7 +22,7 @@
     {% block table_filters %}{% endblock %}
   </div>
 
-  <!-- Tabla responsive -->
+  <!-- Tabla  -->
   <div class="w-full overflow-x-auto">
     <table class="min-w-full text-sm text-gray-800 border border-gray-200 divide-y divide-gray-200 rounded-lg shadow-md bg-white">
       
@@ -56,7 +56,30 @@
       </tbody>
       {% endif %}
     </table>
+
+    <!-- script para mostrar headers en mobile-->
+    <script>
+document.addEventListener("DOMContentLoaded", function() {
+
+  const tables = document.querySelectorAll("table");
+  tables.forEach(table => {
+    const headers = Array.from(table.querySelectorAll("thead th")).map(th => th.textContent.trim());
+    const rows = table.querySelectorAll("tbody tr");
+
+    rows.forEach(row => {
+      const cells = row.querySelectorAll("td");
+      cells.forEach((cell, i) => {
+        if (!cell.hasAttribute("data-label") && headers[i]) {
+          cell.setAttribute("data-label", headers[i]);
+        }
+      });
+    });
+  });
+});
+</script>
+
   </div>
+  
 {% block table_pagination %}
   {% if pagination %}
     <div class="mt-6 flex items-center justify-center gap-2">
@@ -80,8 +103,63 @@
       {% endif %}
     </div>
   {% endif %}
+  
 {% endblock %}
 
 
 </div>
+<!-- estilos para pantallas mobile ,ya no usamos scroll -->
+<style>
+@media (max-width: 768px) {
+  table {
+    border-collapse: separate;
+    border-spacing: 0 0.5rem;
+    width: 100%;
+  }
+
+  thead {
+    display: none; 
+  }
+
+  tr {
+    display: block;
+    background: #fff;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    padding: 0.5rem;
+  }
+
+  td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    padding: 0.5rem;
+    text-align: left;
+    word-break: break-word;
+  }
+
+  td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #374151;
+    flex-shrink: 0;
+    width: 45%;
+    margin-right: 0.5rem;
+  }
+
+  
+  td[data-label="Acciones"]::before {
+    content: "Acciones:"; 
+  }
+
+
+  td[data-label="Acciones"] {
+    justify-content: flex-start;
+    align-items: center;
+  }
+}
+
+</style>
+
 {% endblock %}
