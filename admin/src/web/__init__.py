@@ -51,7 +51,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
             request.endpoint
             # Bloquea sitios, etiquetas usuarios
             and (request.endpoint.startswith("sites") or request.endpoint.startswith("tags") or request.endpoint.startswith("users"))
-            and is_admin_maintenance_mode()
+            and is_admin_maintenance_mode() and not is_system_admin_user
         ):
             # Permitir acceso a feature flags para system admin
             if request.endpoint not in exempt_routes:
