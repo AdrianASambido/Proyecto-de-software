@@ -8,7 +8,7 @@ class SiteForm(FlaskForm):
     descripcion_completa = TextAreaField("Descripción completa", validators=[DataRequired()])
     ciudad = StringField("Ciudad", validators=[DataRequired(), Length(max=100)])
     provincia = SelectField("Provincia", validators=[DataRequired()], choices=[])
-    inauguracion = IntegerField("Año de inauguración", validators=[DataRequired(), NumberRange(min=0, max=9999)])
+    inauguracion = IntegerField("Año de inauguración", validators=[DataRequired(), NumberRange(min=0, max=2025)])
     visible = BooleanField("Visible", default=True)
     categoria = StringField("Categoría", validators=[DataRequired(), Length(max=50)])
     estado_conservacion = SelectField("Estado de conservación", validators=[DataRequired()],

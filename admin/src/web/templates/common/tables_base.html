@@ -4,26 +4,28 @@
 <div class="w-full px-4 sm:px-8 lg:px-12">
 
   <!-- Encabezado -->
-<div class="flex flex-wrap items-center justify-between gap-2 pb-4">
-  <h1 class="text-xl sm:text-2xl font-bold text-gray-900">
-    {% block table_title %}Título de la tabla{% endblock %}
-  </h1>
-  <div class="flex gap-2">
-    <a href="{% block add_url %}#{% endblock %}"
-       class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white font-medium shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
-       aria-label="Agregar nuevo elemento">
-      + {% block add_label %}Agregar{% endblock %}
-    </a>
-    {% block extra_actions %}{% endblock %}
+  <div class="flex flex-wrap items-center justify-between gap-2 pb-4">
+    <h1 class="text-xl sm:text-2xl font-bold text-gray-900">
+      {% block table_title %}Título de la tabla{% endblock %}
+    </h1>
+
+    <div class="flex gap-2">
+      <a href="{% block add_url %}#{% endblock %}"
+         class="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white font-medium shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+         aria-label="Agregar nuevo elemento">
+        + {% block add_label %}Agregar{% endblock %}
+      </a>
+      {% block extra_actions %}{% endblock %}
+    </div>
   </div>
-</div>
+
   <!-- Filtros -->
   <div class="mb-4">
     {% block table_filters %}{% endblock %}
   </div>
 
-  <!-- Tabla responsive -->
-  <div class="w-full overflow-x-auto">
+ 
+  <div class="w-full">
     <table class="min-w-full text-sm text-gray-800 border border-gray-200 divide-y divide-gray-200 rounded-lg shadow-md bg-white">
       
       {% if items|length > 0 %}
@@ -46,6 +48,7 @@
         </tr>
         {% endblock %}
       </tbody>
+
       {% else %}
       <tbody>
         <tr>
@@ -57,7 +60,9 @@
       {% endif %}
     </table>
   </div>
-{% block table_pagination %}
+
+  <!-- Paginación -->
+  {% block table_pagination %}
   {% if pagination %}
     <div class="mt-6 flex items-center justify-center gap-2">
       {% if pagination.has_prev %}
@@ -80,8 +85,83 @@
       {% endif %}
     </div>
   {% endif %}
-{% endblock %}
-
+  {% endblock %}
 
 </div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const tables = document.querySelectorAll("table");
+  tables.forEach(table => {
+    const headers = Array.from(table.querySelectorAll("thead th")).map(th => th.textContent.trim());
+    const rows = table.querySelectorAll("tbody tr");
+
+    rows.forEach(row => {
+      const cells = row.querySelectorAll("td");
+      cells.forEach((cell, i) => {
+        if (!cell.hasAttribute("data-label") && headers[i]) {
+          cell.setAttribute("data-label", headers[i]);
+        }
+      });
+    });
+  });
+});
+</script>
+
+<!-- Estilos para vista móvil sin scroll horizontal -->
+<style>
+@media (max-width: 768px) {
+  table {
+    border-collapse: separate;
+    border-spacing: 0 0.75rem;
+    width: 100%;
+  }
+
+  thead {
+    display: none;
+  }
+
+  tbody {
+    display: block;
+    width: 100%;
+  }
+
+  tr {
+    display: block;
+    background: #fff;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    padding: 0.5rem;
+  }
+
+  td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem;
+    text-align: left;
+    word-break: break-word;
+  }
+
+  td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #374151;
+    flex-shrink: 0;
+    width: 45%;
+    margin-right: 0.5rem;
+  }
+
+  td[data-label="Acciones"]::before {
+    content: "Acciones:";
+  }
+
+  td[data-label="Acciones"] {
+    justify-content: flex-start;
+  }
+}
+</style>
+
 {% endblock %}

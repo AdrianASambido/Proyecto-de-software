@@ -34,6 +34,18 @@
     ] %}
     {{ render_order_selector(order_options, order or '', url_for('sites.index'), request.args.to_dict(flat=False)) }}
   </div>
+{% block results_counter %}
+  {% if items|length > 0 %}
+    {% set start = (pagination.page - 1) * pagination.per_page + 1 %}
+    {% set end = start + items|length - 1 %}
+    <p class="mb-2 text-sm text-gray-600">
+      Mostrando {{ start }}–{{ end }} de {{ pagination.total }} resultados
+    </p>
+  {% endif %}
+{% endblock %}
+
+
+
 {% endblock %}
 
 {% block extra_actions %}
@@ -67,8 +79,12 @@
     <td>{{ 'Sí' if sitio.visible else 'No' }}</td>
     <td>{{ sitio.created_at.strftime("%d/%m/%Y %H:%M") }}</td>
     <td class="flex gap-2">
-      {% set details_url = url_for('sites.detail', sitio_id=sitio.id) %}
-      {% set edit_url = url_for('sites.modify', site_id=sitio.id) %}
+      {% if has_permission('site_show') %}
+        {% set details_url = url_for('sites.detail', sitio_id=sitio.id) %}
+      {% endif %}
+       {% if has_permission('site_update') %}
+          {% set edit_url = url_for('sites.modify', site_id=sitio.id) %}
+         {% endif %}
       {% if has_permission('site_destroy') %}
         {% set delete_url = url_for('sites.delete', site_id=sitio.id) %}
       {% endif %}
@@ -76,12 +92,16 @@
     </td>
   </tr>
   {% else %}
-  <tr>
-    <td colspan="13" class="text-center text-gray-500 py-4">
+ <tr>
+  <td colspan="13" class="py-6">
+    <div class="flex justify-center items-center text-gray-500 text-sm text-center">
       No se encontraron resultados.
-    </td>
-  </tr>
+    </div>
+  </td>
+</tr>
+
   {% endfor %}
+  
 {% endblock %}
 
 {% block table_pagination %}
