@@ -16,20 +16,26 @@
       </a>
 
       <!-- Ver historial -->
+       {% if has_permission('site_history') %}
       <a href="{{ url_for('sites_history.index', sitio_id=sitio.id) }}"
          class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-white font-medium shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-1">
         📜 Historial
       </a>
-
+{% endif %} 
       <!-- Editar -->
+        {% if has_permission('site_update') %}
       <a href="{{ url_for('sites.modify', site_id=sitio.id) }}"
          class="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-white font-medium shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1">
         ✏️ Editar
       </a>
-
+{% endif %} 
       <!-- Eliminar -->
        {% if has_permission('site_destroy') %}
-        <button onclick="openDeleteModal('{{ url_for('sites.delete', site_id=sitio.id) }}')"
+        <button onclick="openDeleteModal({ 
+      url: '{{ url_for('sites.delete', site_id=sitio.id) }}', 
+      title: 'Eliminar sitio', 
+      message: '¿Estás seguro que quieres eliminar este sitio?' 
+})"
                 class="inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-white font-medium shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1">
           🗑️ Eliminar
         </button>
