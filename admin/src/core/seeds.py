@@ -1,18 +1,7 @@
 from datetime import datetime, timezone, date
 from time import sleep
-
-
 from src.core.services.sites import add_site
-
-from datetime import datetime, timezone, date
-from time import sleep
-
 from src.core.Entities.role import user_roles
-
-from src.core.services.sites import add_site
-
-from datetime import datetime, timezone, date
-from time import sleep
 
 from geoalchemy2 import WKTElement
 # db
@@ -291,6 +280,8 @@ def seeds_db():
     ]
 
     add_site(sites_data[0],1)
+    add_site(sites_data[1],1)
+    add_site(sites_data[2],1)
 
 
      # -------------------
