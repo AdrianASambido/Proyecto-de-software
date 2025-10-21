@@ -69,8 +69,17 @@ def seeds_db():
         {"name": "feature_flag_index", "description": "Listar feature flags", "module": "feature_flag", "action": "index"},
         {"name": "feature_flag_toggle", "description": "Activar/desactivar feature flags", "module": "feature_flag", "action": "toggle"},
     ]
-    
-    all_permissions = user_permissions + site_permissions + tag_permissions + feature_flag_permissions
+
+    # permisos para las reseñas
+    review_permissions = [
+        {"name": "review_index", "description": "Listar reseñas", "module": "review", "action": "index"},
+        {"name": "review_show", "description": "Ver detalle de reseña", "module": "review", "action": "show"},
+        {"name": "review_approve", "description": "Aprobar reseña", "module": "review", "action": "approve"},
+        {"name": "review_reject", "description": "Rechazar reseña", "module": "review", "action": "reject"},
+        {"name": "review_destroy", "description": "Eliminar reseña", "module": "review", "action": "destroy"},
+    ]
+
+    all_permissions = user_permissions + site_permissions + tag_permissions + feature_flag_permissions + review_permissions
     
     for perm_data in all_permissions:
         existing_perm = Permission.query.filter_by(name=perm_data["name"]).first()
@@ -121,8 +130,8 @@ def seeds_db():
     admin_role = Role.query.filter_by(name="Administrador").first()
     
     if editor_role and admin_role:
-        # Editor: permisos limitados (solo sitios y tags) sin eliminacion de sitios
-        editor_permissions = site_permissions + tag_permissions
+        # Editor: permisos limitados (solo sitios y tags) sin eliminacion de sitios, moderacion de resenias
+        editor_permissions = site_permissions + tag_permissions + review_permissions
         for perm_data in editor_permissions:
             perm = Permission.query.filter_by(name=perm_data["name"]).first()
             if perm and perm not in editor_role.permissions and (perm.name != "site_destroy") and (perm.name != "site_export"):
