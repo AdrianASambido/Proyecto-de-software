@@ -1,88 +1,128 @@
 {% extends "common/tables_base.html" %}
+{% from "common/filters_sidebar.html" import render_filters_sidebar, render_filter_button %}
+{% from "common/order_selector.html" import render_order_selector %}
 
 {% block table_title %}Lista de Usuarios{% endblock %}
 {% block add_url %}{{ url_for('users.add_user') }}{% endblock %}
 {% block add_label %}Agregar Usuario{% endblock %}
 
 {% block table_filters %}
-<form method="get" class="mb-3 flex flex-wrap items-center gap-2 text-sm">
-    <!-- Búsqueda -->
-    <input type="text" name="email" placeholder="Buscar email..." value="{{ request.args.get('email','') }}"
-        class="h-8 w-40 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200" />
-    <!-- Rol -->
-    <select name="rol" class="h-8 w-32 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200">
-        <option value="">Rol</option>
-        {% for role in roles %}
-            <option value="{{ role.id }}" {% if filtros.get('rol')|int == role.id %}selected{% endif %}>
-                {{ role.name }}
-            </option>
-        {% endfor %}
-    </select>
-    <!-- Activo-->
-    <select name="activo" class="h-8 w-24 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200">
-        <option value="">Activo</option>
-        <option value="1" {% if filtros.get('activo') == '1' %}selected{% endif %}>Sí</option>
-        <option value="0" {% if filtros.get('activo') == '0' %}selected{% endif %}>No</option>
-    </select>
+    {%set active_filters_count = (
+    (request.args.get('busqueda') or
+     request.args.get('activo') or
+     request.args.getlist('roles'))
+     and 1 or 0
+    )%}
 
-    <!-- Orden -->
-    <select name="orden" class="h-8 w-28 rounded border border-neutral-600 bg-neutral-900 px-2 text-neutral-200">
-        <option value="fecha_desc" {% if request.args.get('orden')=='fecha_desc' %}selected{% endif %}>Fecha ↓</option>
-        <option value="fecha_asc" {% if request.args.get('orden')=='fecha_asc' %}selected{% endif %}>Fecha ↑</option>
-    </select>
+    <div class="flex items-center gap-3">
+        <!-- Botón de filtros -->
+        {{ render_filter_button(active_filters_count, reset_url=url_for('users.index')) }}
 
-    <!-- Botones -->
-    <button type="submit" class="h-8 rounded bg-blue-600 px-3 text-white hover:bg-blue-500">Aplicar</button>
-    <a href="{{url_for('users.index')}}" class="h-8 rounded bg-blue-600 px-3 text-white hover:bg-blue-500">Limpiar</a>
-</form>
-{% endblock %}
-
-{% block table_headers %}
-<th class="px-3 py-2 text-left">Email</th>
-<th class="px-3 py-2 text-left">Nombre</th>
-<th class="px-3 py-2 text-left">Apellido|s|</th>
-<th class="px-3 py-2 text-left">Activo</th>
-<th class="px-3 py-2 text-left">Rol|es|</th>
-<th class="px-3 py-2 text-left">Acciones</th>
-{% endblock %}
-
-{% block table_rows %}
-    {% for user in items %}
-    <tr>
-        <td>{{ user.email }}</td>
-        <td>{{ user.nombre }}</td>
-        <td>{{ user.apellido }}</td>
-        <td>
-            {% if user.activo %}
-                <span class="text-green-500 font-semibold">Activo</span>
-            {% else %}
-                <span class="text-red-500 font-semibold">Inactivo</span>
-            {% endif %}
-        </td>
-        <td>
-            {% for role in user.roles %}
-                <span class="px-2 py-1 bg-blue-900 text-blue-300 rounded">{{ role.name }}</span>
-            {% else %}
-                <span class="text-neutral-400 italic">Sin rol</span>
-        {% endfor %}
-        </td>
-        <td class="text-right">
-    {% if user.id != current_user_id %}
-        {% set details_url = url_for('users.user_detail', user_id = user.id) %}
-        {% set edit_url = url_for('users.edit_user_admin', user_id=user.id) %}
-        {% set delete_url = url_for('users.delete_user', user_id=user.id) %}
-        {% include "common/actions.html" %} 
+        <!-- Selector de orden por fecha de creación-->
+        {% set order_options = [
+            {'value': 'fecha_creacion_desc', 'label': 'Fecha de creación (más recientes)'},
+            {'value': 'fecha_creacion_asc', 'label': 'Fecha de creación (más antiguos)'}
+        ] %}
+        {{ render_order_selector(order_options, order or '', url_for('users.index'), request.args.to_dict(flat=False)) }}
+    </div>
+    {% block results_counter %}
+    {% if items|length > 0 %}
+        {% set start = (pagination.page - 1) * pagination.per_page + 1 %}
+        {% set end = start + items|length - 1 %}
+        <p class="mb-2 text-sm text-gray-600">
+        Mostrando {{ start }}–{{ end }} de {{ pagination.total }} resultados
+        </p>
     {% endif %}
-</td>
-
-
-    </tr>
-    {% else %}
-    <tr>
-      <td colspan="13" class="text-center text-white-500 py-4">
-        No hay usuarios guardados.
-      </td>
-    </tr>
-    {% endfor %}
-    {% include "common/delete_modal.html" %}
+    {% endblock %}
 {% endblock %}
+
+{%block table_rows%}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for user in items %}
+        <div class="bg-white shadow-md rounded-lg p-4">
+            <h3 class="text-lg font-semibold mb-2">{{ user.nombre }} {{ user.apellido }}</h3>
+            <p class="text-sm text-gray-600 mb-1"><strong>Email:</strong> {{ user.email }}</p>
+            <p class="text-sm text-gray-600 mb-1">
+                <strong>Estado:</strong>
+                {% if user.activo %}
+                    <span class="text-green-500 font-semibold">Activo</span>
+                {% else %}
+                    <span class="text-red-500 font-semibold">Inactivo</span>
+                {% endif %}
+            </p>
+            <p class="text-sm text-gray-600 mb-2">
+                <strong>Rol|es|:</strong>
+                {% for role in user.roles %}
+                    <span class="px-2 py-1 bg-blue-900 text-blue-300 rounded">{{ role.name }}</span>
+                {% else %}
+                    <span class="text-neutral-400 italic">Sin rol</span>
+                {% endfor %}
+            </p>
+            <p class="text-sm text-gray-500 mb-4"><strong>Creado el:</strong> {{ user.created_at.strftime('%d/%m/%Y') }}</p>
+            <!-- Botones de acción de cada usuario (Detalle, editar, eliminar)-->
+            <div class="flex justify-end gap-2 mt-2">
+                <a href="{{ url_for('users.user_detail', user_id=user.id) }}"
+                    title="Ver detalles"
+                    class="flex items-center justify-center w-8 h-8 rounded bg-blue-500 text-white hover:bg-blue-600">
+                    <img src="{{ url_for('static', filename='icons/details.svg') }}" alt="Detalles" class="h-4 w-4 inline" />
+                </a>
+                <a href="{{ url_for('users.edit_user', user_id=user.id) }}"
+                    title="Editar usuario"
+                    class="flex items-center justify-center w-8 h-8 rounded bg-yellow-500 text-white hover:bg-yellow-600">
+                    <img src="{{ url_for('static', filename='icons/edit.svg') }}" alt="Editar" class="h-4 w-4 inline" />
+                </a>
+                <a href="{{ url_for('users.delete_user', user_id=user.id) }}"
+                    title="Eliminar usuario"
+                    class="flex items-center justify-center w-8 h-8 rounded bg-red-500 text-white hover:bg-red-600"
+                    onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
+                    <img src="{{ url_for('static', filename='icons/delete.svg') }}" alt="Eliminar" class="h-4 w-4 inline" />
+                </a>
+            </div>
+        </div>
+    {% else %}
+        <p class="text-center text-gray-500">No hay usuarios guardados.</p>
+    {% endfor %}
+{%endblock%}
+
+{%block table_pagination%}
+    {% if pagination %}
+        <div class="mt-6 flex items-center justify-center gap-2">
+        {% if pagination.has_prev %}
+            <a href="{{ url_for(request.endpoint, page=pagination.prev_num, **filtros) }}"
+             class="rounded-md bg-gray-300 px-3 py-1 text-gray-800 shadow hover:bg-gray-400">← Anterior</a>
+        {% endif %}
+    
+        {% for p in range(1, pagination.pages + 1) %}
+            {% if p == pagination.page %}
+            <span class="rounded-md bg-blue-500 px-3 py-1 text-white shadow">{{ p }}</span>
+            {% else %}
+            <a href="{{ url_for(request.endpoint, page=p, **filtros) }}"
+             class="rounded-md bg-gray-300 px-3 py-1 text-gray-800 shadow hover:bg-gray-400">{{ p }}</a>
+            {% endif %}
+        {% endfor %}
+            
+        {% if pagination.has_next %}
+            <a href="{{ url_for(request.endpoint, page=pagination.next_num, **filtros) }}"
+             class="rounded-md bg-gray-300 px-3 py-1 text-gray-800 shadow hover:bg-gray-400">Siguiente →</a>
+        {% endif %}
+        </div>
+    {% endif %}
+{%endblock%}
+
+{% block content %}
+    {{super()}}
+
+    {%set filters_config=[
+        {'id': 'busqueda', 'title': 'Buscar', 'type': 'text', 'name': 'busqueda'},
+        {'id': 'rol', 'title': 'Rol de Usuario', 'type': 'checkbox', 'name': 'rol_id', 'options': [
+            {'value': '1', 'label': 'Editor'},
+            {'value': '2', 'label': 'Administrador'}
+        ]},
+        {'id': 'activo', 'title': 'Activo/Inactivo', 'type': 'radio', 'name': 'activo', 'options': [
+            {'value': '1', 'label': 'Activo'},
+            {'value': '2', 'label': 'Inactivo'}
+        ]},
+    ]%}
+    {{ render_filters_sidebar(filters_config, url_for('users.index'), request.args.to_dict(flat=False)) }}
+    {%include "common/delete_modal.html"%}
+{%endblock%}

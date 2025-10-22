@@ -100,18 +100,20 @@ def delete_user(user_id):
 @permission_required("user_update")
 def edit_user_admin(user_id):
     usuario = board_users.get_user_by_id(user_id)
-    form = EditUserAdminForm(obj=usuario, original_email=usuario.email)
-    form.rol_id.data = [r.id for r in usuario.roles]
+    form = EditUserAdminForm(original_email=usuario.email, obj=usuario)
+
     if form.validate_on_submit():
-        nuevos_datos = form.data
-        
+        nuevos_datos = {k: v for k, v in form.data.items() if k not in ("csrf_token", "submit")}
         board_users.update_user_admin(user_id, nuevos_datos)
-        flash("Usuario editado exitosamente","success")
+        flash("Usuario editado exitosamente", "success")
         return redirect(url_for("users.index"))
     else:
+        # Pre-cargar los roles solo al renderizar la vista, no al enviar el form
+        form.rol_id.data = [r.id for r in usuario.roles]
         print(form.errors)
-    
-    return render_template("usuarios/editar_usuario_admin.html", user=usuario, form=form), 200
+
+    return render_template("usuarios/editar_usuario_admin.html", user=usuario, form=form)
+
 
 @bp.route("/detalle_usuario/<int:user_id>")
 @login_required
