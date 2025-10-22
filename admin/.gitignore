@@ -147,3 +147,16 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# Project maps
+admin/*.md
+
+.env
+
+# Documentos internos de mapeo y flujo
+admin/MAPA_PROYECTO_FEATURE_FLAGS.md
+admin/MAPA_PROYECTO_ROLES_PERMISOS.md
+admin/FLUJO_SOLICITUDES_ROLES.md
+
+# Apuntes y documentación educativa
+FLUJO_FEATURE_FLAGS_MANTENIMIENTO.md
