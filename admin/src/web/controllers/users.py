@@ -18,26 +18,31 @@ bp = Blueprint("users", __name__, url_prefix=("/usuarios"))
 @login_required
 @permission_required("user_index")
 def index():
-    """Muestra la lista de usuarios.
-    Renderiza la plantilla con la lista de usuarios.
-    """
+    """Muestra la lista de usuarios."""
     page = request.args.get("page", 1, type=int)
     per_page = 25
 
-    filtros = request.args.to_dict()
+    # Convertimos todos los parámetros, pero manejamos 'rol_id' por separado
+    filtros = request.args.to_dict(flat=True)
     filtros.pop("page", None)
     filtros.pop("per_page", None)
+
+    # Obtener lista de roles seleccionados (puede estar vacía)
     filtros["rol_id"] = request.args.getlist("rol_id[]")
 
-    current_user_id=session.get("user_id")
+    current_user_id = session.get("user_id")
+
     pagination = board_users.list_users(filtros).paginate(page=page, per_page=per_page)
     roles = Role.query.all()
-    return render_template("usuarios/tabla_usuarios.html",
-                           items=pagination.items,
-                           pagination=pagination,
-                           filtros=filtros,
-                           roles = roles,
-                           current_user_id=current_user_id), 200
+
+    return render_template(
+        "usuarios/tabla_usuarios.html",
+        items=pagination.items,
+        pagination=pagination,
+        filtros=filtros,
+        roles=roles,
+        current_user_id=current_user_id
+    ), 200
 
 
 @bp.route("/agregar_usuario", methods=["GET", "POST"])

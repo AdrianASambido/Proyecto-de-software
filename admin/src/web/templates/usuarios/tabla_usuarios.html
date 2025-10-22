@@ -20,8 +20,8 @@
 
         <!-- Selector de orden por fecha de creación-->
         {% set order_options = [
-            {'value': 'fecha_creacion_desc', 'label': 'Fecha de creación (más recientes)'},
-            {'value': 'fecha_creacion_asc', 'label': 'Fecha de creación (más antiguos)'}
+            {'value': 'fecha_desc', 'label': 'Fecha de creación (más recientes)'},
+            {'value': 'fecha_asc', 'label': 'Fecha de creación (más antiguos)'}
         ] %}
         {{ render_order_selector(order_options, order or '', url_for('users.index'), request.args.to_dict(flat=False)) }}
     </div>
@@ -113,14 +113,14 @@
     {{super()}}
 
     {%set filters_config=[
-        {'id': 'busqueda', 'title': 'Buscar', 'type': 'text', 'name': 'busqueda'},
-        {'id': 'rol', 'title': 'Rol de Usuario', 'type': 'checkbox', 'name': 'rol_id', 'options': [
+        {'id': 'busqueda', 'title': 'Buscar', 'type': 'text', 'name': 'email'},
+        {'id': 'rol', 'title': 'Rol de Usuario', 'type': 'checkbox', 'name': 'rol_id[]', 'options': [
             {'value': '1', 'label': 'Editor'},
             {'value': '2', 'label': 'Administrador'}
         ]},
         {'id': 'activo', 'title': 'Activo/Inactivo', 'type': 'radio', 'name': 'activo', 'options': [
             {'value': '1', 'label': 'Activo'},
-            {'value': '2', 'label': 'Inactivo'}
+            {'value': '0', 'label': 'Inactivo'}
         ]},
     ]%}
     {{ render_filters_sidebar(filters_config, url_for('users.index'), request.args.to_dict(flat=False)) }}

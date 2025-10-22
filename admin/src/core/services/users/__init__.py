@@ -39,10 +39,10 @@ def list_users(filtros: dict):
         elif activo == '0':
             query = query.filter(User.activo.is_(False))
 
-    orden = filtros.get("orden")
-    if orden == "fecha_asc":
+    order = filtros.get("orden")
+    if order == "fecha_asc":
         query = query.order_by(User.created_at.asc())
-    elif orden == "fecha_desc":
+    elif order == "fecha_desc":
         query = query.order_by(User.created_at.desc())
 
     return query
