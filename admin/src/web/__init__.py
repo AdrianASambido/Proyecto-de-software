@@ -16,12 +16,11 @@ from src.web.controllers.feature_flags import bp as feature_flags_bp
 from src.web.controllers.login import bp as login_bp
 from src.web.controllers.api import api_bp
 from src.web.controllers.sites_history import bp as sites_history_bp
-from src.web.controllers import errors as errors_module
 from flask_session import Session
 from src.core.auth import login_required
 from src.core.auth import has_permission,is_system_admin_user
 from src.core.services.feature_flags import is_admin_maintenance_mode,get_admin_maintenance_message
-
+from src.web.handlers import errors
 from datetime import timedelta
 
 sess=Session()
@@ -97,8 +96,8 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.register_blueprint(login_bp)
 
     # registrar handlers de errores
-    app.register_error_handler(404, errors_module.page_not_found)
-    app.register_error_handler(500, errors_module.internal_error)
+    app.register_error_handler(404, errors.not_found)
+    app.register_error_handler(500, errors.internal_error)
     
     
     #comandos para el CLI
