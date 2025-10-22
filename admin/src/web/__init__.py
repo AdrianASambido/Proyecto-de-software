@@ -16,6 +16,7 @@ from src.web.controllers.feature_flags import bp as feature_flags_bp
 from src.web.controllers.login import bp as login_bp
 from src.web.controllers.api import api_bp
 from src.web.controllers.sites_history import bp as sites_history_bp
+from src.web.controllers.reviews import bp as reviews_bp
 from flask_session import Session
 from src.core.auth import login_required
 from src.core.auth import has_permission,is_system_admin_user
@@ -115,6 +116,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.register_blueprint(sites_bp)
     app.register_blueprint(sites_history_bp)
     app.register_blueprint(tags_bp)
+    app.register_blueprint(reviews_bp)
     app.register_blueprint(api_bp)
     app.register_blueprint(feature_flags_bp)
     app.register_blueprint(login_bp)
