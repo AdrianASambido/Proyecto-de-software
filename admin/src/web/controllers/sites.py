@@ -70,6 +70,7 @@ def add_site():
     GET: muestra el formulario para crear un nuevo sitio histórico.
     POST: procesa el formulario y crea el sitio.
     
+    
     """
     siteForm = SiteForm()
 

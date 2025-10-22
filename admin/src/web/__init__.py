@@ -36,7 +36,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
    
 
     # Middleware para verificar flags de mantenimiento
-    @app.before_request
+    @app.before_request # se ejecuta antes de cada solicitud HTTP
     def check_maintenance_mode():
         # Rutas que siempre están disponibles (login y feature flags para system admin)
         exempt_routes = [
@@ -49,6 +49,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
         # Si es una ruta de administración y está en modo mantenimiento
         if (
             request.endpoint
+            # Bloquea sitios, etiquetas usuarios
             and (request.endpoint.startswith("sites") or request.endpoint.startswith("tags") or request.endpoint.startswith("users"))
             and is_admin_maintenance_mode() and not is_system_admin_user
         ):
@@ -61,7 +62,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
                         message=message,
                         title="Sistema en Mantenimiento",
                     ),
-                    503,
+                    503, # código HTTP de Service Unavailable
                 )
 
 

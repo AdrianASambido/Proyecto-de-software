@@ -15,7 +15,7 @@ bp = Blueprint("users", __name__, url_prefix=("/usuarios"))
 
 
 @bp.get("/lista_usuarios")
-@login_required
+@login_required # Decoradores En src/core/auth.py 
 @permission_required("user_index")
 def index():
     """Muestra la lista de usuarios.
@@ -29,7 +29,7 @@ def index():
     filtros.pop("per_page", None)
     current_user_id=session.get("user_id")
     pagination = board_users.list_users(filtros).paginate(page=page, per_page=per_page)
-    roles = Role.query.all()
+    roles = Role.query.all()# obtenemos todos los roles para el filtro
     return render_template("usuarios/tabla_usuarios.html",
                            items=pagination.items,
                            pagination=pagination,
@@ -94,6 +94,8 @@ def delete_user(user_id):
     board_users.delete_user(user_id)
     flash("Usuario eliminado exitosamente.", "success")
     return redirect(url_for("users.index"))
+
+
 
 @bp.route("editar_usuario_admin/<int:user_id>", methods=["GET", "POST"])
 @login_required

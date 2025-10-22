@@ -15,30 +15,30 @@ from flask import session
 bp = Blueprint("feature_flags", __name__, url_prefix="/admin/feature-flags")
 
 @bp.get("/")
-@login_required
-@system_admin_required
+@login_required        #verificamos que el usuario este logueado
+@system_admin_required #verificamos que el usuario sea System Admin
 def index():
     """
     Muestra la lista de feature flags
     """
-    flags = list_feature_flags()
+    flags = list_feature_flags() #obtenemos la lista de todos los feature flags de la BDD
     return render_template("administration/feature_flags.html", flags=flags), 200
 
 
-@bp.post("/toggle/<int:flag_id>")
+@bp.post("/toggle/<int:flag_id>") 
 @login_required
 @system_admin_required
 def toggle_flag(flag_id):
     """
     Cambia el estado de un feature flag
     """
-    data = request.get_json()
-    is_enabled = data.get("is_enabled", False)
+    data = request.get_json() # obtenemos los datos enviados en el cuerpo de la solicitud
+    is_enabled = data.get("is_enabled", False) # nuevo estado del flag
     maintenance_message = data.get("maintenance_message", "")
-    user = get_user_by_id(session.get("user_id"))
+    user = get_user_by_id(session.get("user_id")) # usuario que realiza el cambio
     modified_by = data.get("modified_by", user.nombre) 
 
-    success = update_feature_flag(
+    success = update_feature_flag( # actualizamos el flag en la BDD <--LLAMA AL SERVICIO
         flag_id=flag_id,
         is_enabled=is_enabled,
         maintenance_message=maintenance_message,
