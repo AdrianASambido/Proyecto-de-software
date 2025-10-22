@@ -58,49 +58,78 @@
 {% endblock %}
 
 {% block table_headers %}
-  <th class="px-3 py-2 text-left">Nombre</th>
-  <th class="px-3 py-2 text-left">Ciudad</th>
-  <th class="px-3 py-2 text-left">Provincia</th>
-  <th class="px-3 py-2 text-left">Descripción breve</th>
-  <th class="px-3 py-2 text-left">Estado de conservación</th>
-  <th class="px-3 py-2 text-left">Visible</th>
-  <th class="px-3 py-2 text-left">Fecha de registro</th>
-  <th class="px-3 py-2 text-left">Acciones</th>
+
 {% endblock %}
 
 {% block table_rows %}
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
   {% for sitio in items %}
-  <tr class="hover:bg-gray-50">
-    <td>{{ sitio.nombre }}</td>
-    <td>{{ sitio.ciudad }}</td>
-    <td>{{ sitio.provincia }}</td>
-    <td>{{ sitio.descripcion_breve }}</td>
-    <td>{{ sitio.estado_conservacion }}</td>
-    <td>{{ 'Sí' if sitio.visible else 'No' }}</td>
-    <td>{{ sitio.created_at.strftime("%d/%m/%Y %H:%M") }}</td>
-    <td class="flex gap-2">
-      {% if has_permission('site_show') %}
-        {% set details_url = url_for('sites.detail', sitio_id=sitio.id) %}
-      {% endif %}
-       {% if has_permission('site_update') %}
-          {% set edit_url = url_for('sites.modify', site_id=sitio.id) %}
-         {% endif %}
-      {% if has_permission('site_destroy') %}
-        {% set delete_url = url_for('sites.delete', site_id=sitio.id) %}
-      {% endif %}
-      {% include "common/actions.html" %}
-    </td>
-  </tr>
+    <div class="border rounded-lg shadow-sm bg-white p-4 flex flex-col justify-between hover:shadow-md transition">
+      <!-- Contenido principal -->
+      <div class="flex gap-4 items-start">
+        <!-- Imagen del sitio -->
+        <div class="w-24 h-24 flex-shrink-0 bg-gray-100 border rounded overflow-hidden flex items-center justify-center">
+          {% if sitio.imagen_url %}
+            <img src="{{ sitio.imagen_url }}" alt="{{ sitio.nombre }}" class="w-full h-full object-cover">
+          {% else %}
+            <span class="text-gray-500 text-xs italic">Sin imagen</span>
+          {% endif %}
+        </div>
+
+        <!-- Información -->
+        <div class="flex-1">
+          <p class="font-semibold text-lg text-gray-800">{{ sitio.nombre }}</p>
+          <p class="text-sm text-gray-600"><span class="font-medium">Ciudad:</span> {{ sitio.ciudad }}</p>
+          <p class="text-sm text-gray-600"><span class="font-medium">Provincia:</span> {{ sitio.provincia }}</p>
+          <p class="text-sm text-gray-600"><span class="font-medium">Estado:</span> {{ sitio.estado_conservacion }}</p>
+          <p class="text-sm text-gray-600"><span class="font-medium">Visible:</span> {{ 'Sí' if sitio.visible else 'No' }}</p>
+          <p class="text-xs text-gray-500 mt-1"><span class="font-medium">Registrado:</span> {{ sitio.created_at.strftime("%d/%m/%Y %H:%M") }}</p>
+        </div>
+      </div>
+
+      <!-- Acciones dentro de la tarjeta -->
+      <div class="flex justify-end gap-2 mt-4">
+        {% if has_permission('site_show') %}
+         <a href="{{ url_for('sites.detail', sitio_id=sitio.id) }}"
+            title="Ver detalles"
+            class="flex items-center justify-center w-8 h-8 rounded bg-blue-500 text-white hover:bg-blue-600">
+            <img src="{{ url_for('static', filename='icons/details.svg') }}" alt="Detalles" class="h-4 w-4 inline" />
+          </a>
+        {% endif %}
+
+        {% if has_permission('site_update') %}
+         <a href="{{ url_for('sites.modify', site_id=sitio.id) }}"
+            title="Editar "
+            class="flex items-center justify-center w-8 h-8 rounded bg-blue-500 text-white hover:bg-blue-600">
+            <img src="{{ url_for('static', filename='icons/edit.svg') }}" alt="Modificar" class="h-4 w-4 inline" />
+          </a>
+        {% endif %}
+
+         {% if has_permission('site_destroy') %}
+              {% set delete_url = url_for('sites.delete', site_id=sitio.id) %}
+    <button type="button"
+            onclick='openDeleteModal({{ {
+              "url": delete_url,
+              "title": "¿Eliminar sitio?",
+              "message": "¿Estás seguro que deseas eliminar este sitio? Esta acción no se puede deshacer."
+            } | tojson }})'
+            title="Eliminar"
+            class="flex items-center justify-center w-8 h-8 rounded bg-red-500 text-white hover:bg-red-600">
+      <img src="{{ url_for('static', filename='icons/delete.svg') }}" alt="Eliminar" class="h-4 w-4 inline" />
+    </button>
+          {% endif %}
+
+       
+       
+      </div>
+    </div>
   {% else %}
- <tr>
-  <td colspan="13" class="py-6">
-    <div class="flex justify-center items-center text-gray-500 text-sm text-center">
+    <div class="col-span-full text-center text-gray-500 text-sm py-10">
       No se encontraron resultados.
     </div>
-  </td>
-</tr>
-
   {% endfor %}
+</div>
+
   
 {% endblock %}
 
@@ -127,6 +156,7 @@
       {% endif %}
     </div>
   {% endif %}
+  
 {% endblock %}
 
 {% block content %}
@@ -149,4 +179,5 @@
   {{ render_filters_sidebar(filters_config, url_for('sites.index'), request.args.to_dict(flat=False)) }}
 
   {% include "common/delete_modal.html" %}
+  
 {% endblock %}

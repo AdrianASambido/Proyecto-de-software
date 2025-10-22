@@ -1,6 +1,5 @@
 """
 Este controlador maneja las rutas relacionadas con las operaciones de sitios históricos.
-Este controlador maneja las rutas relacionadas con las operaciones de sitios históricos.
 """
 
 from flask import Blueprint
@@ -58,6 +57,7 @@ def index():
         pagination=pagination,
         filtros=filtros,
         tags=tags,
+        order=request.args.get("order", None)
     )
 
 
@@ -187,7 +187,7 @@ def export():
     csv_data = board_sites.export_sites_csv(filtros if len(filtros.keys()) > 0 else None)
     if csv_data is None:
         flash("No hay datos para exportar", "error")
-        return redirect(url_for("sites.index"))
+        return redirect(url_for("sites.index",  **(filtros or {})))
     else:
         # Asegúrate de que csv_data sea una cadena (str) antes de codificar
         if not isinstance(csv_data, str):
