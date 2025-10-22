@@ -28,6 +28,8 @@ from src.core.Entities.site_history import HistoryAction
 from src.core.Entities.role import Role
 from src.core.Entities.permission import Permission
 from src.core.Entities.user import User
+from src.core.Entities.review import Review, ReviewStatus
+from src.core.Entities.site import Site
 # para agregar datos de prueba a la base de datos se usa "flask seeddb"
 def seeds_db():
     print("\n\n==== SEEDING BASE DE DATOS ====")
@@ -346,5 +348,83 @@ def seeds_db():
 
     db.session.commit()
     print("✓ Todas las etiquetas guardadas en la base de datos")
+
+    # -------------------
+    # Crear reseñas de ejemplo
+    # -------------------
+    print("\n==== CREANDO RESEÑAS DE EJEMPLO ====")
+
+    # Obtener el sitio Machu Picchu y usuarios
+    machu_picchu = Site.query.filter_by(nombre="Machu Picchu").first()
+    if machu_picchu and u1 and u2 and u3:
+        reviews_data = [
+            {
+                "site_id": machu_picchu.id,
+                "user_id": u1.id,
+                "calificacion": 5,
+                "contenido": "Excelente sitio histórico, muy bien conservado y con vistas impresionantes.",
+                "estado": ReviewStatus.APROBADA,
+                "motivo_rechazo": None,
+            },
+            {
+                "site_id": machu_picchu.id,
+                "user_id": u2.id,
+                "calificacion": 4,
+                "contenido": "Muy buena experiencia, aunque hay que mejorar la señalización en algunos sectores.",
+                "estado": ReviewStatus.APROBADA,
+                "motivo_rechazo": None,
+            },
+            {
+                "site_id": machu_picchu.id,
+                "user_id": u3.id,
+                "calificacion": 3,
+                "contenido": "Interesante pero esperaba más información histórica en el lugar.",
+                "estado": ReviewStatus.PENDIENTE,
+                "motivo_rechazo": None,
+            },
+            {
+                "site_id": machu_picchu.id,
+                "user_id": u1.id,
+                "calificacion": 1,
+                "contenido": "Esto es spam y contenido inapropiado.",
+                "estado": ReviewStatus.RECHAZADA,
+                "motivo_rechazo": "Contenido inapropiado y no relacionado con el sitio histórico",
+            },
+            {
+                "site_id": machu_picchu.id,
+                "user_id": u2.id,
+                "calificacion": 5,
+                "contenido": "¡Increíble! Una maravilla del mundo que todos deberían visitar.",
+                "estado": ReviewStatus.APROBADA,
+                "motivo_rechazo": None,
+            },
+            {
+                "site_id": machu_picchu.id,
+                "user_id": u3.id,
+                "calificacion": 4,
+                "contenido": "Muy recomendable, especialmente si se visita temprano en la mañana.",
+                "estado": ReviewStatus.PENDIENTE,
+                "motivo_rechazo": None,
+            },
+        ]
+
+        for review_data in reviews_data:
+            existing_review = Review.query.filter_by(
+                site_id=review_data["site_id"],
+                user_id=review_data["user_id"],
+                contenido=review_data["contenido"]
+            ).first()
+
+            if not existing_review:
+                review = Review(**review_data)
+                db.session.add(review)
+                print(f"✓ Reseña creada: {review_data['calificacion']} estrellas - Estado: {review_data['estado'].value}")
+            else:
+                print(f"⚠ Reseña ya existe para usuario {review_data['user_id']}")
+
+        db.session.commit()
+        print("✓ Todas las reseñas guardadas en la base de datos")
+    else:
+        print("⚠ No se pudieron crear reseñas: falta el sitio Machu Picchu o usuarios")
 
     print(f"\n==== SEEDING LISTO ====\n\n")
