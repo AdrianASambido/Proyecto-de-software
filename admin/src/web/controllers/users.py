@@ -27,6 +27,8 @@ def index():
     filtros = request.args.to_dict()
     filtros.pop("page", None)
     filtros.pop("per_page", None)
+    filtros["rol_id"] = request.args.getlist("rol_id[]")
+
     current_user_id=session.get("user_id")
     pagination = board_users.list_users(filtros).paginate(page=page, per_page=per_page)
     roles = Role.query.all()

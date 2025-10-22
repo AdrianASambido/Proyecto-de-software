@@ -15,25 +15,20 @@ def list_users():
     return users
 
 def list_users(filtros: dict):
-    """
-    Retorna una lista de usuarios aplicando filtros dinámicos, salvo los eliminados
-    Filtros soportados:
-      - email (texto parcial)
-      - rol (selector)
-      - activo (checkbox)
-      - fecha de creación (rango de fechas)
-    """
+    """Retorna una lista de usuarios aplicando filtros dinámicos, salvo los eliminados."""
     query = User.query.filter_by(eliminado=False)
 
     email = filtros.get("email")
     if email:
         query = query.filter(User.email.ilike(f"%{email}%"))
 
-    rol = filtros.get("rol")
-    if rol:
+    # ---- Filtro por roles múltiples ----
+    roles_ids = filtros.get("rol_id", [])
+    if roles_ids:
         try:
-            rol_id = int(rol)
-            query = query.join(User.roles).filter(Role.id == rol_id)
+            roles_ids = [int(r) for r in roles_ids if r.isdigit()]
+            if roles_ids:
+                query = query.join(User.roles).filter(Role.id.in_(roles_ids))
         except ValueError:
             pass
 
@@ -51,6 +46,7 @@ def list_users(filtros: dict):
         query = query.order_by(User.created_at.desc())
 
     return query
+
 
 def get_user_by_email(email):
     """
