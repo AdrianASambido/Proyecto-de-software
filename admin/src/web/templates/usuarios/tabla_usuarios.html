@@ -15,10 +15,8 @@
     )%}
 
     <div class="flex items-center gap-3">
-        <!-- Botón de filtros -->
         {{ render_filter_button(active_filters_count, reset_url=url_for('users.index')) }}
 
-        <!-- Selector de orden por fecha de creación-->
         {% set order_options = [
             {'value': 'fecha_desc', 'label': 'Fecha de creación (más recientes)'},
             {'value': 'fecha_asc', 'label': 'Fecha de creación (más antiguos)'}
@@ -66,7 +64,7 @@
                     class="flex items-center justify-center w-8 h-8 rounded bg-blue-500 text-white hover:bg-blue-600">
                     <img src="{{ url_for('static', filename='icons/details.svg') }}" alt="Detalles" class="h-4 w-4 inline" />
                 </a>
-                <a href="{{ url_for('users.edit_user', user_id=user.id) }}"
+                <a href="{{ url_for('users.edit_user_admin', user_id=user.id) }}"
                     title="Editar usuario"
                     class="flex items-center justify-center w-8 h-8 rounded bg-yellow-500 text-white hover:bg-yellow-600">
                     <img src="{{ url_for('static', filename='icons/edit.svg') }}" alt="Editar" class="h-4 w-4 inline" />
