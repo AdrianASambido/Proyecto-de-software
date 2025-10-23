@@ -15,25 +15,20 @@ def list_users():
     return users
 
 def list_users(filtros: dict):
-    """
-    Retorna una lista de usuarios aplicando filtros dinámicos, salvo los eliminados
-    Filtros soportados:
-      - email (texto parcial)
-      - rol (selector)
-      - activo (checkbox)
-      - fecha de creación (rango de fechas)
-    """
-    query = User.query.filter_by(eliminado=False) # Excluye usuarios eliminados
+    """Retorna una lista de usuarios aplicando filtros dinámicos, salvo los eliminados."""
+    query = User.query.filter_by(eliminado=False)
 
     email = filtros.get("email") # filtro por email (texto parcial)
     if email:
         query = query.filter(User.email.ilike(f"%{email}%"))
 
-    rol = filtros.get("rol")# filtro por rol (selector)
-    if rol:
+    # ---- Filtro por roles múltiples ----
+    roles_ids = filtros.get("rol_id", [])
+    if roles_ids:
         try:
-            rol_id = int(rol)
-            query = query.join(User.roles).filter(Role.id == rol_id)
+            roles_ids = [int(r) for r in roles_ids if r.isdigit()]
+            if roles_ids:
+                query = query.join(User.roles).filter(Role.id.in_(roles_ids))
         except ValueError:
             pass
 
@@ -44,13 +39,14 @@ def list_users(filtros: dict):
         elif activo == '0':
             query = query.filter(User.activo.is_(False))
 
-    orden = filtros.get("orden")# filtro por orden (fecha creación)
-    if orden == "fecha_asc":
+    order = filtros.get("orden")
+    if order == "fecha_asc":
         query = query.order_by(User.created_at.asc())
-    elif orden == "fecha_desc":
+    elif order == "fecha_desc":
         query = query.order_by(User.created_at.desc())
 
-    return query#retorna query con los filtros aplicados para paginación
+    return query
+
 
 def get_user_by_email(email):
     """
