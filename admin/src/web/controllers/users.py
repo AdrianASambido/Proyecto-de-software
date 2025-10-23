@@ -41,7 +41,8 @@ def index():
         pagination=pagination,
         filtros=filtros,
         roles=roles,
-        current_user_id=current_user_id
+        current_user_id=current_user_id,
+        order=request.args.get("order", None)
     ), 200
 
 
