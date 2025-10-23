@@ -20,7 +20,7 @@ from flask_session import Session
 from src.core.auth import login_required
 from src.core.auth import has_permission,is_system_admin_user
 from src.core.services.feature_flags import is_admin_maintenance_mode,get_admin_maintenance_message
-
+from src.web.handlers import errors
 from datetime import timedelta
 
 sess=Session()
@@ -36,7 +36,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
    
 
     # Middleware para verificar flags de mantenimiento
-    @app.before_request
+    @app.before_request # se ejecuta antes de cada solicitud HTTP
     def check_maintenance_mode():
         # Rutas que siempre están disponibles (login y feature flags para system admin)
         exempt_routes = [
@@ -49,6 +49,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
         # Si es una ruta de administración y está en modo mantenimiento
         if (
             request.endpoint
+            # Bloquea sitios, etiquetas usuarios
             and (request.endpoint.startswith("sites") or request.endpoint.startswith("tags") or request.endpoint.startswith("users"))
             and is_admin_maintenance_mode() and not is_system_admin_user
         ):
@@ -61,44 +62,20 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
                         message=message,
                         title="Sistema en Mantenimiento",
                     ),
-                    503,
+                    503, # código HTTP de Service Unavailable
                 )
 
-     
 
     @app.route("/")
     def login():
-       
         return redirect(url_for("login.login"))
-    
-
-
     
     @app.route("/home")
     @login_required
     def home():
         return render_template("home.html"), 200
 
-    @app.errorhandler(401)
-    def unauthorizedError(error):
-        return render_template("errores/401.html"), 401
 
-    @app.errorhandler(404)
-    def page_not_found(error):
-        return render_template("errores/404.html"), 404
-
-    @app.errorhandler(500)
-    def internalError(error):
-        return render_template("errores/500.html"), 500
-
-    @app.route("/error-401")
-    def throw_401_error_for_test():
-        abort(401)
-
-    @app.route("/error-500")
-    def throw_500_error_for_test():
-        abort(500)
-        return render_template("throw_500_error_for_test.html")
     # helpers para jinja
     app.jinja_env.globals["has_permission"] = has_permission
     app.jinja_env.globals["is_system_admin_user"] = is_system_admin_user  
@@ -118,6 +95,11 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.register_blueprint(api_bp)
     app.register_blueprint(feature_flags_bp)
     app.register_blueprint(login_bp)
+
+    # registrar handlers de errores
+    app.register_error_handler(404, errors.not_found)
+    app.register_error_handler(500, errors.internal_error)
+    
     
     #comandos para el CLI
     @app.cli.command(name="resetdb")

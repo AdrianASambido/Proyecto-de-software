@@ -1,13 +1,18 @@
-<script setup></script>
+<script setup>
+// Importo los componentes desde su nueva ubicación
+// preguntar si esto está bien ????
+// acá van los import....
+import HeaderBarraBusqueda from './components/pantalla_inicial//headerBarraBusqueda.vue';
+import CarruselImagenes from './components/pantalla_inicial/carruselImagenes.vue';
+
+</script>
 
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100">
-    <h1 class="text-4xl font-bold text-blue-600">¡Hola Tailwind + Vue!</h1>
-    <button class="mt-4 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded">
-      Click acá
-    </button>
-  </div>
+  <HeaderBarraBusqueda />
+  <!-- Esto está bien ubicado -->
+  <main>
+    <CarruselImagenes /> 
+    <router-view></router-view><!-- renderiza la página constantemente -->
+  </main> 
 </template>
-
-
 <style scoped></style>

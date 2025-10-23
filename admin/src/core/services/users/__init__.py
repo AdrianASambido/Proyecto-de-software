@@ -18,7 +18,7 @@ def list_users(filtros: dict):
     """Retorna una lista de usuarios aplicando filtros dinámicos, salvo los eliminados."""
     query = User.query.filter_by(eliminado=False)
 
-    email = filtros.get("email")
+    email = filtros.get("email") # filtro por email (texto parcial)
     if email:
         query = query.filter(User.email.ilike(f"%{email}%"))
 
@@ -32,7 +32,7 @@ def list_users(filtros: dict):
         except ValueError:
             pass
 
-    activo = filtros.get("activo")
+    activo = filtros.get("activo")# filtro por estado (activo)
     if activo:
         if activo == '1':
             query = query.filter(User.activo.is_(True))

@@ -15,7 +15,7 @@ bp = Blueprint("users", __name__, url_prefix=("/usuarios"))
 
 
 @bp.get("/lista_usuarios")
-@login_required
+@login_required # Decoradores En src/core/auth.py 
 @permission_required("user_index")
 def index():
     """Muestra la lista de usuarios."""
@@ -101,6 +101,8 @@ def delete_user(user_id):
     board_users.delete_user(user_id)
     flash("Usuario eliminado exitosamente.", "success")
     return redirect(url_for("users.index"))
+
+
 
 @bp.route("editar_usuario_admin/<int:user_id>", methods=["GET", "POST"])
 @login_required
