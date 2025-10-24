@@ -2,16 +2,21 @@ from minio import Minio
 
 class Storage:
     def __init__(self, app=None):
-        self._cliente = None
+        self._client = None
 
         if app is not None:
-            self.__init__app(app)
+            self.init_app(app)
 
     def init_app(self, app):
-        self._cliente = Minio(
-            #acá 
-        app.Config["MINIO_SERVER"],
-        SECRET_KEY = app.config["MINIO_access_key"],
-        
-
+        self._client = Minio(
+            app.config["MINIO_SERVER"],
+            access_key=app.config["MINIO_ACCESS_KEY"],
+            secret_key=app.config["MINIO_SECRET_KEY"],
+            secure=app.config.get("MINIO_SECURE", False),
         )
+
+        app.storage = self._client
+
+        return app
+    
+storage = Storage()
