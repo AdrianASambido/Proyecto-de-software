@@ -1,5 +1,6 @@
 from flask import Flask, render_template, abort, redirect, url_for, request
 from src.web.config import config
+from src.web.storage import storage
 from src.core import database, seeds
 from src.core.services.feature_flags import (
     is_admin_maintenance_mode,
@@ -33,7 +34,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     database.init_app(app)
     database.config_db(app)
     sess.init_app(app)
-   
+    storage.init_app(app)
 
     # Middleware para verificar flags de mantenimiento
     @app.before_request # se ejecuta antes de cada solicitud HTTP
