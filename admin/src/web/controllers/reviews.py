@@ -42,6 +42,19 @@ def index():
     )
 
 
+@bp.get("/<int:review_id>")
+@permission_required("review_show")
+@login_required
+def show(review_id):
+    """Muestra el detalle de una reseña."""
+    review = svc_get_review(review_id)
+    if not review:
+        flash("Reseña no encontrada.", "error")
+        return redirect(url_for("reviews.index"))
+
+    return render_template("reviews/detail.html", review=review)
+
+
 @bp.post("/<int:review_id>/aprobar")
 @permission_required("review_approve")
 @login_required
