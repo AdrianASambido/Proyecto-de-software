@@ -8,6 +8,7 @@ from src.core.services.feature_flags import (
     is_portal_maintenance_mode,
     get_portal_maintenance_message,
 )
+from flask_cors import CORS
 
 # ACA controladores
 from src.web.controllers.users import bp as users_bp
@@ -35,6 +36,8 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     database.config_db(app)
     sess.init_app(app)
     storage.init_app(app)
+    CORS(app,resources=r"/api/*")
+
 
     # Middleware para verificar flags de mantenimiento
     @app.before_request # se ejecuta antes de cada solicitud HTTP
