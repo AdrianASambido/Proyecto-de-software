@@ -19,6 +19,9 @@ class ProductionConfig(Config):
     MINIO_SECURE = True
     MINIO_BUCKET = "grupo01"
 
+    CORS_ORIGINS=[
+        "https://grupo01.proyecto2025.linti.unlp.edu.ar/"
+    ]
     DB_USER = os.getenv("DATABASE_USERNAME")
     DB_PASSWORD = os.getenv("DATABASE_PASSWORD")
     DB_HOST = os.getenv("DATABASE_HOST")
@@ -52,6 +55,9 @@ class DevelopmentConfig(Config):
     MINIO_SECURE = False
     MINIO_BUCKET = "grupo01"
 
+    CORS_ORIGINS=[
+        "*"
+    ]
     DB_USER = os.getenv("GRUPO01_DATABASE_USERNAME", "postgres")
     DB_PASSWORD = os.getenv("GRUPO01_DATABASE_PASSWORD", "Sacsayhuaman03")
     DB_HOST = os.getenv("GRUPO01_DATABASE_HOST", "localhost")

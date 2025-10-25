@@ -1,6 +1,12 @@
 from src.core.database import db
 from datetime import datetime, timezone
 
+users_favorites = db.Table(
+    'users_favorites',
+    db.Column('user_id', db.Integer, db.ForeignKey('users.id'), primary_key=True),
+    db.Column('site_id', db.Integer, db.ForeignKey('sites.id'), primary_key=True)
+)
+
 class User(db.Model):
     """Modelo que representa un usuario en la base de datos"""
 

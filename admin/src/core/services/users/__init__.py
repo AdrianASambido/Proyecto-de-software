@@ -217,3 +217,16 @@ def get_blocked_users():
     Obtiene todos los usuarios bloqueados.
     """
     return User.query.filter_by(bloqueado=True).all()
+
+
+def add_favorite_site(user_id, site_id):
+    """
+    Agrega un sitio a la lista de favoritos del usuario.
+    """
+    user = get_user_by_id(user_id)
+    site = Site.query.get(site_id)
+    if user and site:
+        user.favorites.append(site)
+        db.session.commit()
+        return True
+    return False
