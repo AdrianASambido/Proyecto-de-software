@@ -1,7 +1,7 @@
 <template>
   <header class="header-container">
     <div class="header-content">
-      <h1 class="logo">Mi App Vue</h1>
+      <h1 class="logo">Portal Histórico</h1>
       <div class="buscador-rapido">
         <input type="text" placeholder="Buscar..." class="input-busqueda">
         <button class="btn-busqueda">🔍</button>

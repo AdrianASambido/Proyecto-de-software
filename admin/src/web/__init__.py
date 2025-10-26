@@ -28,16 +28,16 @@ from datetime import timedelta
 sess=Session()
 
 def create_app(env="development", static_folder="../../static"):  # ../../static
-
     app = Flask(__name__, static_folder=static_folder)
     app.config.from_object(config[env])
     app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=1)
+    #initialize database, 
     database.init_app(app)
     database.config_db(app)
     sess.init_app(app)
     storage.init_app(app)
     CORS(app,resources=r"/api/*")
-
+    
 
     # Middleware para verificar flags de mantenimiento
     @app.before_request # se ejecuta antes de cada solicitud HTTP
