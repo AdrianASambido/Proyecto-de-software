@@ -26,11 +26,9 @@
 </template>
 
 <script setup>
-// Lógica JS si es necesaria (e.g., para cargar los datos de la imagen desde una API)
+// Lógica para cargar los datos de la imagen desde una API
 </script>
 
 <style scoped>
-
-/*src="https://via.placeholder.com/600x400/003366/FFFFFF?text=Monumento+San+Martin" */
 
 </style>
