@@ -6,6 +6,7 @@ import HeroPrincipal from './components/pantalla_inicial/heroPrincipal.vue';
 import GaleriaTarjetasMonumentos from './components/pantalla_inicial/galeriaTarjetasMonumentos.vue';
 import CarruselFavoritos from './components/pantalla_inicial/carruselFavoritos.vue';
 import CarruselRecientementeAgregados from './components/pantalla_inicial/carruselRecientementeAgregados.vue';
+import Footer from './components/pantalla_inicial/Footer.vue';
 
 
 </script>
@@ -26,5 +27,6 @@ import CarruselRecientementeAgregados from './components/pantalla_inicial/carrus
     
     <router-view></router-view><!-- renderiza la página constantemente -->
   </main> 
+  <Footer />
 </template>
 <style scoped></style>
