@@ -13,8 +13,10 @@ def get_sites():
     
     if "tags" in filtros:
         filtros["tags"] = filtros["tags"].split(",")
+
+    include_cover = filtros.pop("include_cover", "false").lower() in ("true", "1", "yes")
     
-    sitios_pag = list_sites(filtros, page=page, per_page=per_page)
+    sitios_pag = list_sites(filtros, page=page, per_page=per_page,include_cover=include_cover)
 
     schema = SiteSchema(many=True)
     data = schema.dump(sitios_pag.items)
