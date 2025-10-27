@@ -15,18 +15,43 @@ from sqlalchemy import desc, asc,func
 from src.core.services.tags import get_tag_by_id
 from src.core.Entities.tag import Tag
 from sqlalchemy.orm import joinedload
-
+from src.core.Entities.image import Image
+from sqlalchemy.orm import aliased
 import csv
 from io import StringIO
 
-def list_sites(filtros: dict, page: int = 1, per_page: int = 25):
+def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=False):
     """
     Retorna un objeto de paginación con los sitios históricos aplicando filtros y orden.
     """
     query = filter_sites(filtros)
-    query=geoespatial_search(query,filtros)
+    query = geoespatial_search(query, filtros)
     query = order_sites(query, filtros)
+
+    if include_cover:
+        Cover = aliased(Image)
+        subquery = (
+            db.session.query(Cover.site_id, Cover.url)
+            .filter(Cover.is_cover == True)
+            .subquery()
+        )
+
+        query = query.outerjoin(subquery, Site.id == subquery.c.site_id)
+        pagination = query.add_columns(subquery.c.url.label("cover_url")).paginate(
+            page=page, per_page=per_page, error_out=False
+        )
+
+        results = []
+        for site, cover_url in pagination.items:
+         
+            site._cover_url = cover_url  
+            results.append(site)
+
+        pagination.items = results
+        return pagination
+
     return query.paginate(page=page, per_page=per_page, error_out=False)
+
 
 
 def geoespatial_search(query,filtros):
@@ -271,6 +296,7 @@ def add_site(site_data,user_id):
         categoria=site_data.get("categoria"),
         estado_conservacion=site_data.get("estado_conservacion"),
         visible=site_data.get("visible",False),
+        portada=site_data.get("portada"),
     )
 
     tags_data = site_data.get("tags", [])

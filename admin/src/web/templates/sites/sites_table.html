@@ -69,8 +69,8 @@
       <div class="flex gap-4 items-start">
         <!-- Imagen del sitio -->
         <div class="w-24 h-24 flex-shrink-0 bg-gray-100 border rounded overflow-hidden flex items-center justify-center">
-          {% if sitio.imagen_url %}
-            <img src="{{ sitio.imagen_url }}" alt="{{ sitio.nombre }}" class="w-full h-full object-cover">
+          {% if sitio.cover_url %}
+            <img src="{{ sitio.cover_url }}" alt="{{ sitio.nombre }}" class="w-full h-full object-cover">
           {% else %}
             <span class="text-gray-500 text-xs italic">Sin imagen</span>
           {% endif %}
