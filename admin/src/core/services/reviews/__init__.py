@@ -2,6 +2,7 @@
 Este módulo representa las operaciones relacionadas con las reseñas de sitios históricos.
 """
 
+from math import isfinite
 from src.core.database import db
 from src.core.Entities.review import Review, ReviewStatus
 from src.core.Entities.site import Site
@@ -148,3 +149,46 @@ def delete_review(review_id: int):
     db.session.delete(review)
     db.session.commit()
     return True
+
+
+def create_review(site_id: int, user_id: int, calificacion: int, contenido: str):
+    """
+    Función para crear una reseña asociada a un sitio y un usuario.
+    """
+    if not isfinite(calificacion) or not calificacion.is_integer() or calificacion < 1 or calificacion > 5:
+        raise ValueError("La calificación debe ser un número entre 1 y 5")
+
+    if not contenido or len(contenido.strip()) < 10:
+        raise ValueError("El contenido debe tener al menos 10 caracteres")
+
+    site = Site.query.get(site_id)
+    if not site or site.eliminated_at is not None:
+        raise ValueError("El sitio no existe o ha sido eliminado")
+
+    user = User.query.get(user_id)
+    if not user:
+        raise ValueError("El usuario no existe")
+
+    existing_review = Review.query.filter_by(site_id=site_id, user_id=user_id).first()
+    if existing_review:
+        raise ValueError("El usuario ya tiene una reseña para este sitio")
+
+    review = Review(
+        site_id=site_id,
+        user_id=user_id,
+        calificacion=calificacion,
+        contenido=contenido.strip(),
+        estado=ReviewStatus.PENDIENTE
+    )
+
+    db.session.add(review)
+    db.session.commit()
+    return review
+
+
+def get_review_by_site(site_id: int, review_id: int):
+    """
+    Obtiene una reseña específica verificando que pertenezca al sitio indicado.
+    """
+    review = Review.query.filter_by(id=review_id, site_id=site_id).first()
+    return review
