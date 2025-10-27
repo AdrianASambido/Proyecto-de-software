@@ -6,8 +6,6 @@ from src.core.Entities.tag import site_tags
 from src.core.Entities.image import Image
 
 
-
-
 class Site(db.Model):
     """
     Modelo que representa un sitio historico en la base de datos
@@ -25,7 +23,7 @@ class Site(db.Model):
     punto = db.Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
     categoria = db.Column(db.String(50), nullable=False)
     estado_conservacion = db.Column(db.String(50), nullable=False)
-  
+    portada = db.Column(db.String(255), nullable=True)
 
     created_at = db.Column(
         db.DateTime,

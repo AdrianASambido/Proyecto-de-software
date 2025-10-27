@@ -296,6 +296,7 @@ def add_site(site_data,user_id):
         categoria=site_data.get("categoria"),
         estado_conservacion=site_data.get("estado_conservacion"),
         visible=site_data.get("visible",False),
+        portada=site_data.get("portada"),
     )
 
     tags_data = site_data.get("tags", [])
