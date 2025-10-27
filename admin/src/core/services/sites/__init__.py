@@ -276,11 +276,7 @@ def modify_site(site_id, site_data, user_id):
 
 
 def add_site(site_data,user_id):
-    """
-    Agrega un nuevo sitio historico.
-    """
-   
-
+    """Agrega un nuevo sitio historico"""
     lat = site_data.get("latitud")
     lng = site_data.get("longitud")
     punto = WKTElement(f"POINT({lng} {lat})", srid=4326)
@@ -296,7 +292,6 @@ def add_site(site_data,user_id):
         categoria=site_data.get("categoria"),
         estado_conservacion=site_data.get("estado_conservacion"),
         visible=site_data.get("visible",False),
-        portada=site_data.get("portada"),
     )
 
     tags_data = site_data.get("tags", [])
@@ -305,6 +300,18 @@ def add_site(site_data,user_id):
         if tag is None:
             raise ValueError(f"Tag '{tag_id}' no encontrado")
         nuevo_sitio.tags.append(tag)
+
+    images_data = site_data.get("images", [])
+    
+    # crear las imagenes en la db y asociarlas
+    for image_obj in images_data:
+        nueva_imagen = Image(
+            url=image_obj,
+            title="",
+            description="",
+            is_cover=False
+        )
+        nuevo_sitio.images.append(nueva_imagen)
 
     db.session.add(nuevo_sitio)
     db.session.commit()
@@ -316,7 +323,6 @@ def add_site(site_data,user_id):
     add_site_history(
         nuevo_sitio.id, HistoryAction.CREAR, user_id, historial_data, None, list(site_data.keys())
     )
-
     return nuevo_sitio
 
 def actualizar_historial(nuevo,accion,original=None):

@@ -1,5 +1,5 @@
 from src.core.database import db
-from datetime import datetime
+from datetime import datetime, timezone
 
 class Image(db.Model):
     """
