@@ -92,15 +92,15 @@ def add_site():
 
 
             params = {}
-            if "portada" in request.files:
-                object_name = upload_file(request.files["portada"], "sites")
-
-                if object_name:
-                    params["portada"] = object_name
-                elif request.files["portada"].filename != "":
-                    # Si el usuario INTENTÓ subir un archivo pero falló
-                    flash("Error al procesar el archivo del portada.", "danger")
-                params["portada"] = object_name
+            if "images" in request.files:
+                images = request.files.getlist("images")
+                uploaded_url_images = []
+                for image in images:
+                    if image.filename == "":
+                        continue  
+                    object_name = upload_file(image, folder_name="sites")
+                    uploaded_url_images.append(object_name)
+                params["images"] = uploaded_url_images
 
             site_data = {
                 "nombre": siteForm.nombre.data,
@@ -115,7 +115,7 @@ def add_site():
                 "latitud": float(siteForm.latitud.data) if siteForm.latitud.data else None,
                 "longitud": float(siteForm.longitud.data) if siteForm.longitud.data else None,
                 "tags": [int(t) for t in tags_seleccionados], 
-                "portada": object_name if "portada" in params else None,
+                "images": params.get("images", []),
             }
 
             user_id = session.get("user_id")
