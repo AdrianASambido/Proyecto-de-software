@@ -50,7 +50,7 @@
         <p>{{ flag.last_modified_by or "-" }}</p>
       </div>
       <div class="sm:col-span-2 md:col-span-3 mt-2">
-        {% if is_system_admin_user %}
+        {% if is_system_admin_user %} 
         <label class="inline-flex items-center cursor-pointer">
           <input type="checkbox" class="peer flag-toggle hidden" id="toggle-{{ flag.id }}"
             data-flag-id="{{ flag.id }}" data-flag-name="{{ flag.name }}"
@@ -115,11 +115,11 @@
     const closeModal = document.getElementById('closeModal');
     const cancelModal = document.getElementById('cancelModal');
 
-    toggles.forEach(toggle => {
+    toggles.forEach(toggle => { // para cada toggle 
       toggle.addEventListener('change', function () {
-        const flagId = this.dataset.flagId;
-        const flagName = this.dataset.flagName;
-        const isEnabled = this.checked;
+        const flagId = this.dataset.flagId;     // Obtenemos el ID del flag
+        const flagName = this.dataset.flagName; // Obtenemos el nombre del flag
+        const isEnabled = this.checked;         // El estado, activado o desactivado.
 
         // Si es un flag de mantenimiento, abrir modal
         if (isEnabled && flagName.includes('maintenance_mode')) {
@@ -145,9 +145,9 @@
       updateFlag(flagId, true, message);
       modal.classList.add('hidden');
     });
-
-    function updateFlag(flagId, isEnabled, maintenanceMessage) {
-      fetch(`/admin/feature-flags/toggle/${flagId}`, {
+    // Se ejecuta si se escribe un mensaje de mantenimiento o si se activa/desactiva un flag normal
+    function updateFlag(flagId, isEnabled, maintenanceMessage) { 
+      fetch(`/admin/feature-flags/toggle/${flagId}`, { //petición de http POST 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

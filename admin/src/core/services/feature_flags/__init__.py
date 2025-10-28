@@ -28,10 +28,10 @@ def update_feature_flag(
     """
     Actualiza el estado de un feature flag
     """
-    flag = FeatureFlag.query.get(flag_id)
+    flag = FeatureFlag.query.get(flag_id) # buscamos el flag por su ID
     if not flag:
         return False
-
+    # Actualizamos los campos del flag
     flag.is_enabled = is_enabled
     if maintenance_message is not None:
         flag.maintenance_message = maintenance_message
@@ -40,20 +40,21 @@ def update_feature_flag(
     flag.last_modified_at = datetime.now(timezone.utc)
 
     try:
-        db.session.commit()
+        db.session.commit() # guardamos los cambios en la BDD
         return True
     except Exception as e:
-        db.session.rollback()
+        db.session.rollback() # en caso de error, revertimos los cambios
         print(f"Error updating feature flag: {e}")
         return False
+
 
 
 def is_admin_maintenance_mode():
     """
     Verifica si el modo mantenimiento de administración está activo
     """
-    flag = get_feature_flag_by_name("admin_maintenance_mode")
-    return flag.is_enabled if flag else False
+    flag = get_feature_flag_by_name("admin_maintenance_mode") # obtenemos el flag por su nombre
+    return flag.is_enabled if flag else False # si no existe, asumimos que está desactivado
 
 
 def is_portal_maintenance_mode():

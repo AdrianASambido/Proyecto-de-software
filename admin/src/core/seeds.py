@@ -1,18 +1,7 @@
 from datetime import datetime, timezone, date
 from time import sleep
-
-
 from src.core.services.sites import add_site
-
-from datetime import datetime, timezone, date
-from time import sleep
-
 from src.core.Entities.role import user_roles
-
-from src.core.services.sites import add_site
-
-from datetime import datetime, timezone, date
-from time import sleep
 
 from geoalchemy2 import WKTElement
 # db
@@ -28,6 +17,8 @@ from src.core.Entities.site_history import HistoryAction
 from src.core.Entities.role import Role
 from src.core.Entities.permission import Permission
 from src.core.Entities.user import User
+from src.core.Entities.review import Review, ReviewStatus
+from src.core.Entities.site import Site
 # para agregar datos de prueba a la base de datos se usa "flask seeddb"
 def seeds_db():
     print("\n\n==== SEEDING BASE DE DATOS ====")
@@ -69,8 +60,17 @@ def seeds_db():
         {"name": "feature_flag_index", "description": "Listar feature flags", "module": "feature_flag", "action": "index"},
         {"name": "feature_flag_toggle", "description": "Activar/desactivar feature flags", "module": "feature_flag", "action": "toggle"},
     ]
-    
-    all_permissions = user_permissions + site_permissions + tag_permissions + feature_flag_permissions
+
+    # permisos para las reseñas
+    review_permissions = [
+        {"name": "review_index", "description": "Listar reseñas", "module": "review", "action": "index"},
+        {"name": "review_show", "description": "Ver detalle de reseña", "module": "review", "action": "show"},
+        {"name": "review_approve", "description": "Aprobar reseña", "module": "review", "action": "approve"},
+        {"name": "review_reject", "description": "Rechazar reseña", "module": "review", "action": "reject"},
+        {"name": "review_destroy", "description": "Eliminar reseña", "module": "review", "action": "destroy"},
+    ]
+
+    all_permissions = user_permissions + site_permissions + tag_permissions + feature_flag_permissions + review_permissions
     
     for perm_data in all_permissions:
         existing_perm = Permission.query.filter_by(name=perm_data["name"]).first()
@@ -121,8 +121,8 @@ def seeds_db():
     admin_role = Role.query.filter_by(name="Administrador").first()
     
     if editor_role and admin_role:
-        # Editor: permisos limitados (solo sitios y tags) sin eliminacion de sitios
-        editor_permissions = site_permissions + tag_permissions
+        # Editor: permisos limitados (solo sitios y tags) sin eliminacion de sitios, moderacion de resenias
+        editor_permissions = site_permissions + tag_permissions + review_permissions
         for perm_data in editor_permissions:
             perm = Permission.query.filter_by(name=perm_data["name"]).first()
             if perm and perm not in editor_role.permissions and (perm.name != "site_destroy") and (perm.name != "site_export"):
@@ -291,6 +291,8 @@ def seeds_db():
     ]
 
     add_site(sites_data[0],1)
+    add_site(sites_data[1],1)
+    add_site(sites_data[2],1)
 
 
      # -------------------
@@ -337,5 +339,83 @@ def seeds_db():
 
     db.session.commit()
     print("✓ Todas las etiquetas guardadas en la base de datos")
+
+    # -------------------
+    # Crear reseñas de ejemplo
+    # -------------------
+    print("\n==== CREANDO RESEÑAS DE EJEMPLO ====")
+
+    # Obtener el sitio Machu Picchu y usuarios
+    machu_picchu = Site.query.filter_by(nombre="Machu Picchu").first()
+    if machu_picchu and u1 and u2 and u3:
+        reviews_data = [
+            {
+                "site_id": machu_picchu.id,
+                "user_id": u1.id,
+                "calificacion": 5,
+                "contenido": "Excelente sitio histórico, muy bien conservado y con vistas impresionantes.",
+                "estado": ReviewStatus.APROBADA,
+                "motivo_rechazo": None,
+            },
+            {
+                "site_id": machu_picchu.id,
+                "user_id": u2.id,
+                "calificacion": 4,
+                "contenido": "Muy buena experiencia, aunque hay que mejorar la señalización en algunos sectores.",
+                "estado": ReviewStatus.APROBADA,
+                "motivo_rechazo": None,
+            },
+            {
+                "site_id": machu_picchu.id,
+                "user_id": u3.id,
+                "calificacion": 3,
+                "contenido": "Interesante pero esperaba más información histórica en el lugar.",
+                "estado": ReviewStatus.PENDIENTE,
+                "motivo_rechazo": None,
+            },
+            {
+                "site_id": machu_picchu.id,
+                "user_id": u1.id,
+                "calificacion": 1,
+                "contenido": "Esto es spam y contenido inapropiado.",
+                "estado": ReviewStatus.RECHAZADA,
+                "motivo_rechazo": "Contenido inapropiado y no relacionado con el sitio histórico",
+            },
+            {
+                "site_id": machu_picchu.id,
+                "user_id": u2.id,
+                "calificacion": 5,
+                "contenido": "¡Increíble! Una maravilla del mundo que todos deberían visitar.",
+                "estado": ReviewStatus.APROBADA,
+                "motivo_rechazo": None,
+            },
+            {
+                "site_id": machu_picchu.id,
+                "user_id": u3.id,
+                "calificacion": 4,
+                "contenido": "Muy recomendable, especialmente si se visita temprano en la mañana.",
+                "estado": ReviewStatus.PENDIENTE,
+                "motivo_rechazo": None,
+            },
+        ]
+
+        for review_data in reviews_data:
+            existing_review = Review.query.filter_by(
+                site_id=review_data["site_id"],
+                user_id=review_data["user_id"],
+                contenido=review_data["contenido"]
+            ).first()
+
+            if not existing_review:
+                review = Review(**review_data)
+                db.session.add(review)
+                print(f"✓ Reseña creada: {review_data['calificacion']} estrellas - Estado: {review_data['estado'].value}")
+            else:
+                print(f"⚠ Reseña ya existe para usuario {review_data['user_id']}")
+
+        db.session.commit()
+        print("✓ Todas las reseñas guardadas en la base de datos")
+    else:
+        print("⚠ No se pudieron crear reseñas: falta el sitio Machu Picchu o usuarios")
 
     print(f"\n==== SEEDING LISTO ====\n\n")

@@ -13,6 +13,15 @@ class Config:
 
 
 class ProductionConfig(Config):
+    MINIO_SERVER = os.getenv("MINIO_SERVER")
+    MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
+    MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
+    MINIO_SECURE = True
+    MINIO_BUCKET = "grupo01"
+
+    CORS_ORIGINS=[
+        "https://grupo01.proyecto2025.linti.unlp.edu.ar/"
+    ]
     DB_USER = os.getenv("DATABASE_USERNAME")
     DB_PASSWORD = os.getenv("DATABASE_PASSWORD")
     DB_HOST = os.getenv("DATABASE_HOST")
@@ -40,7 +49,15 @@ class DevelopmentConfig(Config):
     """
     Configuración para desarrollo
     """
-    
+    MINIO_SERVER = "localhost:9000"
+    MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "admin")
+    MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "admin123")
+    MINIO_SECURE = False
+    MINIO_BUCKET = "grupo01"
+
+    CORS_ORIGINS=[
+        "*"
+    ]
     DB_USER = os.getenv("GRUPO01_DATABASE_USERNAME", "postgres")
     DB_PASSWORD = os.getenv("GRUPO01_DATABASE_PASSWORD", "Sacsayhuaman03")
     DB_HOST = os.getenv("GRUPO01_DATABASE_HOST", "localhost")
