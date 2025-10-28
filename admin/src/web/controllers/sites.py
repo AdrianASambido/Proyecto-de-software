@@ -37,7 +37,7 @@ def index():
 
     # Ya devuelve un objeto paginado
     try:
-        pagination = board_sites.list_sites(filtros, page=page, per_page=per_page)
+        pagination = board_sites.list_sites(filtros, page=page, per_page=per_page,include_cover=True)
         
     except ValueError as e:
         flash(str(e),"error")
@@ -230,7 +230,7 @@ def detail(sitio_id):
     renderiza los detalles del sitio
     """
   
-    sitio = board_sites.get_site(sitio_id)
+    sitio = board_sites.get_site(sitio_id,include_cover=True)
     return render_template("sites/detail.html", sitio=sitio)
   
 

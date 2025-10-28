@@ -171,30 +171,43 @@ def add_site_history(
 
     # si no existe y es creacion del mismo
     if sitio_original is None and accion == HistoryAction.CREAR:
-        for campo in campos_modificados:
-            nuevo = _get_field(sitio_cambiado, campo)
-            # solo registrar campos provistos/no nulos para creacion
-            if nuevo is not None:
-                cambios_realizados.append(
-                    {
-                        "campo": campo,
-                        "valor_anterior": None,
-                        "valor_nuevo": _serialize_value(nuevo),
-                    }
-                )
+        # Crear mensaje descriptivo para la creación
+        nombre = _get_field(sitio_cambiado, "nombre") or "Sin nombre"
+        categoria = _get_field(sitio_cambiado, "categoria") or "sin categoría"
+        ciudad = _get_field(sitio_cambiado, "ciudad") or "ubicación desconocida"
+        provincia = _get_field(sitio_cambiado, "provincia") or ""
+
+        ubicacion = f"{ciudad}, {provincia}" if provincia else ciudad
+
+        mensaje = f"Se creó el sitio '{nombre}', con categoría {categoria}, en {ubicacion}"
+
+        cambios_realizados.append(
+            {
+                "campo": "datos",
+                "valor_anterior": None,
+                "valor_nuevo": mensaje,
+            }
+        )
 
     # si es eliminacion
     if sitio_original is not None and accion == HistoryAction.ELIMINAR:
-        for campo in campos_modificados:
-            viejo = _get_field(sitio_original, campo)
-            if viejo is not None:
-                cambios_realizados.append(
-                    {
-                        "campo": campo,
-                        "valor_anterior": _serialize_value(viejo),
-                        "valor_nuevo": None,
-                    }
-                )
+        # Crear mensaje descriptivo para la eliminación
+        nombre = _get_field(sitio_original, "nombre") or "Sin nombre"
+        categoria = _get_field(sitio_original, "categoria") or "sin categoría"
+        ciudad = _get_field(sitio_original, "ciudad") or "ubicación desconocida"
+        provincia = _get_field(sitio_original, "provincia") or ""
+
+        ubicacion = f"{ciudad}, {provincia}" if provincia else ciudad
+
+        mensaje = f"Se eliminó el sitio '{nombre}', con categoría {categoria}, en {ubicacion}"
+
+        cambios_realizados.append(
+            {
+                "campo": "datos",
+                "valor_anterior": mensaje,
+                "valor_nuevo": None,
+            }
+        )
 
     # si es modificacion
     if sitio_original is not None and sitio_cambiado is not None:

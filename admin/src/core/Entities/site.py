@@ -52,11 +52,7 @@ class Site(db.Model):
 
     @property
     def cover_url(self):
-       """
-        Retorna la URL de la imagen de portada (is_cover=True) si existe.
-       """
-       cover = next((img for img in self.images if getattr(img, "is_cover", False)), None)
-       return cover.url if cover else None
+        return getattr(self, "_cover_url", None)
 
     tags = db.relationship(
         "Tag",
@@ -79,8 +75,8 @@ class Site(db.Model):
     def __repr__(self):
         return f"<Sitio {self.nombre}>"
 
-    def to_dict(self):
-        return {
+    def to_dict(self, include_cover=False):
+        data = {
             "id": self.id,
             "nombre": self.nombre,
             "descripcion_breve": self.descripcion_breve,
@@ -98,3 +94,9 @@ class Site(db.Model):
             "eliminated_at": self.eliminated_at.isoformat() if self.eliminated_at else None,
             "tags": [tag.name for tag in self.tags],
         }
+
+        if include_cover:
+           
+            data["cover_url"] = getattr(self, "cover_url", self.portada)
+
+        return data
