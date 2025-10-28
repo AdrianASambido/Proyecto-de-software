@@ -7,7 +7,7 @@ from src.core.services.tags import (
     update_tag as svc_update_tag,
     delete_tag as svc_delete_tag,
 )
-from src.core.auth import login_required
+from src.core.auth import login_required, permission_required
 from src.core.tagForm import TagForm
 
 
@@ -16,6 +16,7 @@ bp = Blueprint("tags", __name__, url_prefix="/etiquetas")
 
 @bp.get("/")
 @login_required
+@permission_required('tag_index')
 def index():
     """Muestra el listado paginado de etiquetas con filtros opcionales."""
     page = request.args.get("page", 1, type=int)
@@ -33,6 +34,7 @@ def index():
             items=pagination.items,
             pagination=pagination,
             filtros=filtros,
+            order=request.args.get("order", None)
         ),
         200,
     )
@@ -40,6 +42,7 @@ def index():
 
 @bp.route("/nuevo", methods=["GET", "POST"])
 @login_required
+@permission_required('tag_new')
 def add_tag():
     """Crea una nueva etiqueta o renderiza el formulario."""
     form = TagForm()
@@ -63,6 +66,7 @@ def add_tag():
 
 @bp.route("/editar/<int:tag_id>", methods=["GET", "POST"])
 @login_required
+@permission_required('tag_update')
 def edit_tag(tag_id):
     """Edita una etiqueta existente o renderiza el formulario con los datos actuales."""
     tag = svc_get_tag_by_id(tag_id)
@@ -87,6 +91,7 @@ def edit_tag(tag_id):
 
 @bp.post("/eliminar/<int:tag_id>")
 @login_required
+@permission_required('tag_destroy')
 def delete_tag(tag_id):
     """Elimina una etiqueta si no está asociada a ningún sitio."""
     try:

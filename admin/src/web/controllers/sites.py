@@ -1,11 +1,9 @@
 """
 Este controlador maneja las rutas relacionadas con las operaciones de sitios históricos.
-Este controlador maneja las rutas relacionadas con las operaciones de sitios históricos.
 """
-
+from src.core.services.upload_service import upload_file
 from flask import Blueprint
 from flask import render_template, request, redirect, url_for
-
 
 from src.core.services import sites as board_sites
 from src.core.services import tags as board_tags
@@ -39,7 +37,7 @@ def index():
 
     # Ya devuelve un objeto paginado
     try:
-        pagination = board_sites.list_sites(filtros, page=page, per_page=per_page)
+        pagination = board_sites.list_sites(filtros, page=page, per_page=per_page,include_cover=True)
         
     except ValueError as e:
         flash(str(e),"error")
@@ -58,6 +56,7 @@ def index():
         pagination=pagination,
         filtros=filtros,
         tags=tags,
+        order=request.args.get("order", None)
     )
 
 
@@ -69,6 +68,7 @@ def add_site():
     """
     GET: muestra el formulario para crear un nuevo sitio histórico.
     POST: procesa el formulario y crea el sitio.
+    
     
     """
     siteForm = SiteForm()
@@ -89,7 +89,18 @@ def add_site():
         if siteForm.validate_on_submit():
             
             tags_seleccionados = request.form.getlist("tags[]")
-          
+
+
+            params = {}
+            if "portada" in request.files:
+                object_name = upload_file(request.files["portada"], "sites")
+
+                if object_name:
+                    params["portada"] = object_name
+                elif request.files["portada"].filename != "":
+                    # Si el usuario INTENTÓ subir un archivo pero falló
+                    flash("Error al procesar el archivo del portada.", "danger")
+                params["portada"] = object_name
 
             site_data = {
                 "nombre": siteForm.nombre.data,
@@ -104,6 +115,7 @@ def add_site():
                 "latitud": float(siteForm.latitud.data) if siteForm.latitud.data else None,
                 "longitud": float(siteForm.longitud.data) if siteForm.longitud.data else None,
                 "tags": [int(t) for t in tags_seleccionados], 
+                "portada": object_name if "portada" in params else None,
             }
 
             user_id = session.get("user_id")
@@ -186,9 +198,9 @@ def export():
     csv_data = board_sites.export_sites_csv(filtros if len(filtros.keys()) > 0 else None)
     if csv_data is None:
         flash("No hay datos para exportar", "error")
-        return redirect(url_for("sites.index"))
+        return redirect(url_for("sites.index",  **(filtros or {})))
     else:
-        # Asegúrate de que csv_data sea una cadena (str) antes de codificar
+        # Nos aseguramos de que csv_data sea una cadena (str) antes de codificar
         if not isinstance(csv_data, str):
             # Si export_sites_csv devuelve otra cosa, conviértela a string
             csv_data = str(csv_data) 
@@ -218,7 +230,7 @@ def detail(sitio_id):
     renderiza los detalles del sitio
     """
   
-    sitio = board_sites.get_site(sitio_id)
+    sitio = board_sites.get_site(sitio_id,include_cover=True)
     return render_template("sites/detail.html", sitio=sitio)
   
 

@@ -1,5 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, IntegerField, BooleanField, SelectField, DecimalField, SubmitField,SelectMultipleField
+from wtforms import StringField, TextAreaField, IntegerField, BooleanField, SelectField, DecimalField, SubmitField, SelectMultipleField
+from wtforms import FileField
+from flask_wtf.file import FileAllowed, FileSize
 from wtforms.validators import DataRequired, Length, NumberRange, Optional
 
 class SiteForm(FlaskForm):
@@ -15,7 +17,13 @@ class SiteForm(FlaskForm):
                                       choices=[("Bueno", "Bueno"), ("Regular", "Regular"), ("Malo", "Malo")])
     latitud = DecimalField("Latitud", places=6, validators=[DataRequired(message="Debe seleccionar una ubicación en el mapa")])
     longitud = DecimalField("Longitud", places=6, validators=[DataRequired(message="Debe seleccionar una ubicación en el mapa")])
-    tags = SelectMultipleField("Tags", coerce=int) 
-    submit = SubmitField("Guardar")
-    
+    tags = SelectMultipleField("Tags", coerce=int)
+    portada = FileField(
+        "Portada",
+        validators=[
+            Optional(),
+            FileAllowed(["jpg", "jpeg", "png", "webp", "gif"], "Formato no permitido"),
+            FileSize(max_size=10 * 1024 * 1024, message="Máximo 10 MB"),
+        ],
+    )
     submit = SubmitField("Guardar")

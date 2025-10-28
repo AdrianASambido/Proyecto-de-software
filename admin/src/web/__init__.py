@@ -1,5 +1,6 @@
 from flask import Flask, render_template, abort, redirect, url_for, request
 from src.web.config import config
+from src.web.storage import storage
 from src.core import database, seeds
 from src.core.services.feature_flags import (
     is_admin_maintenance_mode,
@@ -7,6 +8,7 @@ from src.core.services.feature_flags import (
     is_portal_maintenance_mode,
     get_portal_maintenance_message,
 )
+from flask_cors import CORS
 
 # ACA controladores
 from src.web.controllers.users import bp as users_bp
@@ -16,27 +18,30 @@ from src.web.controllers.feature_flags import bp as feature_flags_bp
 from src.web.controllers.login import bp as login_bp
 from src.web.controllers.api import api_bp
 from src.web.controllers.sites_history import bp as sites_history_bp
+from src.web.controllers.reviews import bp as reviews_bp
 from flask_session import Session
 from src.core.auth import login_required
 from src.core.auth import has_permission,is_system_admin_user
 from src.core.services.feature_flags import is_admin_maintenance_mode,get_admin_maintenance_message
-
+from src.web.handlers import errors
 from datetime import timedelta
 
 sess=Session()
 
 def create_app(env="development", static_folder="../../static"):  # ../../static
-
     app = Flask(__name__, static_folder=static_folder)
     app.config.from_object(config[env])
     app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(hours=1)
+    #initialize database, 
     database.init_app(app)
     database.config_db(app)
     sess.init_app(app)
-   
+    storage.init_app(app)
+    CORS(app,resources=r"/api/*")
+    
 
     # Middleware para verificar flags de mantenimiento
-    @app.before_request
+    @app.before_request # se ejecuta antes de cada solicitud HTTP
     def check_maintenance_mode():
         # Rutas que siempre están disponibles (login y feature flags para system admin)
         exempt_routes = [
@@ -49,6 +54,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
         # Si es una ruta de administración y está en modo mantenimiento
         if (
             request.endpoint
+            # Bloquea sitios, etiquetas usuarios
             and (request.endpoint.startswith("sites") or request.endpoint.startswith("tags") or request.endpoint.startswith("users"))
             and is_admin_maintenance_mode() and not is_system_admin_user
         ):
@@ -61,44 +67,20 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
                         message=message,
                         title="Sistema en Mantenimiento",
                     ),
-                    503,
+                    503, # código HTTP de Service Unavailable
                 )
 
-     
 
     @app.route("/")
     def login():
-       
         return redirect(url_for("login.login"))
-    
-
-
     
     @app.route("/home")
     @login_required
     def home():
         return render_template("home.html"), 200
 
-    @app.errorhandler(401)
-    def unauthorizedError(error):
-        return render_template("errores/401.html"), 401
 
-    @app.errorhandler(404)
-    def page_not_found(error):
-        return render_template("errores/404.html"), 404
-
-    @app.errorhandler(500)
-    def internalError(error):
-        return render_template("errores/500.html"), 500
-
-    @app.route("/error-401")
-    def throw_401_error_for_test():
-        abort(401)
-
-    @app.route("/error-500")
-    def throw_500_error_for_test():
-        abort(500)
-        return render_template("throw_500_error_for_test.html")
     # helpers para jinja
     app.jinja_env.globals["has_permission"] = has_permission
     app.jinja_env.globals["is_system_admin_user"] = is_system_admin_user  
@@ -115,9 +97,15 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.register_blueprint(sites_bp)
     app.register_blueprint(sites_history_bp)
     app.register_blueprint(tags_bp)
+    app.register_blueprint(reviews_bp)
     app.register_blueprint(api_bp)
     app.register_blueprint(feature_flags_bp)
     app.register_blueprint(login_bp)
+
+    # registrar handlers de errores
+    app.register_error_handler(404, errors.not_found)
+    app.register_error_handler(500, errors.internal_error)
+    
     
     #comandos para el CLI
     @app.cli.command(name="resetdb")

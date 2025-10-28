@@ -3,8 +3,7 @@ from datetime import datetime, timezone
 from geoalchemy2.types import Geometry
 from geoalchemy2.shape import to_shape
 from src.core.Entities.tag import site_tags
-
-
+from src.core.Entities.image import Image
 
 
 class Site(db.Model):
@@ -24,7 +23,7 @@ class Site(db.Model):
     punto = db.Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
     categoria = db.Column(db.String(50), nullable=False)
     estado_conservacion = db.Column(db.String(50), nullable=False)
-  
+    portada = db.Column(db.String(255), nullable=True)
 
     created_at = db.Column(
         db.DateTime,
@@ -52,6 +51,10 @@ class Site(db.Model):
             return None
         return to_shape(self.punto).x
 
+    @property
+    def cover_url(self):
+        return getattr(self, "_cover_url", None)
+
     tags = db.relationship(
         "Tag",
         secondary=site_tags,
@@ -63,11 +66,18 @@ class Site(db.Model):
         "SiteHistory", backref="site", lazy="dynamic", cascade="all, delete"
     )
 
+    images = db.relationship(
+        "Image",
+        back_populates="site",
+        cascade="all, delete-orphan",
+        lazy="select"
+    )
+
     def __repr__(self):
         return f"<Sitio {self.nombre}>"
 
-    def to_dict(self):
-        return {
+    def to_dict(self, include_cover=False):
+        data = {
             "id": self.id,
             "nombre": self.nombre,
             "descripcion_breve": self.descripcion_breve,
@@ -85,3 +95,9 @@ class Site(db.Model):
             "eliminated_at": self.eliminated_at.isoformat() if self.eliminated_at else None,
             "tags": [tag.name for tag in self.tags],
         }
+
+        if include_cover:
+           
+            data["cover_url"] = getattr(self, "cover_url", self.portada)
+
+        return data
