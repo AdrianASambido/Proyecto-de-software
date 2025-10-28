@@ -15,9 +15,10 @@
         <div class="p-4">
           <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ monumento.title }}</h3>
           <p class="text-sm text-gray-600">{{ monumento.description }}</p>
+          <button class="mt-4 w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors">Ver</button>
         </div>
       </div>
-      </div>
+      </div>3
   </section>
 </template>
 

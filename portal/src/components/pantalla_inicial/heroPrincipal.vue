@@ -12,10 +12,10 @@
       
       <div class="p-6 flex flex-col justify-center items-start">
         <h2 class="text-3xl font-extrabold text-gray-900 mb-4">
-          Homenaje al Libertador
+          Ruinas de México
         </h2>
         <p class="text-gray-600 mb-6 leading-relaxed">
-          José de San Martín, figura central en la independencia de Argentina, Chile y Perú, inspira la arquitectura y el arte cívico. Este monumento no solo es un tributo a su gesta libertadora, sino un punto de encuentro histórico que refleja la identidad nacional y la grandeza de nuestra historia.
+          Reliquia arquitectónica central en la historia de México, inspirada en el arte milenario Maya, un punto de encuentro histórico que refleja la grandeza de su cultura.
         </p>
         <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
           Descubre más
