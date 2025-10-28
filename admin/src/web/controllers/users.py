@@ -112,6 +112,16 @@ def edit_user_admin(user_id):
     usuario = board_users.get_user_by_id(user_id)
     form = EditUserAdminForm(original_email=usuario.email, obj=usuario)
 
+    #En caso de que quiera activar o desactivar la cuenta del usuario
+    action = request.args.get("action")
+
+    if action == "toggle_status":
+        usuario.activo = not usuario.activo
+        board_users.update_user_admin(user_id, {"activo": usuario.activo})
+        estado = "activada" if usuario.activo else "desactivada"
+        flash(f"Cuenta de usuario {estado} exitosamente.", "success")
+        return redirect(url_for("users.index"))
+
     if form.validate_on_submit():
         nuevos_datos = {k: v for k, v in form.data.items() if k not in ("csrf_token", "submit")}
         board_users.update_user_admin(user_id, nuevos_datos)
