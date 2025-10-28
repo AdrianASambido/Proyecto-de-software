@@ -23,6 +23,7 @@ class Site(db.Model):
     punto = db.Column(Geometry(geometry_type="POINT", srid=4326), nullable=False)
     categoria = db.Column(db.String(50), nullable=False)
     estado_conservacion = db.Column(db.String(50), nullable=False)
+    
 
     created_at = db.Column(
         db.DateTime,
