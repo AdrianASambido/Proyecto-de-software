@@ -61,7 +61,7 @@
                 {% endfor %}
             </p>
             <p class="text-sm text-gray-500 mb-4"><strong>Creado el:</strong> {{ user.created_at.strftime('%d/%m/%Y') }}</p>
-            <!-- Botones de acción de cada usuario (Detalle, editar, eliminar)-->
+            <!-- Botones de acción de cada usuario (Detalle, editar, eliminar, activar/desactivar cuenta)-->
             <div class="flex justify-end gap-2 mt-2">
                 <a href="{{ url_for('users.user_detail', user_id=user.id) }}"
                     title="Ver detalles"
@@ -78,6 +78,13 @@
                     class="flex items-center justify-center w-8 h-8 rounded bg-red-500 text-white hover:bg-red-600"
                     onclick="return confirm('¿Estás seguro de que deseas eliminar este usuario?');">
                     <img src="{{ url_for('static', filename='icons/delete.svg') }}" alt="Eliminar" class="h-4 w-4 inline" />
+                </a>
+                <a href="{{ url_for('users.edit_user_admin', user_id=user.id, action='toggle_status') }}"
+                title="{{ 'Desactivar cuenta' if user.activo else 'Activar cuenta' }}"
+                class="px-3 py-1 rounded-lg font-semibold
+                        {{ 'bg-red-500 hover:bg-red-600' if user.activo else 'bg-green-500 hover:bg-green-600' }}
+                        text-white transition-colors duration-200">
+                    {{ 'Desactivar' if user.activo else 'Activar' }}
                 </a>
             </div>
         </div>
