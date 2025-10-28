@@ -53,6 +53,10 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=F
     return query.paginate(page=page, per_page=per_page, error_out=False)
 
 
+def geoespatial_search(query,filtros):
+    """
+    filtra los sitios dentro del radio dado usando postgis
+    """
 
 def geoespatial_search(query,filtros):
     """
@@ -168,15 +172,21 @@ def filter_sites(filtros):
 
     return query
 
-def get_site(site_id):
-    """
-    Retorna un sitio historico por su ID.
-    """
+def get_site(site_id, include_cover=False):
     sitio = Site.query.get(site_id)
-    if(sitio):
-        return sitio
-    else:
+    if not sitio:
         return None
+
+    if include_cover:
+        Cover = aliased(Image)
+        cover = (
+            db.session.query(Cover.url)
+            .filter(Cover.site_id == site_id, Cover.is_cover == True)
+            .first()
+        )
+        sitio._cover_url = cover[0] if cover else None 
+
+    return sitio
 
 
 def modify_site(site_id, site_data, user_id):

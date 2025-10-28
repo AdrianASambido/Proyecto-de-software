@@ -230,3 +230,24 @@ def add_favorite_site(user_id, site_id):
         db.session.commit()
         return True
     return False
+
+def remove_favorite_site(user_id, site_id):
+    """
+    Remueve un sitio de la lista de favoritos del usuario.
+    """
+    user = get_user_by_id(user_id)
+    site = Site.query.get(site_id)
+    if user and site and site in user.favorites:
+        user.favorites.remove(site)
+        db.session.commit()
+        return True
+    return False
+
+def get_favorite_sites(user_id):
+    """
+    Obtiene la lista de sitios favoritos de un usuario.
+    """
+    user = get_user_by_id(user_id)
+    if user:
+        return user.favorites
+    return []
