@@ -6,12 +6,16 @@
         <input type="text" placeholder="Buscar..." class="input-busqueda">
         <button class="btn-busqueda">🔍</button>
       </div>
+      <div>
+        <button class="btn-busqueda" href="">Login con Google</button>
+      </div>
     </div>
   </header>
 </template>
 
 <script setup>
-// acá que iria??
+  // acá que iria??
+  import LoginGoogle from "../login_google/login.vue";
 </script>
 
 <style scoped>

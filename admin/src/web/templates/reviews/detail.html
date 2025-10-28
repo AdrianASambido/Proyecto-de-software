@@ -1,0 +1,205 @@
+{% extends "basic-structure-w-sidebar.html" %}
+
+{% block title %}Detalle de Reseña{% endblock %}
+
+{% block content %}
+<div class="w-full px-4 sm:px-8 lg:px-12">
+    <div class="mb-4">
+        <a href="{{ url_for('reviews.index') }}" class="text-blue-600 hover:text-blue-800 flex items-center gap-1">
+            ← Volver al listado
+        </a>
+    </div>
+
+    <h1 class="text-2xl font-bold text-gray-900 mb-6">Detalle de Reseña #{{ review.id }}</h1>
+
+    <div class="bg-white border border-gray-300 rounded-lg shadow-sm p-6 mb-6">
+        <!-- Información del sitio -->
+        <div class="mb-6 pb-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-3">Información del Sitio</h2>
+            <p class="text-gray-700 mb-2"><strong>Sitio:</strong> {{ review.site.nombre }}</p>
+            <p class="text-gray-700"><strong>ID del sitio:</strong> {{ review.site_id }}</p>
+        </div>
+
+        <!-- Información del usuario -->
+        <div class="mb-6 pb-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-3">Información del Usuario</h2>
+            <p class="text-gray-700 mb-2"><strong>Email:</strong> {{ review.user.email }}</p>
+            <p class="text-gray-700 mb-2"><strong>Username:</strong> {{ review.user.username }}</p>
+            <p class="text-gray-700"><strong>ID del usuario:</strong> {{ review.user_id }}</p>
+        </div>
+
+        <!-- Contenido de la reseña -->
+        <div class="mb-6 pb-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800 mb-3">Contenido de la Reseña</h2>
+            <div class="mb-4">
+                <p class="text-gray-700 mb-2"><strong>Calificación:</strong></p>
+                <div class="flex items-center gap-2">
+                    <span class="text-3xl font-bold text-yellow-500">{{ review.calificacion }}</span>
+                    <span class="text-gray-500">/ 5</span>
+                    <div class="flex gap-1">
+                        {% for i in range(1, 6) %}
+                        {% if i <= review.calificacion %} <span class="text-yellow-400 text-xl">★</span>
+                            {% else %}
+                            <span class="text-gray-300 text-xl">★</span>
+                            {% endif %}
+                            {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div>
+                <p class="text-gray-700 mb-2"><strong>Comentario:</strong></p>
+                <p class="text-gray-800 bg-gray-50 p-4 rounded border border-gray-200">{{ review.contenido }}</p>
+            </div>
+        </div>
+
+        <!-- Estado y fechas -->
+        <div class="mb-6">
+            <h2 class="text-xl font-semibold text-gray-800 mb-3">Estado y Fechas</h2>
+            <div class="mb-3">
+                <p class="text-gray-700 mb-2"><strong>Estado:</strong></p>
+                <span class="px-3 py-1 rounded text-sm font-semibold
+                    {% if review.estado.value == 'aprobada' %}bg-green-100 text-green-800
+                    {% elif review.estado.value == 'rechazada' %}bg-red-100 text-red-800
+                    {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                    {{ review.estado.value|upper }}
+                </span>
+            </div>
+
+            {% if review.motivo_rechazo %}
+            <div class="mb-3 p-3 bg-red-50 border border-red-200 rounded">
+                <p class="text-gray-700 mb-1"><strong>Motivo de rechazo:</strong></p>
+                <p class="text-red-800">{{ review.motivo_rechazo }}</p>
+            </div>
+            {% endif %}
+
+            <p class="text-gray-700 mb-2"><strong>Fecha de creación:</strong> {{ review.created_at.strftime('%d/%m/%Y
+                %H:%M:%S') }}</p>
+            <p class="text-gray-700"><strong>Última actualización:</strong> {{ review.updated_at.strftime('%d/%m/%Y
+                %H:%M:%S') }}</p>
+        </div>
+    </div>
+
+    <!-- Acciones -->
+    <div class="bg-white border border-gray-300 rounded-lg shadow-sm p-6 mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4">Acciones</h2>
+
+        <!-- Botones de acción -->
+        <div id="action-buttons" class="flex gap-3">
+            {% if review.estado.value == 'pendiente' %}
+            <button type="button" onclick="showApproveSection()"
+                class="px-6 py-3 bg-green-600 text-white rounded hover:bg-green-700 font-medium">
+                Aprobar Reseña
+            </button>
+            <button type="button" onclick="showRejectSection()"
+                class="px-6 py-3 bg-yellow-600 text-white rounded hover:bg-yellow-700 font-medium">
+                Rechazar Reseña
+            </button>
+            {% endif %}
+            <button type="button" onclick="showDeleteSection()"
+                class="px-6 py-3 bg-red-600 text-white rounded hover:bg-red-700 font-medium">
+                Eliminar Reseña
+            </button>
+        </div>
+
+        <!-- Sección de confirmación: APROBAR -->
+        <div id="approve-section" style="display: none;" class="mt-4 p-4 bg-green-50 border border-green-200 rounded">
+            <h3 class="text-lg font-semibold text-green-800 mb-3">¿Aprobar esta reseña?</h3>
+            <p class="text-gray-700 mb-4">La reseña estará visible públicamente en el portal.</p>
+            <form method="POST" action="{{ url_for('reviews.approve', review_id=review.id) }}" class="flex gap-2">
+                <button type="button" onclick="hideAllSections()"
+                    class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 font-medium">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-medium">
+                    Confirmar Aprobación
+                </button>
+            </form>
+        </div>
+
+        <!-- Sección de confirmación: RECHAZAR -->
+        <div id="reject-section" style="display: none;" class="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded">
+            <h3 class="text-lg font-semibold text-yellow-800 mb-3">Rechazar reseña</h3>
+            <form method="POST" action="{{ url_for('reviews.reject', review_id=review.id) }}">
+                <div class="mb-4">
+                    <label for="motivo_rechazo" class="block text-sm font-medium text-gray-700 mb-2">
+                        Motivo de rechazo (obligatorio, máx. 200 caracteres):
+                    </label>
+                    <textarea id="motivo_rechazo" name="motivo_rechazo" required maxlength="200" rows="4"
+                        placeholder="Ingrese el motivo del rechazo..." oninput="updateCharCount()"
+                        class="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500"></textarea>
+                    <p id="char-count" class="text-sm text-gray-500 mt-1">0 / 200 caracteres</p>
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" onclick="hideAllSections()"
+                        class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 font-medium">
+                        Cancelar
+                    </button>
+                    <button type="submit"
+                        class="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 font-medium">
+                        Confirmar Rechazo
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Sección de confirmación: ELIMINAR -->
+        <div id="delete-section" style="display: none;" class="mt-4 p-4 bg-red-50 border border-red-200 rounded">
+            <h3 class="text-lg font-semibold text-red-800 mb-3">¿Eliminar permanentemente esta reseña?</h3>
+            <p class="text-red-700 mb-4">Esta acción no se puede deshacer. La reseña será eliminada de forma permanente.
+            </p>
+            <form method="POST" action="{{ url_for('reviews.delete', review_id=review.id) }}" class="flex gap-2">
+                <button type="button" onclick="hideAllSections()"
+                    class="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 font-medium">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 font-medium">
+                    Confirmar Eliminación
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function showApproveSection() {
+        hideAllSections();
+        document.getElementById('approve-section').style.display = 'block';
+        document.getElementById('action-buttons').style.display = 'none';
+    }
+
+    function showRejectSection() {
+        hideAllSections();
+        document.getElementById('reject-section').style.display = 'block';
+        document.getElementById('action-buttons').style.display = 'none';
+    }
+
+    function showDeleteSection() {
+        hideAllSections();
+        document.getElementById('delete-section').style.display = 'block';
+        document.getElementById('action-buttons').style.display = 'none';
+    }
+
+    function hideAllSections() {
+        document.getElementById('approve-section').style.display = 'none';
+        document.getElementById('reject-section').style.display = 'none';
+        document.getElementById('delete-section').style.display = 'none';
+        document.getElementById('action-buttons').style.display = 'flex';
+    }
+
+    function updateCharCount() {
+        const textarea = document.getElementById('motivo_rechazo');
+        const charCount = document.getElementById('char-count');
+        const length = textarea.value.length;
+        charCount.textContent = `${length} / 200 caracteres`;
+
+        // Cambiar color si se acerca al límite
+        if (length > 180) {
+            charCount.classList.add('text-red-600');
+            charCount.classList.remove('text-gray-500');
+        } else {
+            charCount.classList.add('text-gray-500');
+            charCount.classList.remove('text-red-600');
+        }
+    }
+</script>
+{% endblock %}

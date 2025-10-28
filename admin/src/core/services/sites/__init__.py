@@ -53,6 +53,10 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=F
     return query.paginate(page=page, per_page=per_page, error_out=False)
 
 
+def geoespatial_search(query,filtros):
+    """
+    filtra los sitios dentro del radio dado usando postgis
+    """
 
 def geoespatial_search(query,filtros):
     """
@@ -168,15 +172,21 @@ def filter_sites(filtros):
 
     return query
 
-def get_site(site_id):
-    """
-    Retorna un sitio historico por su ID.
-    """
+def get_site(site_id, include_cover=False):
     sitio = Site.query.get(site_id)
-    if(sitio):
-        return sitio
-    else:
+    if not sitio:
         return None
+
+    if include_cover:
+        Cover = aliased(Image)
+        cover = (
+            db.session.query(Cover.url)
+            .filter(Cover.site_id == site_id, Cover.is_cover == True)
+            .first()
+        )
+        sitio._cover_url = cover[0] if cover else None 
+
+    return sitio
 
 
 def modify_site(site_id, site_data, user_id):
@@ -276,11 +286,7 @@ def modify_site(site_id, site_data, user_id):
 
 
 def add_site(site_data,user_id):
-    """
-    Agrega un nuevo sitio historico.
-    """
-   
-
+    """Agrega un nuevo sitio historico"""
     lat = site_data.get("latitud")
     lng = site_data.get("longitud")
     punto = WKTElement(f"POINT({lng} {lat})", srid=4326)
@@ -296,7 +302,6 @@ def add_site(site_data,user_id):
         categoria=site_data.get("categoria"),
         estado_conservacion=site_data.get("estado_conservacion"),
         visible=site_data.get("visible",False),
-        portada=site_data.get("portada"),
     )
 
     tags_data = site_data.get("tags", [])
@@ -305,6 +310,18 @@ def add_site(site_data,user_id):
         if tag is None:
             raise ValueError(f"Tag '{tag_id}' no encontrado")
         nuevo_sitio.tags.append(tag)
+
+    images_data = site_data.get("images", [])
+    
+    # crear las imagenes en la db y asociarlas
+    for image_obj in images_data:
+        nueva_imagen = Image(
+            url=image_obj,
+            title="",
+            description="",
+            is_cover=False
+        )
+        nuevo_sitio.images.append(nueva_imagen)
 
     db.session.add(nuevo_sitio)
     db.session.commit()
@@ -316,7 +333,6 @@ def add_site(site_data,user_id):
     add_site_history(
         nuevo_sitio.id, HistoryAction.CREAR, user_id, historial_data, None, list(site_data.keys())
     )
-
     return nuevo_sitio
 
 def actualizar_historial(nuevo,accion,original=None):
