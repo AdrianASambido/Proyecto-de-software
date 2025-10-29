@@ -100,26 +100,51 @@
         <span class="text-red-500 text-sm">{{ error }}</span>
     {% endfor %}
 
-    <!-- Imágenes -->
+    <!-- Imágenes con Dropzone -->
+    
     <div class="mb-4">
-        {{ form.images.label(class="block text-sm font-medium text-gray-700 mb-1") }}
-        {{ form.images(class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500", id="images-input", multiple=true) }}
-        <div id="images-preview" class="mt-3 grid grid-cols-3 sm:grid-cols-4 gap-3"></div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Imágenes</label>
+        <div id="dropzone" class="dropzone border-dashed border-2 border-gray-300 rounded-lg p-6 bg-gray-50 text-center cursor-pointer">
+            <div class="dz-message text-gray-500">
+                Arrastra tus imágenes aquí o haz clic para seleccionarlas
+            </div>
+        </div>
         {% for error in form.images.errors %}
             <span class="text-red-500 text-sm">{{ error }}</span>
         {% endfor %}
     </div>
+
+    <div id="dz-template" class="hidden">
+        <div class="dz-preview dz-file-preview relative bg-gray-50 border rounded-lg overflow-hidden">
+            <img data-dz-thumbnail class="w-full h-24 object-cover" />
+            <div class="absolute top-1 right-1">
+            <button class="relative z-10 bg-white/80 rounded-full p-1 shadow text-gray-700 hover:bg-gray-200" data-dz-remove>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            </div>
+            <div class="p-1 text-xs text-gray-600 truncate" data-dz-name></div>
+        </div>
+    </div>
+
 
     <!-- Botón -->
     <button type="submit"
         class="w-full bg-blue-900 text-white py-2 px-4 rounded-lg hover:bg-gray-700">
         {{ form.submit.label.text or "Guardar" }}
     </button>
+
+    
 </form>
 
 <!-- Leaflet -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+<!-- Dropzone -->
+<link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
+<script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 
 <script>
     const bounds = [[-55.0, -73.0], [-21.0, -53.0]];
@@ -166,86 +191,56 @@
     placeholder: 'Seleccioná uno o más tags',
   });
 
-  (function () {
-    const input = document.getElementById('images-input');
-    const preview = document.getElementById('images-preview');
-    let currentUrls = [];
-    let selectedFiles = []; // mantiene todos los archivos agregados
+</script>
 
-    function clearPreviews() {
-      currentUrls.forEach(url => URL.revokeObjectURL(url));
-      currentUrls = [];
-      preview.innerHTML = '';
-    }
+<script>
+    Dropzone.autoDiscover = false;
 
-    function rebuildPreviews() {
-      clearPreviews();
-      selectedFiles.forEach(file => {
-        const url = URL.createObjectURL(file);
-        currentUrls.push(url);
+    const inputHidden = document.createElement("input");
+    inputHidden.type = "file";
+    inputHidden.name = "images";
+    inputHidden.id = "images-input";
+    inputHidden.multiple = true;
+    inputHidden.hidden = true;
 
-        const wrapper = document.createElement('div');
-        wrapper.className = 'relative bg-gray-50 rounded overflow-hidden border';
+    // insertamos el input oculto dentro del form (Dropzone lo actualizará)
+    const form = document.querySelector("form");
+    form.appendChild(inputHidden);
 
-        const img = document.createElement('img');
-        img.src = url;
-        img.alt = file.name;
-        img.className = 'object-cover w-full h-24';
 
-        const label = document.createElement('div');
-        label.className = 'p-1 text-xs text-gray-600 truncate';
-        label.textContent = file.name;
+    const previewTemplate = document.querySelector("#dz-template").innerHTML;
 
-        // boton para eliminar un archivo seleccionado antes de subir
-        const removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.className = 'absolute top-1 right-1 bg-white/80 rounded-full p-0.5 text-xs';
-        removeBtn.innerHTML = '✕';
-        removeBtn.addEventListener('click', () => {
-          // quitar de selectedFiles y actualizar input.files y previews
-          selectedFiles = selectedFiles.filter(f => !(f.name === file.name && f.size === file.size && f.lastModified === file.lastModified));
-          syncInputFiles();
-          rebuildPreviews();
-        });
+    const myDropzone = new Dropzone("#dropzone", {
+        url: "#",
+        autoProcessQueue: false,
+        clickable: true,
+        acceptedFiles: "image/*",
+        maxFilesize: 5,
+        previewTemplate: previewTemplate,
+        addRemoveLinks: false,
+    });
 
-        wrapper.appendChild(img);
-        wrapper.appendChild(removeBtn);
-        wrapper.appendChild(label);
 
-        preview.appendChild(wrapper);
-      });
-    }
+    // mantenemos todos los archivos seleccionados
+    let selectedFiles = [];
+
+    myDropzone.on("addedfile", function (file) {
+        selectedFiles.push(file);
+        syncInputFiles();
+    });
+
+    myDropzone.on("removedfile", function (file) {
+        selectedFiles = selectedFiles.filter(
+            f => !(f.name === file.name && f.size === file.size && f.lastModified === file.lastModified)
+        );
+        syncInputFiles();
+    });
 
     function syncInputFiles() {
-      // sincroniza input.files con selectedFiles usando DataTransfer
-      const dt = new DataTransfer();
-      selectedFiles.forEach(f => dt.items.add(f));
-      input.files = dt.files;
+        const dt = new DataTransfer();
+        selectedFiles.forEach(f => dt.items.add(f));
+        inputHidden.files = dt.files;
     }
-
-    if (input && preview) {
-      input.addEventListener('change', function (e) {
-        const files = Array.from(e.target.files || []);
-        // añadir sin duplicados (compara name+size+lastModified)
-        files.forEach(f => {
-          const exists = selectedFiles.some(sf => sf.name === f.name && sf.size === f.size && sf.lastModified === f.lastModified);
-          if (!exists && f.type.startsWith('image/')) selectedFiles.push(f);
-        });
-        syncInputFiles();
-        rebuildPreviews();
-      });
-
-      // limpiar previews y selectedFiles al enviar el formulario
-      const form = input.closest('form');
-      if (form) {
-        form.addEventListener('submit', () => {
-          // opcional: dejar los previews mientras se procesa; si querés limpiar:
-          // selectedFiles = [];
-          // clearPreviews();
-        });
-      }
-    }
-  })();
 </script>
 
 {% endblock %}
