@@ -146,6 +146,9 @@
 <link rel="stylesheet" href="https://unpkg.com/dropzone@5/dist/min/dropzone.min.css" type="text/css" />
 <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 
+<!-- SortableJS -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
 <script>
     const bounds = [[-55.0, -73.0], [-21.0, -53.0]];
     const map = L.map("map", { maxBounds: bounds, maxBoundsViscosity: 1.0 })
@@ -194,6 +197,7 @@
 </script>
 
 <script>
+
     Dropzone.autoDiscover = false;
 
     const inputHidden = document.createElement("input");
@@ -236,11 +240,47 @@
         syncInputFiles();
     });
 
-    function syncInputFiles() {
+    const syncInputFiles = () => {
         const dt = new DataTransfer();
         selectedFiles.forEach(f => dt.items.add(f));
         inputHidden.files = dt.files;
     }
+
+    (function(){
+        const previewsContainer = myDropzone.previewsContainer || document.querySelector("#dropzone");
+
+        Sortable.create(previewsContainer, {
+            animation: 150,
+            draggable: '.dz-preview',
+            onEnd: function (evt) {
+                // obtener previews en su nuevo orden
+                const previewEls = Array.from(previewsContainer.querySelectorAll('.dz-preview'));
+                const newFilesOrder = [];
+
+                previewEls.forEach(el => {
+                    const nameEl = el.querySelector('[data-dz-name]');
+                    const name = nameEl ? nameEl.textContent.trim() : null;
+                    if (!name) return;
+                    // buscar el file correspondiente en myDropzone.files por nombre y tamaño
+                    const file = myDropzone.files.find(f => f.name === name);
+                    if (file) newFilesOrder.push(file);
+                });
+
+                // fallback: si algo falta, añadir los que quedaron fuera
+                myDropzone.files.forEach(f => {
+                    if (!newFilesOrder.includes(f)) newFilesOrder.push(f);
+                });
+
+                // actualizar el array interno de dropzone y el array de selectedFiles
+                myDropzone.files = newFilesOrder.slice();
+                selectedFiles = newFilesOrder.slice();
+
+                // sincronizar input oculto
+                syncInputFiles();
+            }
+        });
+    })();
+
 </script>
 
 {% endblock %}
