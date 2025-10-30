@@ -116,13 +116,18 @@
 
     <div id="dz-template" class="hidden">
         <div class="dz-preview dz-file-preview relative bg-gray-50 border rounded-lg overflow-hidden">
+            <!-- Badge de Portada -->
+            <span class="cover-badge hidden absolute top-1 left-1 z-10 bg-blue-600 text-white text-[10px] px-2 py-[2px] rounded">Portada</span>
             <img data-dz-thumbnail class="w-full h-24 object-cover" />
-            <div class="absolute top-1 right-1">
-            <button class="relative z-10 bg-white/80 rounded-full p-1 shadow text-gray-700 hover:bg-gray-200" data-dz-remove>
+            <div class="absolute top-1 right-1 flex gap-1">
+              <!-- Botón hacer portada -->
+              <button type="button" class="make-cover-btn relative z-10 bg-white/80 rounded-full px-2 py-1 text-[10px] shadow text-gray-700 hover:bg-gray-200">Hacer portada</button>
+              <!-- Botón eliminar -->
+              <button class="relative z-10 bg-white/80 rounded-full p-1 shadow text-gray-700 hover:bg-gray-200" data-dz-remove>
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
-            </button>
+              </button>
             </div>
             <div class="p-1 text-xs text-gray-600 truncate" data-dz-name></div>
         </div>
@@ -211,6 +216,14 @@
     const form = document.querySelector("form");
     form.appendChild(inputHidden);
 
+    // input oculto para portada (índice 0 por defecto)
+    const coverInput = document.createElement("input");
+    coverInput.type = "hidden";
+    coverInput.name = "cover_index";
+    coverInput.id = "cover-index";
+    coverInput.value = 0;
+    form.appendChild(coverInput);
+
 
     const previewTemplate = document.querySelector("#dz-template").innerHTML;
 
@@ -220,17 +233,66 @@
         clickable: true,
         acceptedFiles: "image/*",
         maxFilesize: 5,
+        maxFiles: 10,
         previewTemplate: previewTemplate,
         addRemoveLinks: false,
+        dictInvalidFileType: "Formato no permitido. Solo imágenes (JPG/PNG/WEBP).",
+        dictFileTooBig: "La imagen supera el límite de 5 MB.",
+        dictMaxFilesExceeded: "Máximo 10 imágenes.",
     });
 
 
     // mantenemos todos los archivos seleccionados
     let selectedFiles = [];
 
+    // Validación adicional vía callback accept
+    myDropzone.options.accept = function(file, done) {
+        const isImage = file.type && file.type.startsWith('image/');
+        const tooBig = file.size > 5 * 1024 * 1024; // 5MB
+        if (!isImage) {
+            done("Formato no permitido. Solo imágenes.");
+        } else if (tooBig) {
+            done("Imagen supera 5 MB.");
+        } else {
+            done();
+        }
+    }
+
+    myDropzone.on("error", function(file, message) {
+        // Quitar previews inválidas y avisar
+        showToast(typeof message === 'string' ? message : 'Archivo inválido.', 'error');
+        myDropzone.removeFile(file);
+    });
+
     myDropzone.on("addedfile", function (file) {
+        // Solo mantener archivos válidos
+        if (!(file.type && file.type.startsWith('image/')) || file.size > 5 * 1024 * 1024) {
+            return; // será removido por el handler de error/accept
+        }
         selectedFiles.push(file);
         syncInputFiles();
+
+        // wire botón "Hacer portada" de este preview
+        const lastPreview = myDropzone.previewsContainer.querySelectorAll('.dz-preview');
+        const previewEl = lastPreview[lastPreview.length - 1];
+        const makeCoverBtn = previewEl.querySelector('.make-cover-btn');
+        if (makeCoverBtn) {
+            makeCoverBtn.addEventListener('click', function (e) {
+                e.preventDefault();
+                setAsCover(previewEl);
+            });
+        }
+
+        // si es el primer archivo, marcarlo como portada por defecto
+        if (myDropzone.files.length === 1) {
+            updateCoverUI();
+        }
+    });
+
+    // evitar superar el máximo de 10 imágenes
+    myDropzone.on("maxfilesexceeded", function(file) {
+        this.removeFile(file);
+        showToast("Máximo 10 imágenes.", 'error');
     });
 
     myDropzone.on("removedfile", function (file) {
@@ -238,12 +300,51 @@
             f => !(f.name === file.name && f.size === file.size && f.lastModified === file.lastModified)
         );
         syncInputFiles();
+        updateCoverUI();
     });
 
     const syncInputFiles = () => {
         const dt = new DataTransfer();
         selectedFiles.forEach(f => dt.items.add(f));
         inputHidden.files = dt.files;
+    }
+
+    function updateCoverUI() {
+        // portada = primer preview
+        const previewsContainer = myDropzone.previewsContainer || document.querySelector("#dropzone");
+        const previewEls = Array.from(previewsContainer.querySelectorAll('.dz-preview'));
+        previewEls.forEach((el, idx) => {
+            const badge = el.querySelector('.cover-badge');
+            if (!badge) return;
+            if (idx === 0) {
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        });
+        // actualizar cover_index oculto
+        coverInput.value = previewEls.length ? 0 : "";
+    }
+
+    function setAsCover(previewEl) {
+        const previewsContainer = myDropzone.previewsContainer || document.querySelector("#dropzone");
+        // mover DOM al inicio
+        if (previewEl && previewsContainer.firstChild !== previewEl) {
+            previewsContainer.insertBefore(previewEl, previewsContainer.firstChild);
+        }
+        // reordenar arrays internos (portada = index 0)
+        const nameEl = previewEl.querySelector('[data-dz-name]');
+        const name = nameEl ? nameEl.textContent.trim() : null;
+        if (name) {
+            const idx = myDropzone.files.findIndex(f => f.name === name);
+            if (idx > -1) {
+                const file = myDropzone.files.splice(idx, 1)[0];
+                myDropzone.files.unshift(file);
+                selectedFiles = myDropzone.files.slice();
+                syncInputFiles();
+            }
+        }
+        updateCoverUI();
     }
 
     (function(){
@@ -277,9 +378,23 @@
 
                 // sincronizar input oculto
                 syncInputFiles();
+                // actualizar UI de portada (primero es portada)
+                updateCoverUI();
             }
         });
     })();
+
+    function showToast(message, type) {
+        const colors = {
+            success: 'bg-green-600 text-white',
+            error: 'bg-red-600 text-white'
+        };
+        const toast = document.createElement('div');
+        toast.className = `fixed z-50 top-4 right-4 px-4 py-2 rounded-lg shadow-lg ${colors[type] || colors.success}`;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
 
 </script>
 
