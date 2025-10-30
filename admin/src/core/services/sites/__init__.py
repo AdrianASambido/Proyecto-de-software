@@ -172,21 +172,25 @@ def filter_sites(filtros):
 
     return query
 
-def get_site(site_id, include_cover=False):
+def get_site(site_id, include_images=False):
     sitio = Site.query.get(site_id)
     if not sitio:
         return None
 
-    if include_cover:
-        Cover = aliased(Image)
-        cover = (
-            db.session.query(Cover.url)
-            .filter(Cover.site_id == site_id, Cover.is_cover == True)
-            .first()
-        )
-        sitio._cover_url = cover[0] if cover else None 
-
+    if include_images:
+        sitio.images_data = [
+            {
+                "id": img.id,
+                "url": img.url,
+                "title": img.title,
+                "description": img.description,
+                "order": img.order,
+                "is_cover": img.is_cover,
+            }
+            for img in sitio.images
+        ]
     return sitio
+
 
 
 def modify_site(site_id, site_data, user_id):
