@@ -24,6 +24,8 @@ class Site(db.Model):
     categoria = db.Column(db.String(50), nullable=False)
     estado_conservacion = db.Column(db.String(50), nullable=False)
 
+
+
     created_at = db.Column(
         db.DateTime,
         nullable=False,
