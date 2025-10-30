@@ -32,13 +32,18 @@ def get_sites():
     
     return jsonify(response),200
 
-
 @api_bp.get("/sites/<int:site_id>")
 def get_site_by_id(site_id):
-    site = get_site(site_id)
+    include_images = request.args.get("include_images", "false").lower() == "true"
+    site = get_site(site_id, include_images=include_images)
+
     if not site:
         return jsonify({"error": "Sitio no encontrado"}), 404
 
     schema = SiteSchema()
     data = schema.dump(site)
+
+    if hasattr(site, "images_data"):
+        data["imagenes"] = site.images_data
+
     return jsonify(data), 200

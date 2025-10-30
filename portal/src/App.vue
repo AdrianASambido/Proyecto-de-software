@@ -15,15 +15,9 @@ import Footer from './components/pantalla_inicial/Footer.vue';
   <HeaderBarraBusqueda />
   <!-- Esto está bien ubicado SI-->
   <main>
-    <HeroPrincipal />
+   
 
-    <CarruselImagenes /> 
-    
-    <GaleriaTarjetasMonumentos />
-    
-    <CarruselFavoritos />
-
-    <CarruselRecientementeAgregados />
+   
     
     <router-view></router-view><!-- renderiza la página constantemente -->
   </main> 
