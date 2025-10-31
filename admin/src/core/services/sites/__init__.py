@@ -318,13 +318,8 @@ def add_site(site_data,user_id):
     images_data = site_data.get("images", [])
     
     # crear las imagenes en la db y asociarlas
-    for image_obj in images_data:
-        nueva_imagen = Image(
-            url=image_obj,
-            title="",
-            description="",
-            is_cover=False
-        )
+    for idx, img_info in enumerate(images_data):
+        nueva_imagen = Image(**img_info)
         nuevo_sitio.images.append(nueva_imagen)
 
     db.session.add(nuevo_sitio)
