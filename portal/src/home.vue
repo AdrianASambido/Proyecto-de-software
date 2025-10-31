@@ -1,6 +1,9 @@
 <script setup>
-import Carrusel from '../components/carruselImagenes.vue';
+import Carrusel from '@/components/pantalla_inicial/carruselImagenes.vue';
+import galeriaTarjetasMonumentos from '@/components/pantalla_inicial/galeriaTarjetasMonumentos.vue';
 import { ref, onMounted } from 'vue';
+
+import api from '@/api/axios.js';
 
 // 1. Estado para los datos del Carrusel A
 const carruselMejorPuntuados = ref([]);
@@ -8,14 +11,25 @@ const carruselMejorPuntuados = ref([]);
 // 2. Estado para los datos del Carrusel B
 const carruselRecientementeAgregados = ref([]);
 
+// 3. Estado para los datos de la grilla de tarjetas de monumentos 
+const galeriaTarjetasSitios = ref([]);
+
 onMounted(async () => {
-  // Cargar datos desde una API
-  // Carrusel A (Puntuados)
-  //carruselMejorPuntuados.value = await fetch('/api/mejor/Puntuados').then(res => res.json());
-  carruselMejorPuntuados.value = await fetch('/api/mejorPuntuados').then(res => res.json());
-  
-  // Carrusel B (Recientemente Agregados) 
-  carruselRecientementeAgregados.value = await fetch('/api/recientementeAgregados').then(res => res.json());
+  try {
+    // Carrusel A (Puntuados)
+    const responseMejorPuntuados = await api.get('/sites/best-rated');
+    carruselMejorPuntuados.value = responseMejorPuntuados.data;
+    
+    // Carrusel B (Recientemente Agregados) 
+    const responseRecientementeAgregados = await api.get('/sites/recently-added');
+    carruselRecientementeAgregados.value = responseRecientementeAgregados.data;
+
+    // galeria tarjetas 
+    const responseSitios = await api.get('/sites');
+    galeriaTarjetasSitios.value = responseSitios.data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  }
 });
 </script>
 
@@ -30,5 +44,10 @@ onMounted(async () => {
   <Carrusel 
     :items="carruselRecientementeAgregados" 
     title="Recientemente agregados"
+  />
+
+  <galeriaTarjetasMonumentos
+    :items="galeriaTarjetasSitios"
+    title="Sitios Históricos"
   />
 </template>

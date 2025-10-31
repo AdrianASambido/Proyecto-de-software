@@ -2,6 +2,13 @@
   <section class="carrusel-container">
     <h2>{{ title }}</h2>
     <div class="slide">
+
+      <baseCard 
+        v-for="item in items" 
+        :key="item.id"
+        :item="item"  
+      /> 
+
       <div v-for="item in items" :key="item.id">
         <img :src="item.src" :alt="item.title">
         <p>{{ item.description }}</p>
@@ -11,13 +18,16 @@
 </template>
 
 <script setup>
-// 1. Define las propiedades que el componente espera recibir
+import baseCard from '../baseCard.vue';
+import { defineProps } from 'vue';
+// 1. Define las propiedades que el componente espera recibir de( home.vue)
 const props = defineProps({
-  // 'items' es la lista de datos a mostrar (e.g., productos, noticias, fotos)
+  // 'items' es la lista de datos a mostrar ()
   
   items: {
     type: Array,
-    required: true
+    required: true,
+    default : () => []
   },
   // 'title' es un título opcional para la sección
   title: {
