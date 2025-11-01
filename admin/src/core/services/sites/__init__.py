@@ -32,8 +32,12 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=F
     if include_cover:
         Cover = aliased(Image)
         subquery = (
-            db.session.query(Cover.site_id, Cover.url)
+            db.session.query(
+                Cover.site_id,
+                func.max(Cover.url).label("url")  # o MIN si preferís la primera portada
+            )
             .filter(Cover.is_cover == True)
+            .group_by(Cover.site_id)
             .subquery()
         )
 
@@ -81,19 +85,30 @@ def geoespatial_search(query,filtros):
         )
     return query
 
+from sqlalchemy import func, and_
+from sqlalchemy.orm import aliased
+
 def order_sites(query, filtros):
-    """
-    ordena los sitios
-    """
     orden = filtros.get("order", "fecha_desc")
 
-    if orden == "mejor_puntuado":   
-        query = (
-            query.outerjoin(Review, and_(Review.site_id == Site.id, Review.estado == ReviewStatus.APROBADA))
-            .group_by(Site.id)
-            .order_by(func.avg(Review.calificacion).desc().nullslast())
+   
+    if orden == "mejor_puntuado":
+        avg_reviews_subq = (
+            db.session.query(
+                Review.site_id.label("site_id"),
+                func.avg(Review.calificacion).label("promedio")
+            )
+            .filter(Review.estado == ReviewStatus.APROBADA)
+            .group_by(Review.site_id)
+            .subquery()
         )
+
+        # Join con el promedio
+        query = query.outerjoin(avg_reviews_subq, Site.id == avg_reviews_subq.c.site_id)
+        query = query.order_by(avg_reviews_subq.c.promedio.desc().nullslast())
         return query
+
+    # Ordenamientos normales
     opciones_orden = {
         "fecha_asc": Site.created_at.asc(),
         "fecha_desc": Site.created_at.desc(),
@@ -102,6 +117,7 @@ def order_sites(query, filtros):
         "ciudad_asc": Site.ciudad.asc(),
         "ciudad_desc": Site.ciudad.desc(),
     }
+
     return query.order_by(opciones_orden.get(orden, Site.created_at.desc()))
 
 

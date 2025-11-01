@@ -55,10 +55,7 @@ import api from '@/api/axios'
 import SiteHeader from '@/components/sites/SiteHeader.vue'
 import SiteGallery from '@/components/sites/SiteGallery.vue'
 import SiteDescription from '@/components/sites/SiteDescription.vue'
-<<<<<<< HEAD
 import SiteMap from '@/components/sites/SiteMap.vue'
-=======
->>>>>>> dev
 
 const router = useRouter()
 const route = useRoute()
