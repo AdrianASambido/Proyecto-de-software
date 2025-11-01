@@ -38,11 +38,7 @@
 import { ref, nextTick } from 'vue'
 
 const props = defineProps({
-<<<<<<< HEAD
   descripcion_completa: { type: String, required: true }
-=======
-  descripcion_breve: { type: String, required: true }
->>>>>>> dev
 })
 
 const showFull = ref(false)
