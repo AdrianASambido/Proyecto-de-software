@@ -1,6 +1,6 @@
 <template>
   <div class="carousel-container">
-    <h1 class="text-2xl font-bold mb-4 text-center">Recientemente agregados</h1>
+    <h1 class="text-2xl font-bold mb-4 text-center">Recientemente agregados (Puede estar vacio poner mensaje)</h1>
     <div class="relative">
       <div class="flex items-center justify-center space-x-4">
         <button @click="prev" :disabled="currentIndex === 0" class="nav-button">
