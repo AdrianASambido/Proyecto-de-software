@@ -20,11 +20,28 @@
 
     <!-- 🖼️ Galería de imágenes -->
     <div class="w-full max-w-5xl mb-8" v-if="site">
-      <SiteGallery :images="site.imagenes" />
+      <SiteGallery :imagenes="site.imagenes" />
+
     </div>
 
     <!-- Descripción -->
-    <SiteDescription v-if="site" :description="site.descripcion_breve" />
+    <SiteDescription v-if="site" :descripcion_completa="site.descripcion_completa" />
+
+   <!-- 🗺️ Bloque del mapa -->
+<div class="w-full max-w-5xl bg-white shadow-md rounded-2xl p-4 mt-10">
+  <h2 class="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">
+    Ubicación en el mapa
+  </h2>
+  <SiteMap
+    v-if="site && site.latitud && site.longitud"
+    :latitud="site.latitud"
+    :longitud="site.longitud"
+    :nombre="site.nombre"
+    :descripcion="site.descripcion_breve"
+  />
+</div>
+
+
 
     <div v-if="loading" class="text-gray-500">Cargando...</div>
     <div v-if="error" class="text-red-500">{{ error }}</div>
@@ -38,6 +55,10 @@ import api from '@/api/axios'
 import SiteHeader from '@/components/sites/SiteHeader.vue'
 import SiteGallery from '@/components/sites/SiteGallery.vue'
 import SiteDescription from '@/components/sites/SiteDescription.vue'
+<<<<<<< HEAD
+import SiteMap from '@/components/sites/SiteMap.vue'
+=======
+>>>>>>> dev
 
 const router = useRouter()
 const route = useRoute()
