@@ -4,6 +4,7 @@ Este modelo representa las operaciones relacionadas con los sitios historicos.
 
 from src.core.database import db
 from src.core.Entities.site import Site
+from src.core.Entities.review import Review,ReviewStatus
 from src.core.Entities.site_history import HistoryAction
 
 from src.core.services.history import add_site_history
@@ -85,6 +86,14 @@ def order_sites(query, filtros):
     ordena los sitios
     """
     orden = filtros.get("order", "fecha_desc")
+
+    if orden == "mejor_puntuado":   
+        query = (
+            query.outerjoin(Review, and_(Review.site_id == Site.id, Review.estado == ReviewStatus.APROBADA))
+            .group_by(Site.id)
+            .order_by(func.avg(Review.calificacion).desc().nullslast())
+        )
+        return query
     opciones_orden = {
         "fecha_asc": Site.created_at.asc(),
         "fecha_desc": Site.created_at.desc(),

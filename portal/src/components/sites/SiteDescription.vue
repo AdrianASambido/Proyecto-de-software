@@ -28,7 +28,7 @@
         class="py-3 text-gray-600 transition-opacity duration-300"
         :style="{ opacity: showFull ? 1 : 0 }"
       >
-        {{  descripcion_breve }}
+        {{  descripcion_completa }}
       </p>
     </div>
   </div>
@@ -38,7 +38,11 @@
 import { ref, nextTick } from 'vue'
 
 const props = defineProps({
+<<<<<<< HEAD
+  descripcion_completa: { type: String, required: true }
+=======
   descripcion_breve: { type: String, required: true }
+>>>>>>> dev
 })
 
 const showFull = ref(false)
