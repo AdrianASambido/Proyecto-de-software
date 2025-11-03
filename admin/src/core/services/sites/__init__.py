@@ -57,11 +57,34 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=F
 
     return query.paginate(page=page, per_page=per_page, error_out=False)
 
+def calculate_review_count(site_id):
+    """
+    Calcula la cantidad de reseñas aprobadas para un sitio histórico.
+    """
+    count = (
+        db.session.query(func.count(Review.id))
+        .filter(
+            Review.site_id == site_id,
+            Review.estado == ReviewStatus.APROBADA
+        )
+        .scalar()
+    )
+    return count
 
-def geoespatial_search(query,filtros):
+def calculate_valoration(site_id):
     """
-    filtra los sitios dentro del radio dado usando postgis
+    Calcula la valoración promedio de un sitio histórico basado en las reseñas aprobadas.
     """
+    avg_valoration = (
+        db.session.query(func.avg(Review.calificacion))
+        .filter(
+            Review.site_id == site_id,
+            Review.estado == ReviewStatus.APROBADA
+        )
+        .scalar()
+    )
+    return round(avg_valoration, 2) if avg_valoration is not None else None
+
 
 def geoespatial_search(query,filtros):
     """
@@ -103,12 +126,11 @@ def order_sites(query, filtros):
             .subquery()
         )
 
-        # Join con el promedio
         query = query.outerjoin(avg_reviews_subq, Site.id == avg_reviews_subq.c.site_id)
         query = query.order_by(avg_reviews_subq.c.promedio.desc().nullslast())
         return query
 
-    # Ordenamientos normales
+   
     opciones_orden = {
         "fecha_asc": Site.created_at.asc(),
         "fecha_desc": Site.created_at.desc(),
@@ -201,6 +223,8 @@ def get_site(site_id, include_images=False):
     sitio = Site.query.get(site_id)
     if not sitio:
         return None
+
+    
 
     if include_images:
         sitio.images_data = [
