@@ -37,9 +37,11 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     database.config_db(app)
     sess.init_app(app)
     storage.init_app(app)
-    CORS(app,resources=r"/api/*")
-    
-
+    CORS(
+        app,
+        resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}},
+        supports_credentials=True
+    )
     # Middleware para verificar flags de mantenimiento
     @app.before_request # se ejecuta antes de cada solicitud HTTP
     def check_maintenance_mode():
