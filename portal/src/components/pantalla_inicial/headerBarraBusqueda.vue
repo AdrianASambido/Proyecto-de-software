@@ -7,15 +7,14 @@
         <button class="btn-busqueda">🔍</button>
       </div>
       <div>
-        <button class="btn-busqueda" href="">Login con Google</button>
+        <a href="http://localhost:5173/api/auth/google" class="btn-busqueda">Login con google</a>
       </div>
     </div>
   </header>
 </template>
 
 <script setup>
-  // acá que iria??
-  import LoginGoogle from "../login_google/login.vue";
+  //Acá que iría?
 </script>
 
 <style scoped>

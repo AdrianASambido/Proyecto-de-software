@@ -12,13 +12,13 @@
       
       <div class="p-6 flex flex-col justify-center items-start">
         <h2 class="text-3xl font-extrabold text-gray-900 mb-4">
-          Homenaje al Libertador
+          Ruinas de mexico
         </h2>
         <p class="text-gray-600 mb-6 leading-relaxed">
-          José de San Martín, figura central en la independencia de Argentina, Chile y Perú, inspira la arquitectura y el arte cívico. Este monumento no solo es un tributo a su gesta libertadora, sino un punto de encuentro histórico que refleja la identidad nacional y la grandeza de nuestra historia.
+          Unas de las estructuras más destacadas de nuestra historia, una reliquia arquitectónica que te llevará de regreso al pasado.
         </p>
         <a href="#" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-          Descubre más
+          Descubre más                                                                                                                                   <!-- 600 700 --> 
         </a>
       </div>
     </div>
@@ -26,11 +26,9 @@
 </template>
 
 <script setup>
-// Lógica JS si es necesaria (e.g., para cargar los datos de la imagen desde una API)
+// Lógica para cargar los datos de la imagen desde una API
 </script>
 
 <style scoped>
-
-/*src="https://via.placeholder.com/600x400/003366/FFFFFF?text=Monumento+San+Martin" */
 
 </style>
