@@ -19,18 +19,11 @@
     </button>
 
     <!-- Contenedor del contenido -->
-    <div
-      ref="content"
-      class="overflow-hidden px-4 transition-[max-height] duration-300 ease-in-out"
-      :style="{ maxHeight: maxHeight }"
-    >
-      <p
-        class="py-3 text-gray-600 transition-opacity duration-300"
-        :style="{ opacity: showFull ? 1 : 0 }"
-      >
-        {{  descripcion_completa }}
-      </p>
+   <div class="py-3 text-gray-600 transition-opacity duration-300 space-y-3" :style="{ opacity: showFull ? 1 : 0 }">
+      <p>{{ descripcion_breve }}</p>
+      <p>{{ descripcion_completa }}</p>
     </div>
+
   </div>
 </template>
 
@@ -38,7 +31,8 @@
 import { ref, nextTick } from 'vue'
 
 const props = defineProps({
-  descripcion_completa: { type: String, required: true }
+  descripcion_completa: { type: String, required: true },
+  descripcion_breve:{type:String,required:true}
 })
 
 const showFull = ref(false)
