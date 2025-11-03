@@ -17,7 +17,7 @@ class ProductionConfig(Config):
     MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY")
     MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY")
     MINIO_SECURE = True
-    MINIO_BUCKET = "grupo01"
+    MINIO_BUCKET =os.getenv( "MINIO_BUCKET")
 
     CORS_ORIGINS=[
         "https://grupo01.proyecto2025.linti.unlp.edu.ar/"
