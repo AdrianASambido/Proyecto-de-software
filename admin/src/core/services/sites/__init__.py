@@ -4,6 +4,7 @@ Este modelo representa las operaciones relacionadas con los sitios historicos.
 
 from src.core.database import db
 from src.core.Entities.site import Site
+from src.core.Entities.review import Review,ReviewStatus
 from src.core.Entities.site_history import HistoryAction
 
 from src.core.services.history import add_site_history
@@ -31,8 +32,12 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=F
     if include_cover:
         Cover = aliased(Image)
         subquery = (
-            db.session.query(Cover.site_id, Cover.url)
+            db.session.query(
+                Cover.site_id,
+                func.max(Cover.url).label("url")  # o MIN si preferís la primera portada
+            )
             .filter(Cover.is_cover == True)
+            .group_by(Cover.site_id)
             .subquery()
         )
 
@@ -52,11 +57,34 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=F
 
     return query.paginate(page=page, per_page=per_page, error_out=False)
 
+def calculate_review_count(site_id):
+    """
+    Calcula la cantidad de reseñas aprobadas para un sitio histórico.
+    """
+    count = (
+        db.session.query(func.count(Review.id))
+        .filter(
+            Review.site_id == site_id,
+            Review.estado == ReviewStatus.APROBADA
+        )
+        .scalar()
+    )
+    return count
 
-def geoespatial_search(query,filtros):
+def calculate_valoration(site_id):
     """
-    filtra los sitios dentro del radio dado usando postgis
+    Calcula la valoración promedio de un sitio histórico basado en las reseñas aprobadas.
     """
+    avg_valoration = (
+        db.session.query(func.avg(Review.calificacion))
+        .filter(
+            Review.site_id == site_id,
+            Review.estado == ReviewStatus.APROBADA
+        )
+        .scalar()
+    )
+    return round(avg_valoration, 2) if avg_valoration is not None else None
+
 
 def geoespatial_search(query,filtros):
     """
@@ -80,11 +108,29 @@ def geoespatial_search(query,filtros):
         )
     return query
 
+from sqlalchemy import func, and_
+from sqlalchemy.orm import aliased
+
 def order_sites(query, filtros):
-    """
-    ordena los sitios
-    """
     orden = filtros.get("order", "fecha_desc")
+
+   
+    if orden == "mejor_puntuado":
+        avg_reviews_subq = (
+            db.session.query(
+                Review.site_id.label("site_id"),
+                func.avg(Review.calificacion).label("promedio")
+            )
+            .filter(Review.estado == ReviewStatus.APROBADA)
+            .group_by(Review.site_id)
+            .subquery()
+        )
+
+        query = query.outerjoin(avg_reviews_subq, Site.id == avg_reviews_subq.c.site_id)
+        query = query.order_by(avg_reviews_subq.c.promedio.desc().nullslast())
+        return query
+
+   
     opciones_orden = {
         "fecha_asc": Site.created_at.asc(),
         "fecha_desc": Site.created_at.desc(),
@@ -93,6 +139,7 @@ def order_sites(query, filtros):
         "ciudad_asc": Site.ciudad.asc(),
         "ciudad_desc": Site.ciudad.desc(),
     }
+
     return query.order_by(opciones_orden.get(orden, Site.created_at.desc()))
 
 
@@ -172,21 +219,27 @@ def filter_sites(filtros):
 
     return query
 
-def get_site(site_id, include_cover=False):
+def get_site(site_id, include_images=False):
     sitio = Site.query.get(site_id)
     if not sitio:
         return None
 
-    if include_cover:
-        Cover = aliased(Image)
-        cover = (
-            db.session.query(Cover.url)
-            .filter(Cover.site_id == site_id, Cover.is_cover == True)
-            .first()
-        )
-        sitio._cover_url = cover[0] if cover else None 
+    
 
+    if include_images:
+        sitio.images_data = [
+            {
+                "id": img.id,
+                "url": img.url,
+                "title": img.title,
+                "description": img.description,
+                "order": img.order,
+                "is_cover": img.is_cover,
+            }
+            for img in sitio.images
+        ]
     return sitio
+
 
 
 def modify_site(site_id, site_data, user_id):
@@ -314,13 +367,8 @@ def add_site(site_data,user_id):
     images_data = site_data.get("images", [])
     
     # crear las imagenes en la db y asociarlas
-    for image_obj in images_data:
-        nueva_imagen = Image(
-            url=image_obj,
-            title="",
-            description="",
-            is_cover=False
-        )
+    for idx, img_info in enumerate(images_data):
+        nueva_imagen = Image(**img_info)
         nuevo_sitio.images.append(nueva_imagen)
 
     db.session.add(nuevo_sitio)

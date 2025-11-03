@@ -90,17 +90,23 @@ def add_site():
             
             tags_seleccionados = request.form.getlist("tags[]")
 
-
             params = {}
             if "images" in request.files:
                 images = request.files.getlist("images")
-                uploaded_url_images = []
-                for image in images:
+                uploaded_images = []
+                for i, image in enumerate(images):
                     if image.filename == "":
-                        continue  
+                        continue
                     object_name = upload_file(image, folder_name="sites")
-                    uploaded_url_images.append(object_name)
-                params["images"] = uploaded_url_images
+                    image = {
+                        "url": object_name,
+                        "title": "",
+                        "description": "",
+                        "order": i,
+                        "is_cover": False
+                    }
+                    uploaded_images.append(image)
+                params["images"] = uploaded_images
 
             site_data = {
                 "nombre": siteForm.nombre.data,
