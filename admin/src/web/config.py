@@ -50,8 +50,8 @@ class DevelopmentConfig(Config):
     Configuración para desarrollo
     """
     MINIO_SERVER = "localhost:9000"
-    MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "admin")
-    MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "admin123")
+    MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
+    MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minioadmin")
     MINIO_SECURE = False
     MINIO_BUCKET = "grupo01"
 
