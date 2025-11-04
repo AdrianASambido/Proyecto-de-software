@@ -20,6 +20,7 @@ from src.core.Entities.image import Image
 from sqlalchemy.orm import aliased
 import csv
 from io import StringIO
+from flask import current_app
 
 def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=False):
     """
@@ -49,7 +50,7 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=F
         results = []
         for site, cover_url in pagination.items:
          
-            site._cover_url = cover_url  
+            site._cover_url = f"http://{current_app.config['MINIO_SERVER']}/{current_app.config['MINIO_BUCKET']}/{cover_url}" if cover_url else None  
             results.append(site)
 
         pagination.items = results
@@ -219,12 +220,18 @@ def filter_sites(filtros):
 
     return query
 
-def get_site(site_id, include_images=False):
+def get_site(site_id, include_images=False, include_cover=False):
     sitio = Site.query.get(site_id)
     if not sitio:
         return None
 
-    
+    # Obtener la portada si se solicita
+    if include_cover:
+        cover_image = Image.query.filter_by(site_id=site_id, is_cover=True).first()
+        if cover_image:
+            sitio._cover_url = cover_image.url
+        else:
+            sitio._cover_url = None
 
     if include_images:
         sitio.images_data = [
