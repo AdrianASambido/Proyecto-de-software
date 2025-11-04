@@ -292,6 +292,38 @@ def modify_site(site_id, site_data, user_id):
         if tag is None:
             raise ValueError(f"Tag '{tag_id}' no encontrado")
         sitio.tags.append(tag)
+    
+    # Agregar imágenes nuevas si vienen
+    images_data = site_data.get("images", [])
+    if images_data:
+        # Obtener el máximo order de las imágenes existentes
+        existing_images = sitio.images
+        max_order = max([img.order for img in existing_images if img.order is not None], default=-1) if existing_images else -1
+        
+        # Verificar si ya hay una imagen de portada
+        has_cover = any(img.is_cover for img in existing_images) if existing_images else False
+        
+        # Crear y agregar las nuevas imágenes
+        new_image_ids = []
+        for idx, img_info in enumerate(images_data):
+            nueva_imagen = Image(**img_info)
+            nueva_imagen.site_id = sitio.id
+            nueva_imagen.order = max_order + 1 + idx
+            # Si se especifica un índice de portada, establecer esta imagen como portada
+            cover_index = site_data.get("cover_index")
+            if cover_index is not None and idx == cover_index:
+                nueva_imagen.is_cover = True
+                # Desmarcar otras imágenes como portada si esta es la nueva portada
+                if existing_images:
+                    for img in existing_images:
+                        img.is_cover = False
+            # Si no hay portada actual y es la primera imagen nueva, marcarla como portada
+            elif not has_cover and idx == 0:
+                nueva_imagen.is_cover = True
+            db.session.add(nueva_imagen)
+            db.session.flush()  # Para obtener el ID
+            new_image_ids.append(nueva_imagen.id)
+    
     db.session.commit()
 
     # Nuevo snapshot después de la modificación
@@ -385,6 +417,54 @@ def add_site(site_data,user_id):
 
 def actualizar_historial(nuevo,accion,original=None):
     pass
+
+def delete_site_image(site_id: int, image_id: int):
+    """Elimina una imagen de un sitio. Si era portada, reasigna portada a la siguiente por orden."""
+    sitio = Site.query.get(site_id)
+    if not sitio:
+        raise ValueError("Sitio no encontrado")
+    
+    # Verificar directamente que la imagen existe y pertenece al sitio
+    imagen = Image.query.filter_by(id=image_id, site_id=site_id).first()
+    if not imagen:
+        # Verificar si la imagen existe pero pertenece a otro sitio
+        imagen_existe = Image.query.get(image_id)
+        if imagen_existe:
+            raise ValueError("La imagen no pertenece al sitio")
+        else:
+            raise ValueError("Imagen no encontrada")
+
+    # Verificar que no sea la portada antes de eliminar
+    if imagen.is_cover:
+        raise ValueError("No se puede eliminar la imagen portada. Debe cambiar la portada primero.")
+    
+    # Eliminar la imagen
+    db.session.delete(imagen)
+    db.session.commit()
+
+def set_cover_image(site_id: int, image_id: int):
+    """Marca una imagen como portada del sitio, desmarcando las demás."""
+    sitio = Site.query.get(site_id)
+    if not sitio:
+        raise ValueError("Sitio no encontrado")
+    
+    # Verificar que la imagen existe y pertenece al sitio
+    imagen = Image.query.filter_by(id=image_id, site_id=site_id).first()
+    if not imagen:
+        imagen_existe = Image.query.get(image_id)
+        if imagen_existe:
+            raise ValueError("La imagen no pertenece al sitio")
+        else:
+            raise ValueError("Imagen no encontrada")
+    
+    # Desmarcar todas las imágenes como portada
+    for img in sitio.images:
+        img.is_cover = False
+    
+    # Marcar la imagen seleccionada como portada
+    imagen.is_cover = True
+    
+    db.session.commit()
 
 def delete_site(site_id,user_id):
     """
