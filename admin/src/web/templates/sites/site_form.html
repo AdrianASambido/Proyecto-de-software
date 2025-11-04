@@ -100,10 +100,13 @@
         <span class="text-red-500 text-sm">{{ error }}</span>
     {% endfor %}
 
+    <!-- Imágenes existentes (solo en edición) -->
+    {% block existing_images %}{% endblock %}
+    
     <!-- Imágenes con Dropzone -->
     
     <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Imágenes</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">{% block images_label %}Agregar imágenes{% endblock %}</label>
         <div id="dropzone" class="dropzone border-dashed border-2 border-gray-300 rounded-lg p-6 bg-gray-50 text-center cursor-pointer">
             <div class="dz-message text-gray-500">
                 Arrastra tus imágenes aquí o haz clic para seleccionarlas
