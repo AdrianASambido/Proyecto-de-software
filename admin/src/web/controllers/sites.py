@@ -25,6 +25,7 @@ def process_uploaded_images():
     params = {}
     if "images" in request.files:
         images = request.files.getlist("images")
+        images_alts = request.form.getlist("images_alts[]")
         uploaded_images = []
         for i, image in enumerate(images):
             if image.filename == "":
@@ -32,7 +33,7 @@ def process_uploaded_images():
             object_name = upload_file(image, folder_name="sites")
             image_data = {
                 "url": object_name,
-                "title": "",
+                "title": images_alts[i] if i < len(images_alts) else "",
                 "description": "",
                 "order": i,
                 "is_cover": False
@@ -116,6 +117,7 @@ def add_site():
             
             tags_seleccionados = request.form.getlist("tags[]")
 
+            images_alts = request.form.getlist("image_alt[]")
             params = process_uploaded_images()
 
             site_data = {
