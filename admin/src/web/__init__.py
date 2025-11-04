@@ -8,6 +8,7 @@ from src.core.services.feature_flags import (
     is_portal_maintenance_mode,
     get_portal_maintenance_message,
 )
+from src.web import helpers
 from flask_cors import CORS
 
 # ACA controladores
@@ -87,7 +88,9 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.jinja_env.globals["has_permission"] = has_permission
     app.jinja_env.globals["is_system_admin_user"] = is_system_admin_user  
     app.jinja_env.globals["is_admin_maintenance_mode"] = is_admin_maintenance_mode
-    app.jinja_env.globals["get_admin_maintenance_message"] = get_admin_maintenance_message  
+    app.jinja_env.globals["get_admin_maintenance_message"] = get_admin_maintenance_message
+    app.jinja_env.globals["cover_url"] = helpers.cover_url
+    app.jinja_env.globals["image_url"] = helpers.image_url
 
     @app.context_processor
     def inject_user_flags():
