@@ -253,7 +253,7 @@ def modify_site(site_id, site_data, user_id):
     """
     Modifica un sitio histórico existente.
     """
-   
+
     sitio = Site.query.get(site_id)
     if not sitio:
         return None
@@ -409,6 +409,10 @@ def add_site(site_data,user_id):
     for idx, img_info in enumerate(images_data):
         nueva_imagen = Image(**img_info)
         nuevo_sitio.images.append(nueva_imagen)
+    
+    # establecer la primera imagen como portada si hay imágenes
+    if nuevo_sitio.images:
+        nuevo_sitio.images[0].is_cover = True
 
     db.session.add(nuevo_sitio)
     db.session.commit()
