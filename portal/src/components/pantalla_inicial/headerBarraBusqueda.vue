@@ -2,7 +2,7 @@
   <header class="header-container">
     <div class="header-content">
       <h1 class="logo">Portal Histórico</h1>
-      <div class="buscador-rapido">
+      <div class="buscador-rapido"><!--Que será este error-->
         <input v-model="searchTerm" type="text" placeholder="Buscar..." class="input-busqueda" @keyup.enter="performSearch">
         <button class="btn-busqueda" @click="performSearch">🔍</button>
       </div>
