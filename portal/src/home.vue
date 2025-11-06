@@ -1,9 +1,12 @@
 <script setup>
 import Carrusel from '@/components/pantalla_inicial/carruselImagenes.vue';
 import galeriaTarjetasMonumentos from '@/components/pantalla_inicial/galeriaTarjetasMonumentos.vue';
-import { ref, onMounted } from 'vue';
-
+import { ref, onMounted, computed, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import api from '@/api/axios.js';
+
+const route = useRoute();
+const searchTerm = ref(route.query.search || '');
 
 // 1. Estado para los datos del Carrusel A
 const carruselMejorPuntuados = ref([]);
@@ -13,6 +16,19 @@ const carruselRecientementeAgregados = ref([]);
 
 // 3. Estado para los datos de la grilla de tarjetas de monumentos 
 const galeriaTarjetasSitios = ref([]);
+
+const filteredSites = computed(() => {
+  if (!searchTerm.value) {
+    return galeriaTarjetasSitios.value;
+  }
+  return galeriaTarjetasSitios.value.filter(site =>
+    site.name.toLowerCase().includes(searchTerm.value.toLowerCase())
+  );
+});
+
+watch(() => route.query.search, (newSearchTerm) => {
+  searchTerm.value = newSearchTerm || '';
+});
 
 onMounted(async () => {
   try {
@@ -47,7 +63,7 @@ onMounted(async () => {
   />
 
   <galeriaTarjetasMonumentos
-    :items="galeriaTarjetasSitios"
+    :items="filteredSites"
     title="Sitios Históricos"
   />
 </template>

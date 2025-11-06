@@ -1,4 +1,5 @@
 <script setup>
+import { useRouter } from 'vue-router';
 // Importo los componentes desde su nueva ubicación
 import HeaderBarraBusqueda from './components/pantalla_inicial//headerBarraBusqueda.vue';
 import CarruselImagenes from './components/pantalla_inicial/carruselImagenes.vue';
@@ -8,9 +9,14 @@ import CarruselFavoritos from './components/pantalla_inicial/carruselFavoritos.v
 import CarruselRecientementeAgregados from './components/pantalla_inicial/carruselRecientementeAgregados.vue';
 import Footer from './components/pantalla_inicial/Footer.vue';
 
+const router = useRouter();
+
+const handleSearch = (searchTerm) => {
+  router.push({ path: '/', query: { search: searchTerm } });
+};
 </script>
 <template>
-  <HeaderBarraBusqueda />
+  <HeaderBarraBusqueda @search="handleSearch" />
   <!-- Esto está bien ubicado SI-->
   <main>
   

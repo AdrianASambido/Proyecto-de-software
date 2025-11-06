@@ -3,8 +3,8 @@
     <div class="header-content">
       <h1 class="logo">Portal Histórico</h1>
       <div class="buscador-rapido">
-        <input type="text" placeholder="Buscar..." class="input-busqueda">
-        <button class="btn-busqueda">🔍</button>
+        <input v-model="searchTerm" type="text" placeholder="Buscar..." class="input-busqueda" @keyup.enter="performSearch">
+        <button class="btn-busqueda" @click="performSearch">🔍</button>
       </div>
       <div>
         <button class="btn-busqueda" href="">Login con Google</button>
@@ -14,6 +14,14 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
+
+const searchTerm = ref('');
+const emit = defineEmits(['search']);
+
+const performSearch = () => {
+  emit('search', searchTerm.value);
+};
   // acá que iria??
   import LoginGoogle from "../login_google/login.vue";
 </script>
