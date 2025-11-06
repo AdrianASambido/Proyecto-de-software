@@ -17,11 +17,11 @@ const galeriaTarjetasSitios = ref([]);
 onMounted(async () => {
   try {
     // Carrusel A (Puntuados)
-    const responseMejorPuntuados = await api.get('/sites/best-rated');
+    const responseMejorPuntuados = await api.get('/sites?order=mejores_puntuados&include_cover=True');
     carruselMejorPuntuados.value = responseMejorPuntuados.data;
     
     // Carrusel B (Recientemente Agregados) 
-    const responseRecientementeAgregados = await api.get('/sites/recently-added');
+    const responseRecientementeAgregados = await api.get('/sites?order=fecha=desc&include_cover=True');
     carruselRecientementeAgregados.value = responseRecientementeAgregados.data;
 
     // galeria tarjetas 
