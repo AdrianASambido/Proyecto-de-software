@@ -100,7 +100,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
 
-const coverUrl = "{{ sitio.cover_url or '' }}";
+const coverUrl = "{{ image_url(sitio.cover_url) if sitio.cover_url else '' }}";
 const nombre = "{{ sitio.nombre }}";
 const ciudad = "{{ sitio.ciudad }}";
 const provincia = "{{ sitio.provincia }}";

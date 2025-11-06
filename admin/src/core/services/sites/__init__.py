@@ -20,6 +20,7 @@ from src.core.Entities.image import Image
 from sqlalchemy.orm import aliased
 import csv
 from io import StringIO
+from flask import current_app
 
 def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=False):
     """
@@ -32,8 +33,12 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=F
     if include_cover:
         Cover = aliased(Image)
         subquery = (
-            db.session.query(Cover.site_id, Cover.url)
+            db.session.query(
+                Cover.site_id,
+                func.max(Cover.url).label("url")  # o MIN si preferís la primera portada
+            )
             .filter(Cover.is_cover == True)
+            .group_by(Cover.site_id)
             .subquery()
         )
 
@@ -45,7 +50,7 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=F
         results = []
         for site, cover_url in pagination.items:
          
-            site._cover_url = cover_url  
+            site._cover_url = f"http://{current_app.config['MINIO_SERVER']}/{current_app.config['MINIO_BUCKET']}/{cover_url}" if cover_url else None  
             results.append(site)
 
         pagination.items = results
@@ -53,11 +58,34 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=F
 
     return query.paginate(page=page, per_page=per_page, error_out=False)
 
+def calculate_review_count(site_id):
+    """
+    Calcula la cantidad de reseñas aprobadas para un sitio histórico.
+    """
+    count = (
+        db.session.query(func.count(Review.id))
+        .filter(
+            Review.site_id == site_id,
+            Review.estado == ReviewStatus.APROBADA
+        )
+        .scalar()
+    )
+    return count
 
-def geoespatial_search(query,filtros):
+def calculate_valoration(site_id):
     """
-    filtra los sitios dentro del radio dado usando postgis
+    Calcula la valoración promedio de un sitio histórico basado en las reseñas aprobadas.
     """
+    avg_valoration = (
+        db.session.query(func.avg(Review.calificacion))
+        .filter(
+            Review.site_id == site_id,
+            Review.estado == ReviewStatus.APROBADA
+        )
+        .scalar()
+    )
+    return round(avg_valoration, 2) if avg_valoration is not None else None
+
 
 def geoespatial_search(query,filtros):
     """
@@ -81,19 +109,29 @@ def geoespatial_search(query,filtros):
         )
     return query
 
+from sqlalchemy import func, and_
+from sqlalchemy.orm import aliased
+
 def order_sites(query, filtros):
-    """
-    ordena los sitios
-    """
     orden = filtros.get("order", "fecha_desc")
 
-    if orden == "mejor_puntuado":   
-        query = (
-            query.outerjoin(Review, and_(Review.site_id == Site.id, Review.estado == ReviewStatus.APROBADA))
-            .group_by(Site.id)
-            .order_by(func.avg(Review.calificacion).desc().nullslast())
+   
+    if orden == "mejor_puntuado":
+        avg_reviews_subq = (
+            db.session.query(
+                Review.site_id.label("site_id"),
+                func.avg(Review.calificacion).label("promedio")
+            )
+            .filter(Review.estado == ReviewStatus.APROBADA)
+            .group_by(Review.site_id)
+            .subquery()
         )
+
+        query = query.outerjoin(avg_reviews_subq, Site.id == avg_reviews_subq.c.site_id)
+        query = query.order_by(avg_reviews_subq.c.promedio.desc().nullslast())
         return query
+
+   
     opciones_orden = {
         "fecha_asc": Site.created_at.asc(),
         "fecha_desc": Site.created_at.desc(),
@@ -102,6 +140,7 @@ def order_sites(query, filtros):
         "ciudad_asc": Site.ciudad.asc(),
         "ciudad_desc": Site.ciudad.desc(),
     }
+
     return query.order_by(opciones_orden.get(orden, Site.created_at.desc()))
 
 
@@ -181,10 +220,18 @@ def filter_sites(filtros):
 
     return query
 
-def get_site(site_id, include_images=False):
+def get_site(site_id, include_images=False, include_cover=False):
     sitio = Site.query.get(site_id)
     if not sitio:
         return None
+
+    # Obtener la portada si se solicita
+    if include_cover:
+        cover_image = Image.query.filter_by(site_id=site_id, is_cover=True).first()
+        if cover_image:
+            sitio._cover_url = cover_image.url
+        else:
+            sitio._cover_url = None
 
     if include_images:
         sitio.images_data = [
@@ -252,6 +299,38 @@ def modify_site(site_id, site_data, user_id):
         if tag is None:
             raise ValueError(f"Tag '{tag_id}' no encontrado")
         sitio.tags.append(tag)
+    
+    # Agregar imágenes nuevas si vienen
+    images_data = site_data.get("images", [])
+    if images_data:
+        # Obtener el máximo order de las imágenes existentes
+        existing_images = sitio.images
+        max_order = max([img.order for img in existing_images if img.order is not None], default=-1) if existing_images else -1
+        
+        # Verificar si ya hay una imagen de portada
+        has_cover = any(img.is_cover for img in existing_images) if existing_images else False
+        
+        # Crear y agregar las nuevas imágenes
+        new_image_ids = []
+        for idx, img_info in enumerate(images_data):
+            nueva_imagen = Image(**img_info)
+            nueva_imagen.site_id = sitio.id
+            nueva_imagen.order = max_order + 1 + idx
+            # Si se especifica un índice de portada, establecer esta imagen como portada
+            cover_index = site_data.get("cover_index")
+            if cover_index is not None and idx == cover_index:
+                nueva_imagen.is_cover = True
+                # Desmarcar otras imágenes como portada si esta es la nueva portada
+                if existing_images:
+                    for img in existing_images:
+                        img.is_cover = False
+            # Si no hay portada actual y es la primera imagen nueva, marcarla como portada
+            elif not has_cover and idx == 0:
+                nueva_imagen.is_cover = True
+            db.session.add(nueva_imagen)
+            db.session.flush()  # Para obtener el ID
+            new_image_ids.append(nueva_imagen.id)
+    
     db.session.commit()
 
     # Nuevo snapshot después de la modificación
@@ -345,6 +424,54 @@ def add_site(site_data,user_id):
 
 def actualizar_historial(nuevo,accion,original=None):
     pass
+
+def delete_site_image(site_id: int, image_id: int):
+    """Elimina una imagen de un sitio. Si era portada, reasigna portada a la siguiente por orden."""
+    sitio = Site.query.get(site_id)
+    if not sitio:
+        raise ValueError("Sitio no encontrado")
+    
+    # Verificar directamente que la imagen existe y pertenece al sitio
+    imagen = Image.query.filter_by(id=image_id, site_id=site_id).first()
+    if not imagen:
+        # Verificar si la imagen existe pero pertenece a otro sitio
+        imagen_existe = Image.query.get(image_id)
+        if imagen_existe:
+            raise ValueError("La imagen no pertenece al sitio")
+        else:
+            raise ValueError("Imagen no encontrada")
+
+    # Verificar que no sea la portada antes de eliminar
+    if imagen.is_cover:
+        raise ValueError("No se puede eliminar la imagen portada. Debe cambiar la portada primero.")
+    
+    # Eliminar la imagen
+    db.session.delete(imagen)
+    db.session.commit()
+
+def set_cover_image(site_id: int, image_id: int):
+    """Marca una imagen como portada del sitio, desmarcando las demás."""
+    sitio = Site.query.get(site_id)
+    if not sitio:
+        raise ValueError("Sitio no encontrado")
+    
+    # Verificar que la imagen existe y pertenece al sitio
+    imagen = Image.query.filter_by(id=image_id, site_id=site_id).first()
+    if not imagen:
+        imagen_existe = Image.query.get(image_id)
+        if imagen_existe:
+            raise ValueError("La imagen no pertenece al sitio")
+        else:
+            raise ValueError("Imagen no encontrada")
+    
+    # Desmarcar todas las imágenes como portada
+    for img in sitio.images:
+        img.is_cover = False
+    
+    # Marcar la imagen seleccionada como portada
+    imagen.is_cover = True
+    
+    db.session.commit()
 
 def delete_site(site_id,user_id):
     """
