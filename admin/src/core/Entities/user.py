@@ -25,6 +25,12 @@ class User(db.Model):
     bloqueado=db.Column(db.Boolean, default=False)
 
     roles=db.relationship("Role", secondary="user_roles", back_populates="users")
+    favorites = db.relationship(
+        "Site",
+        secondary=users_favorites,
+        
+        lazy="dynamic"
+    )
 
     def __repr__(self):
         return f"<User {self.email}>"
