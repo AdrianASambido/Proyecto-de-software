@@ -1,12 +1,9 @@
 <script setup>
 import Carrusel from '@/components/pantalla_inicial/carruselImagenes.vue';
 import galeriaTarjetasMonumentos from '@/components/pantalla_inicial/galeriaTarjetasMonumentos.vue';
-import { ref, onMounted, computed, watch } from 'vue';
-import { useRoute } from 'vue-router';
-import api from '@/api/axios.js';
+import { ref, onMounted } from 'vue';
 
-const route = useRoute();
-const searchTerm = ref(route.query.search || '');
+import api from '@/api/axios.js';
 
 // 1. Estado para los datos del Carrusel A
 const carruselMejorPuntuados = ref([]);
@@ -17,23 +14,10 @@ const carruselRecientementeAgregados = ref([]);
 // 3. Estado para los datos de la grilla de tarjetas de monumentos 
 const galeriaTarjetasSitios = ref([]);
 
-const filteredSites = computed(() => {
-  if (!searchTerm.value) {
-    return galeriaTarjetasSitios.value;
-  }
-  return galeriaTarjetasSitios.value.filter(site =>
-    site.name.toLowerCase().includes(searchTerm.value.toLowerCase())
-  );
-});
-
-watch(() => route.query.search, (newSearchTerm) => {
-  searchTerm.value = newSearchTerm || '';
-});
-
 onMounted(async () => {
   try {
     // Carrusel A (Puntuados)
-    const responseMejorPuntuados = await api.get('/sites?order=mejores_puntuados&include_cover=True');
+    const responseMejorPuntuados = await api.get('/sites?order=mejor_puntuado&include_cover=True');
     carruselMejorPuntuados.value = responseMejorPuntuados.data;
     
     // Carrusel B (Recientemente Agregados) 
@@ -63,7 +47,7 @@ onMounted(async () => {
   />
 
   <galeriaTarjetasMonumentos
-    :items="filteredSites"
+    :items="galeriaTarjetasSitios"
     title="Sitios Históricos"
   />
 </template>
