@@ -7,14 +7,42 @@
         <button class="btn-busqueda">🔍</button>
       </div>
       <div>
-        <a href="http://localhost:5173/api/auth/google" class="btn-busqueda">Login con google</a>
+        <GoogleSignInButton @success="handleLoginSuccess" @error="handleLoginError"></GoogleSignInButton>
+      </div>
+      <div>
+        <p>Logueado? {{ isLoggedIn ? 'Simón' : 'Nel pastel' }}</p>
+        <p v-if="username">Usuario: {{ username }}</p>
       </div>
     </div>
   </header>
 </template>
 
-<script setup>
-  //Acá que iría?
+<script setup lang="ts">
+  import { GoogleSignInButton, type CredentialResponse } from 'vue3-google-signin';
+  import { ref } from 'vue';
+  
+  const isLoggedIn = ref(false); // Cambia esto según el estado de autenticación real
+  const username = ref(''); // Cambia esto para mostrar el nombre de usuario real|
+
+  const handleCredentialResponse = (response: CredentialResponse) => {
+    console.log('ID Token:', response.credential);
+    // Aquí puedes manejar la respuesta del inicio de sesión
+  };
+
+  const handleLoginError = (error: any) => {
+    console.error('Error de inicio de sesión:', error);
+  };
+
+  const handleLoginSuccess = (response: CredentialResponse) => {
+    const idToken = response.credential;
+    console.log('Inicio de sesión exitoso. ID Token:', idToken);
+
+    const payload = JSON.parse(atob(idToken.split('.')[1]));
+    username.value = payload.name || '';
+    isLoggedIn.value = true;
+
+    console.log('Nombre de usuario:', username.value);
+  };
 </script>
 
 <style scoped>
