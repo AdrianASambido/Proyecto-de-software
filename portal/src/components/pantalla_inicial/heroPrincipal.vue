@@ -12,7 +12,7 @@
       
       <div class="p-6 flex flex-col justify-center items-start">
         <h2 class="text-3xl font-extrabold text-gray-900 mb-4">
-          Ruinas de mexico
+          Ruinas de México
         </h2>
         <p class="text-gray-600 mb-6 leading-relaxed">
           Unas de las estructuras más destacadas de nuestra historia, una reliquia arquitectónica que te llevará de regreso al pasado.
