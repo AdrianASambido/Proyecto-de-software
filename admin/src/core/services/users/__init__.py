@@ -2,6 +2,7 @@
 
 from src.core.database import db
 from src.core.Entities.user import User
+from src.core.Entities.site import Site
 from src.core.Entities.role import Role
 from flask_bcrypt import Bcrypt
 
@@ -103,6 +104,12 @@ def get_username_by_email(email):
     return user.username if user else None
 
 
+def get_user_by_email(email):
+    """
+    Retorna un usuario por su correo electrónico
+    """
+    user = User.query.filter_by(email=email, eliminado=False).first()
+    return user
 
 def update_user(user_id, user_data):
     """
@@ -226,21 +233,33 @@ def add_favorite_site(user_id, site_id):
     user = get_user_by_id(user_id)
     site = Site.query.get(site_id)
     if user and site:
-        user.favorites.append(site)
-        db.session.commit()
-        return True
+        if site not in user.favorites:
+            user.favorites.append(site)
+            db.session.commit()
+            return True
     return False
 
 def remove_favorite_site(user_id, site_id):
     """
     Remueve un sitio de la lista de favoritos del usuario.
     """
-    user = get_user_by_id(user_id)
+    user = get_username_by_email(user_id)
     site = Site.query.get(site_id)
     if user and site and site in user.favorites:
         user.favorites.remove(site)
         db.session.commit()
         return True
+    return False
+
+
+def is_favorite(user_id, site_id):
+    """
+    Verifica si un sitio es favorito para un usuario.
+    """
+    user = get_user_by_id(user_id)
+    site = Site.query.get(site_id)
+    if user and site:
+        return site in user.favorites
     return False
 
 def get_favorite_sites(user_id):

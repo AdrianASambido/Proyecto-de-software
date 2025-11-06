@@ -1,6 +1,7 @@
 <template>
   <div class="bg-white rounded-2xl shadow-md overflow-hidden">
     <swiper
+       aria-roledescription="Carrusel de imágenes"
       :modules="[Navigation, Pagination ]"
       :slides-per-view="1"
       :loop="true"
@@ -12,7 +13,7 @@
       <swiper-slide v-for="img in imagenes" :key="img.id">
         <img
           :src="img.url"
-          :alt="img.descripcion"
+          :alt="img.description"
           class="w-full h-full object-cover"
           loading="lazy"
         />

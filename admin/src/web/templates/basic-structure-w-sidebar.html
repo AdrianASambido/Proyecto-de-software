@@ -68,7 +68,7 @@
               <p class="flex items-center text-center gap-4 underline text-sm font-medium px-4 py-2 text-orange-200">
                 ¡Hola, {{session.get('username')}}!
               </p>
-
+            {% if session.get('user_id') %}
               <a href="{{url_for('users.edit_user', user_id=session.get('user_id'))}}"
                 class="flex items-center gap-4 hover:bg-neutral-900 px-4 py-2 text-sm text-neutral-200 hover:text-orange-200"
                 role="menuitem" tabindex="-1" id="user-menu-item-0">
@@ -96,6 +96,7 @@
                 </svg>
                 Cerrar sesión
               </a>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -220,7 +221,7 @@
               </a>
 
               <!-- Panel de visibilidad de funcionalidades -->
-              {% if is_system_admin_user() %}
+              {% if is_system_admin_user and is_system_admin_user() %}
               <a class="flex transform items-center rounded-lg px-3 py-2 text-gray-300 transition-colors duration-300 hover:bg-gray-100 hover:text-gray-700"
                 href="{{ url_for('feature_flags.index') }}">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
