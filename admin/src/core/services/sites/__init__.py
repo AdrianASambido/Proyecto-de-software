@@ -21,6 +21,7 @@ from sqlalchemy.orm import aliased
 import csv
 from io import StringIO
 from flask import current_app
+import json
 
 def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=False):
     """
@@ -49,14 +50,15 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=F
 
         results = []
         for site, cover_url in pagination.items:
-         
             site._cover_url = f"http://{current_app.config['MINIO_SERVER']}/{current_app.config['MINIO_BUCKET']}/{cover_url}" if cover_url else None  
+            # sort_site_images(site)
             results.append(site)
 
         pagination.items = results
         return pagination
 
     return query.paginate(page=page, per_page=per_page, error_out=False)
+
 
 def calculate_review_count(site_id):
     """
@@ -115,7 +117,6 @@ from sqlalchemy.orm import aliased
 def order_sites(query, filtros):
     orden = filtros.get("order", "fecha_desc")
 
-   
     if orden == "mejor_puntuado":
         avg_reviews_subq = (
             db.session.query(
@@ -218,6 +219,15 @@ def filter_sites(filtros):
         if tags_ids:
             query = query.join(Tag, Site.tags).filter(Tag.id.in_(tags_ids)).distinct()
 
+    # Favoritos (requiere user_id en filtros)
+    favoritos = filtros.get("favoritos")
+    user_id = filtros.get("user_id")
+    if favoritos and user_id:
+        from src.core.Entities.user import users_favorites
+        query = query.join(users_favorites, Site.id == users_favorites.c.site_id).filter(
+            users_favorites.c.user_id == int(user_id)
+        ).distinct()
+
     return query
 
 def get_site(site_id, include_images=False, include_cover=False):
@@ -245,6 +255,8 @@ def get_site(site_id, include_images=False, include_cover=False):
             }
             for img in sitio.images
         ]
+        sort_site_images(sitio)
+
     return sitio
 
 
@@ -253,7 +265,7 @@ def modify_site(site_id, site_data, user_id):
     """
     Modifica un sitio histórico existente.
     """
-   
+
     sitio = Site.query.get(site_id)
     if not sitio:
         return None
@@ -299,7 +311,7 @@ def modify_site(site_id, site_data, user_id):
         if tag is None:
             raise ValueError(f"Tag '{tag_id}' no encontrado")
         sitio.tags.append(tag)
-    
+
     # Agregar imágenes nuevas si vienen
     images_data = site_data.get("images", [])
     if images_data:
@@ -332,6 +344,31 @@ def modify_site(site_id, site_data, user_id):
             new_image_ids.append(nueva_imagen.id)
     
     db.session.commit()
+
+    # Actualizar orden de imágenes existentes si viene
+    order_payload = site_data.get("existing_images_order")
+    try:
+        if order_payload:
+            # order_payload puede venir como JSON string o como lista ya
+            if isinstance(order_payload, str):
+                ids = json.loads(order_payload)
+            else:
+                ids = order_payload
+
+            # actualizar order de cada imagen (solo si pertenece a este sitio)
+            for idx, img_id in enumerate(ids):
+                try:
+                    img = Image.query.get(int(img_id))
+                    if img and img.site_id == sitio.id:
+                        img.order = idx
+                except Exception:
+                    current_app.logger.debug("skip invalid image id in ordering: %s", img_id)
+
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception("Error al modificar sitio y/o actualizar orden de imágenes")
+        raise
 
     # Nuevo snapshot después de la modificación
     nuevo_snapshot = {
@@ -409,6 +446,10 @@ def add_site(site_data,user_id):
     for idx, img_info in enumerate(images_data):
         nueva_imagen = Image(**img_info)
         nuevo_sitio.images.append(nueva_imagen)
+    
+    # establecer la primera imagen como portada si hay imágenes
+    if nuevo_sitio.images:
+        nuevo_sitio.images[0].is_cover = True
 
     db.session.add(nuevo_sitio)
     db.session.commit()
@@ -555,3 +596,13 @@ def get_current_timestamp_str():
     Retorna la fecha y hora actual en formato YYYYMMDD_HHMM para usar en nombres de archivo.
     """
     return datetime.now().strftime("%Y%m%d_%H%M")
+
+
+def sort_site_images(sitio):
+    """Asegura que sitio.images esté ordenado por Image.order (None -> 0)."""
+    try:
+        sitio.images = sorted(sitio.images, key=lambda im: (im.order if getattr(im, "order", None) is not None else 0))
+    except Exception:
+        # no fallar si algo raro sucede con la relación
+        pass
+

@@ -2,6 +2,8 @@ from flask import jsonify,request
 from src.web.controllers.api.schemas.site import SiteSchema
 from . import api_bp
 from src.core.services.sites import list_sites,add_site,get_site
+#from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request_optional
+from src.core.services.users import get_user_by_email
 
 @api_bp.get("/sites")
 def get_sites():
@@ -16,6 +18,26 @@ def get_sites():
 
     include_cover = filtros.pop("include_cover", "false").lower() in ("true", "1", "yes")
     
+    # Si hay filtro de favoritos, verificar autenticación
+    '''favoritos = filtros.get("favoritos")
+    if favoritos and favoritos.lower() in ("true", "1", "yes"):
+        try:
+            verify_jwt_in_request_optional()
+            user_email = get_jwt_identity()
+            if user_email:
+                user = get_user_by_email(user_email)
+                if user:
+                    filtros["user_id"] = user.id
+                else:
+                    # Si no se encuentra el usuario, remover el filtro de favoritos
+                    filtros.pop("favoritos", None)
+            else:
+                # Si no hay token válido, remover el filtro de favoritos
+                filtros.pop("favoritos", None)
+        except:
+            # Si hay error en la verificación, remover el filtro
+            filtros.pop("favoritos", None)
+    '''
     sitios_pag = list_sites(filtros, page=page, per_page=per_page,include_cover=include_cover)
 
     schema = SiteSchema(many=True)
