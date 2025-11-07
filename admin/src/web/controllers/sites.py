@@ -181,6 +181,11 @@ def modify(site_id):
             if not site.images_data:
                 data["cover_index"] = params.get("cover_index")
             
+            # pasar el orden de imágenes existentes (si viene) al servicio
+            order_payload = request.form.get('existing_images_order')
+            if order_payload:
+                data["existing_images_order"] = order_payload
+            
             board_sites.modify_site(site_id, data, user_id)
             flash("Sitio actualizado correctamente.", "success")
             return redirect(url_for("sites.index"))
