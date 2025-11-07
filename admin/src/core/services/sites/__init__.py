@@ -219,6 +219,15 @@ def filter_sites(filtros):
         if tags_ids:
             query = query.join(Tag, Site.tags).filter(Tag.id.in_(tags_ids)).distinct()
 
+    # Favoritos (requiere user_id en filtros)
+    favoritos = filtros.get("favoritos")
+    user_id = filtros.get("user_id")
+    if favoritos and user_id:
+        from src.core.Entities.user import users_favorites
+        query = query.join(users_favorites, Site.id == users_favorites.c.site_id).filter(
+            users_favorites.c.user_id == int(user_id)
+        ).distinct()
+
     return query
 
 def get_site(site_id, include_images=False, include_cover=False):
