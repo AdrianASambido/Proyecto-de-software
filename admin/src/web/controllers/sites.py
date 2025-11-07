@@ -117,7 +117,7 @@ def add_site():
             
             tags_seleccionados = request.form.getlist("tags[]")
 
-            images_alts = request.form.getlist("image_alt[]")
+            # images_alts = request.form.getlist("image_alt[]")
             params = process_uploaded_images()
 
             site_data = {
@@ -164,13 +164,12 @@ def modify(site_id):
     """
     
     try:
-        site = board_sites.get_site(site_id)
+        site = board_sites.get_site(site_id, include_images=True)
         form = SiteForm(obj=site)
         form.provincia.choices = [(p, p) for p in provincias_arg]
         form.tags.choices = [(t.id, t.name) for t in board_tags.list_tags()]
-    
-        
         form.tags.data = [t.id for t in site.tags] 
+
         if form.validate_on_submit():
             user_id=session.get("user_id")
             data = form.data
@@ -179,7 +178,13 @@ def modify(site_id):
             # Procesar imágenes nuevas si se suben
             params = process_uploaded_images()
             data["images"] = params.get("images", [])
-            data["cover_index"] = params.get("cover_index")
+            if not site.images_data:
+                data["cover_index"] = params.get("cover_index")
+            
+            # pasar el orden de imágenes existentes (si viene) al servicio
+            order_payload = request.form.get('existing_images_order')
+            if order_payload:
+                data["existing_images_order"] = order_payload
             
             board_sites.modify_site(site_id, data, user_id)
             flash("Sitio actualizado correctamente.", "success")
