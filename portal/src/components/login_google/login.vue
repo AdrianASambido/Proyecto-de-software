@@ -6,7 +6,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue"
-import axios from "axios"
+import api from "@/api/axios"
 
 const emit = defineEmits(["logged-in"])
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
@@ -39,7 +39,7 @@ async function handleCredentialResponse(response) {
   try {
     const id_token = response.credential
 
-    const res = await axios.post("http://localhost:5000/api/login/google", {
+    const res = await api.post("/login/google", {
       id_token,
     })
 
