@@ -11,10 +11,11 @@ const handleSearch = (searchTerm) => {
 };
 </script>
 <template>
-  
   <HeaderBarraBusqueda @search="handleSearch" />
-  
-  <main>   
+
+  <main>
+    
+   
     <router-view />
   </main>
 
