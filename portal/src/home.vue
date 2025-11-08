@@ -16,7 +16,7 @@ import CarruselImagenes from '@/components/pantalla_inicial/carruselImagenes.vue
       title="Imágenes Destacadas"
       :load-params="{ order: 'mejor_puntuado', per_page: 6 }"
     />
-
+    
     <!-- Secciones -->
     <SeccionMejorPuntuados />
     <SeccionRecientementeAgregados />
