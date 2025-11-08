@@ -4,9 +4,6 @@ import { useRouter } from 'vue-router';
 import HeaderBarraBusqueda from './components/pantalla_inicial//headerBarraBusqueda.vue';
 import CarruselImagenes from './components/pantalla_inicial/carruselImagenes.vue';
 import HeroPrincipal from './components/pantalla_inicial/heroPrincipal.vue';
-import GaleriaTarjetasMonumentos from './components/pantalla_inicial/galeriaTarjetasMonumentos.vue';
-import CarruselFavoritos from './components/pantalla_inicial/carruselFavoritos.vue';
-import CarruselRecientementeAgregados from './components/pantalla_inicial/carruselRecientementeAgregados.vue';
 import Footer from './components/pantalla_inicial/Footer.vue';
 
 const router = useRouter();
@@ -22,9 +19,10 @@ const handleSearch = (searchTerm) => {
   
     <HeroPrincipal />
     
-    <CarruselImagenes :items="[]" title="Imágenes Destacadas" />
-    
-    <GaleriaTarjetasMonumentos :items="[]" title="Monumentos Populares" />
+    <CarruselImagenes 
+      title="Imágenes Destacadas"
+      :load-params="{ order: 'mejor_puntuado', per_page: 6 }"
+    />
     
     <router-view></router-view><!-- renderiza la página constantemente -->
   </main> 
