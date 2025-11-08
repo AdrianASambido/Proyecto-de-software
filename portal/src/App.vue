@@ -10,7 +10,6 @@ const handleSearch = (searchTerm) => {
   router.push({ path: '/', query: { search: searchTerm } });
 };
 </script>
-
 <template>
   <HeaderBarraBusqueda @search="handleSearch" />
 
