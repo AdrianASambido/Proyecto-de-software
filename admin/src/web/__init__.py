@@ -41,8 +41,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     CORS(
         app,
         resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}},
-        supports_credentials=True,
-        origins=["http://localhost:5173", "http://localhost:5000"],
+        supports_credentials=True
     )
     # Middleware para verificar flags de mantenimiento
     @app.before_request # se ejecuta antes de cada solicitud HTTP
@@ -104,7 +103,7 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     app.register_blueprint(sites_history_bp)
     app.register_blueprint(tags_bp)
     app.register_blueprint(reviews_bp)
-    app.register_blueprint(api_bp, url_prefix="/api")
+    app.register_blueprint(api_bp)
     app.register_blueprint(feature_flags_bp)
     app.register_blueprint(login_bp)
 
