@@ -10,7 +10,7 @@ export function useAuth() {
     try {
       // Aquí podrías hacer una petición al backend para verificar la sesión
       // Por ahora, simplemente verificamos si hay un token en localStorage
-      const token = localStorage.getItem('auth_token')
+      const token = localStorage.getItem('token')
       isAuthenticated.value = !!token
       
       // Si hay token, intentar obtener información del usuario

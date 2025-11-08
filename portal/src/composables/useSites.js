@@ -49,17 +49,31 @@ export function useSites() {
   const fetchRecientementeAgregados = async () => {
     return await fetchSites({ order: 'fecha_desc' })
   }
-
-  const fetchFavoritos = async (userId = null) => {
-    // Nota: El backend puede requerir user_id en los filtros para favoritos
-    // Si el backend usa JWT/sesión, puede obtener el user_id del token/sesión automáticamente
-    // Intentamos cargar con favoritos=true y, si hay userId, lo incluimos
-    const params = { favoritos: 'true' }
-    if (userId) {
-      params.user_id = userId
+const fetchFavoritos = async () => {
+  loading.value = true
+  error.value = null
+  
+  try {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      throw new Error('Usuario no autenticado')
     }
-    return await fetchSites(params)
+
+    const { data } = await api.get('/me/favorites', {
+      headers: {
+        Authorization: `Bearer ${token}`
+      }
+    })
+
+    return data.data || []
+  } catch (err) {
+    console.error('Error al cargar favoritos:', err)
+    error.value = err.response?.data?.error || 'Error al cargar favoritos'
+    return []
+  } finally {
+    loading.value = false
   }
+}
 
   return {
     loading,
