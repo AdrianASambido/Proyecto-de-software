@@ -126,11 +126,15 @@
                 <input
                   type="checkbox"
                   v-model="filters.favoritos"
-                  @change="applyFilters"
-                  class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  @change="handleFavoritosChange"
+                  :disabled="!isAuthenticated"
+                  class="mr-2 rounded border-gray-300 text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 />
                 <span class="text-sm font-medium text-gray-700">Solo favoritos</span>
               </label>
+              <p v-if="!isAuthenticated && filters.favoritos" class="text-xs text-blue-600 mt-1">
+                <router-link to="/login" class="underline">Inicia sesión</router-link> para ver tus favoritos
+              </p>
             </div>
 
             <!-- Búsqueda en mapa -->
@@ -251,11 +255,13 @@ import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/api/axios'
 import SiteCard from '@/components/sites/SiteCard.vue'
+import { useAuth } from '@/composables/useAuth'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 const route = useRoute()
 const router = useRouter()
+const { isAuthenticated, currentUser } = useAuth()
 
 // Estado
 const sites = ref([])
@@ -373,6 +379,16 @@ const loadSites = async () => {
       params.longitud = filters.value.longitud
       params.radio = filters.value.radio || 5
     }
+    
+    // Solo incluir favoritos si el usuario está autenticado
+    if (filters.value.favoritos && isAuthenticated.value) {
+      params.favoritos = 'true'
+      // Nota: El backend puede requerir user_id, pero si usa JWT podría obtenerlo del token
+      // Por ahora, confiamos en que el backend lo maneje desde la sesión/token
+    } else if (filters.value.favoritos && !isAuthenticated.value) {
+      // Si se intenta filtrar por favoritos sin autenticación, remover el filtro
+      filters.value.favoritos = false
+    }
 
     const { data } = await api.get('/sites', { params })
     sites.value = data.data || []
@@ -386,6 +402,17 @@ const loadSites = async () => {
   } finally {
     loading.value = false
   }
+}
+
+// Manejar cambio de favoritos
+const handleFavoritosChange = () => {
+  if (filters.value.favoritos && !isAuthenticated.value) {
+    // Si no está autenticado y se intenta activar favoritos, desactivar y redirigir
+    filters.value.favoritos = false
+    router.push('/login')
+    return
+  }
+  applyFilters()
 }
 
 // Aplicar filtros y actualizar URL

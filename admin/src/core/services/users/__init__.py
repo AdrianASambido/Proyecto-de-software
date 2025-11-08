@@ -270,3 +270,29 @@ def get_favorite_sites(user_id):
     if user:
         return user.favorites
     return []
+
+def login_google(idinfo):
+    """
+    Crea o recupera un usuario autenticado con Google.
+    """
+    email = idinfo.get("email")
+    user = User.query.filter_by(email=email).first()
+
+    if not user:
+        user = User(
+            email=email,
+            nombre=idinfo.get("given_name", ""),
+            apellido=idinfo.get("family_name", ""),
+            username=email.split("@")[0],
+           
+        )
+        db.session.add(user)
+        db.session.commit()
+
+    return {
+        "id": user.id,
+        "email": user.email,
+        "nombre": user.nombre,
+        "apellido": user.apellido,
+        
+    }

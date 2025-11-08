@@ -7,3 +7,4 @@ from . import sites
 from . import reviews
 from . import tags
 from . import users
+from . import loginGoogle
