@@ -75,6 +75,13 @@ class Site(db.Model):
         lazy="select"
     )
 
+    favorite_users = db.relationship(
+        "User",
+        secondary="users_favorites",
+        back_populates="favorite_sites",
+        lazy="dynamic"
+    )
+
     def __repr__(self):
         return f"<Sitio {self.nombre}>"
 

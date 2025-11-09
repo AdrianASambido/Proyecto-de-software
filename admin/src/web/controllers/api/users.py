@@ -4,11 +4,11 @@ import os
 from functools import wraps
 import jwt 
 from flask_jwt_extended import jwt_required
-from src.core.services.users import add_favorite_site, remove_favorite_site, get_user_by_email
+from src.core.services.users import add_favorite_site, remove_favorite_site, get_user_by_id
 from src.core.services.users import is_favorite as is_favorite_service
 from src.core.services.sites import get_site, list_sites
 from flask import current_app as app
-
+from src.web.controllers.api.schemas.site import SiteSchema
 def require_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -20,11 +20,12 @@ def require_auth(f):
 
         token = auth_header.split(" ")[1]
         try:
-            payload = jwt.decode(token, app.config["JWT_SECRET"], algorithms=[app.config["JWT_ALGORITHM"]])
-            request.user = payload  # Guardamos el payload en la request
-        except jwt.ExpiredSignatureError:
-            return jsonify({"error": "Token expirado"}), 401
-        except jwt.InvalidTokenError:
+            payload = jwt.decode(token, app.config["JWT_SECRET"], algorithms=["HS256"])
+            request.user = payload
+
+            print("✅ Token decodificado:", payload)
+        except Exception as e:
+            print("❌ Error al decodificar token:", str(e))
             return jsonify({"error": "Token inválido"}), 401
 
         return f(*args, **kwargs)
@@ -33,10 +34,11 @@ def require_auth(f):
 @api_bp.put("/sites/<int:site_id>/favorite")
 @require_auth
 def favorite(site_id):
-    user_email = request.args.get("email", "test@example.com")
-    user = get_user_by_email(user_email)
+    user_id = int(request.user.get("sub"))
+    print(f"Adding favorite for user {user_id} to site {site_id}")
+    user = get_user_by_id(user_id)
     if not user:
-        return jsonify({"msg": f"Usuario '{user_email}' no encontrado"}), 404
+        return jsonify({"msg": f"Usuario '{user_id}' no encontrado"}), 404
 
     site = get_site(site_id)
     if not site:
@@ -51,16 +53,17 @@ def favorite(site_id):
 @api_bp.delete("/sites/<int:site_id>/favorite")
 @require_auth
 def unfavorite(site_id):
-    user_email = request.args.get("email", "test@example.com")
-    user = get_user_by_email(user_email)
+    user_id = int(request.user.get("sub"))
+    print(f"Removing favorite for user {user_id} from site {site_id}")
+    user = get_user_by_id(user_id)
     if not user:
-        return jsonify({"msg": f"Usuario '{user_email}' no encontrado"}), 404
+        return jsonify({"msg": f"Usuario '{user_id}' no encontrado"}), 404
 
     site = get_site(site_id)
     if not site:
         return jsonify({"msg": "Sitio no encontrado"}), 404
 
-    if remove_favorite_site(user.id, site.id):
+    if remove_favorite_site(user_id, site.id):
         return jsonify({"msg": "Sitio removido de favoritos"}), 200
     else:
         return jsonify({"msg": "El sitio no estaba en favoritos"}), 200
@@ -68,8 +71,8 @@ def unfavorite(site_id):
 
 @api_bp.get("/sites/<int:site_id>/favorite")
 def is_favorite(site_id):
-    user_email = request.args.get("email")
-    user = get_user_by_email(user_email)
+    user_id = request.args.get("userId", type=int)
+    user = get_user_by_id(user_id)
     if not user:
         return jsonify({"msg": "Usuario no encontrado"}), 404
 
@@ -86,7 +89,7 @@ def is_favorite(site_id):
 @require_auth
 def get_favorites():
    
-    user_id = request.user.get("sub")
+    user_id = int(request.user.get("sub"))
     if not user_id:
         return jsonify({"error": "Token sin sub"}), 401
 
@@ -97,7 +100,7 @@ def get_favorites():
 
     filtros["favoritos"] = True
     filtros["user_id"] = user_id 
-
+    print(f"Filtros después de agregar favoritos y user_id: {filtros}")
     sitios_pag = list_sites(filtros, page=page, per_page=per_page, include_cover=include_cover)
 
     schema = SiteSchema(many=True)

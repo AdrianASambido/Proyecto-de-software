@@ -57,6 +57,10 @@
         </div>
       </div>
     </div>
+<!-- ✨ Reseñas -->
+<div class="w-full max-w-5xl">
+  <SiteReviews v-if="site" :site-id="site.id" />
+</div>
 
     <!-- 🌀 Estado -->
     <div v-if="loading" class="text-gray-500">Cargando...</div>
@@ -72,6 +76,7 @@ import SiteHeader from '@/components/sites/SiteHeader.vue'
 import SiteGallery from '@/components/sites/SiteGallery.vue'
 import SiteDescription from '@/components/sites/SiteDescription.vue'
 import SiteMap from '@/components/sites/SiteMap.vue'
+import SiteReviews from '@/components/sites/SiteReviews.vue'
 
 const router = useRouter()
 const route = useRoute()

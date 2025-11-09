@@ -6,6 +6,7 @@ from src.core.database import db
 from src.core.Entities.site import Site
 from src.core.Entities.review import Review,ReviewStatus
 from src.core.Entities.site_history import HistoryAction
+from src.core.Entities.user import User
 
 from src.core.services.history import add_site_history
 from datetime import datetime, timezone
@@ -152,6 +153,17 @@ def filter_sites(filtros):
     """
     query = Site.query.filter(Site.eliminated_at.is_(None))
 
+    # Filtro por favoritos y user_id
+    if filtros.get("favoritos") and filtros.get("user_id"):
+        user_id = filtros["user_id"]
+        print(f"Filtrando favoritos para user_id {user_id}")
+        query = (
+            query
+            .join(Site.favorite_users)
+            .filter(User.id == user_id)
+        )
+        print(f"Query SQL: {query}")
+
     # Texto de búsqueda
     busqueda = filtros.get("busqueda")
     if busqueda:
@@ -219,14 +231,6 @@ def filter_sites(filtros):
         if tags_ids:
             query = query.join(Tag, Site.tags).filter(Tag.id.in_(tags_ids)).distinct()
 
-    # Favoritos (requiere user_id en filtros)
-    favoritos = filtros.get("favoritos")
-    user_id = filtros.get("user_id")
-    if favoritos and user_id:
-        from src.core.Entities.user import users_favorites
-        query = query.join(users_favorites, Site.id == users_favorites.c.site_id).filter(
-            users_favorites.c.user_id == int(user_id)
-        ).distinct()
 
     return query
 
