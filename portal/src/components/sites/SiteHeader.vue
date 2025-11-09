@@ -93,11 +93,10 @@
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import api from '@/api/axios' // 👈 usa la instancia configurada con baseURL
-
+import api from '@/api/axios' 
 const props = defineProps({
   site: { type: Object, required: true },
-  userEmail: { type: String, default: 'user1@gmail.com' } // sin JWT
+ 
 })
 
 const emit = defineEmits(['update:favorite'])
@@ -108,7 +107,7 @@ const checkFavorite = async () => {
   if (!props.site?.id) return
   try {
     const res = await api.get(`/sites/${props.site.id}/favorite`, {
-      params: { email: props.userEmail },
+      params: { userId: 1 },
     })
     isFavorite.value = !!res.data.favorite
   } catch (err) {
@@ -119,11 +118,11 @@ const checkFavorite = async () => {
 
 onMounted(checkFavorite)
 watch(() => props.site?.id, (newId) => { if (newId) checkFavorite() })
-
 const toggleFavorite = async () => {
   if (!props.site?.id) return
   loading.value = true
-  const url = `/sites/${props.site.id}/favorite?email=${encodeURIComponent(props.userEmail)}`
+  const url = `/sites/${props.site.id}/favorite?userId=1` 
+
   try {
     if (isFavorite.value) {
       const res = await api.delete(url)

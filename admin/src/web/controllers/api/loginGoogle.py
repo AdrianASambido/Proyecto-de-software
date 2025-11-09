@@ -30,7 +30,7 @@ def login_with_google():
 
 
     payload = {
-        "sub": user["id"],
+        "sub": str(user["id"]),
         "email": idinfo["email"],
         "name": idinfo.get("name"),
       
