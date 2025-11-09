@@ -75,13 +75,48 @@ const fetchFavoritos = async () => {
   }
 }
 
+  const addFavorite = async (siteId) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Usuario no autenticado');
+      }
+      await api.post(`/sites/${siteId}/favorites`, {}, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    } catch (err) {
+      console.error('Error al agregar a favoritos:', err);
+      throw err;
+    }
+  };
+
+  const removeFavorite = async (siteId) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Usuario no autenticado');
+      }
+      await api.delete(`/sites/${siteId}/favorites`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+    } catch (err) {
+      console.error('Error al quitar de favoritos:', err);
+      throw err;
+    }
+  };
+
   return {
     loading,
     error,
     fetchSites,
     fetchMejorPuntuados,
     fetchRecientementeAgregados,
-    fetchFavoritos
+    fetchFavoritos,
+    addFavorite,
+    removeFavorite
   }
 }
-

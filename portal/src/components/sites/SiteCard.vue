@@ -119,5 +119,3 @@ const formattedRating = computed(() => {
   overflow: hidden;
 }
 </style>
-
-
