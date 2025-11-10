@@ -156,13 +156,13 @@ def filter_sites(filtros):
     # Filtro por favoritos y user_id
     if filtros.get("favoritos") and filtros.get("user_id"):
         user_id = filtros["user_id"]
-        print(f"Filtrando favoritos para user_id {user_id}")
+     
         query = (
             query
             .join(Site.favorite_users)
             .filter(User.id == user_id)
         )
-        print(f"Query SQL: {query}")
+    
 
     # Texto de búsqueda
     busqueda = filtros.get("busqueda")
@@ -234,24 +234,42 @@ def filter_sites(filtros):
 
     return query
 
+from flask import current_app
+
 def get_site(site_id, include_images=False, include_cover=False):
     sitio = Site.query.get(site_id)
     if not sitio:
         return None
 
+    # Construir URL base de MinIO directamente desde config existente
+    minio_server = current_app.config.get("MINIO_SERVER", "localhost:9000")
+    minio_secure = current_app.config.get("MINIO_SECURE", False)
+    minio_bucket= current_app.config.get("MINIO_BUCKET", "grupo01")
+    scheme = "https" if minio_secure else "http"
+    base_url = f"{scheme}://{minio_server}/{minio_bucket}/"
+
     # Obtener la portada si se solicita
     if include_cover:
         cover_image = Image.query.filter_by(site_id=site_id, is_cover=True).first()
         if cover_image:
-            sitio._cover_url = cover_image.url
+            sitio._cover_url = (
+                f"{base_url}{cover_image.url}" 
+                if not cover_image.url.startswith("http") 
+                else cover_image.url
+            )
         else:
             sitio._cover_url = None
 
+   
     if include_images:
         sitio.images_data = [
             {
                 "id": img.id,
-                "url": img.url,
+                "url": (
+                    f"{base_url}{img.url}"
+                    if not img.url.startswith("http") 
+                    else img.url
+                ),
                 "title": img.title,
                 "description": img.description,
                 "order": img.order,
@@ -262,7 +280,6 @@ def get_site(site_id, include_images=False, include_cover=False):
         sort_site_images(sitio)
 
     return sitio
-
 
 
 def modify_site(site_id, site_data, user_id):

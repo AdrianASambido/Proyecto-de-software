@@ -1,4 +1,5 @@
 from flask import jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from . import api_bp
 from src.core.services.reviews import (
     list_reviews,
@@ -6,8 +7,6 @@ from src.core.services.reviews import (
     get_review_by_site,
     delete_review
 )
-
-# FALTA AUTH
 
 @api_bp.get("sites/<int:site_id>/reviews")
 def get_reviews_for_site(site_id):
@@ -43,28 +42,27 @@ def get_reviews_for_site(site_id):
 
 
 @api_bp.post("sites/<int:site_id>/reviews")
+@jwt_required()
 def add_review_to_site(site_id):
     """
     Crea una nueva reseña para un sitio.
     """
     try:
+        current_user_id = get_jwt_identity()
         data = request.get_json()
 
         if not data:
             return jsonify({"error": "No se proporcionó información en el body"}), 400
 
-        user_id = data.get("user_id")
         calificacion = data.get("calificacion")
         contenido = data.get("contenido")
 
-        if user_id is None:
-            return jsonify({"error": "El campo 'user_id' es requerido"}), 400
         if calificacion is None:
             return jsonify({"error": "El campo 'calificacion' es requerido"}), 400
         if not contenido:
             return jsonify({"error": "El campo 'contenido' es requerido"}), 400
 
-        review = create_review(site_id, user_id, calificacion, contenido)
+        review = create_review(site_id, current_user_id, calificacion, contenido)
 
         return jsonify(review.to_dict()), 201
 
