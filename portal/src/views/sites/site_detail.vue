@@ -15,7 +15,8 @@
 
     <!-- 🏷️ Encabezado -->
     <div class="w-full max-w-5xl">
-      <SiteHeader v-if="site" :site="site" />
+     <SiteHeader v-if="site" :site="site" :user-id="userId" />
+
     </div>
 
     <!-- 🖼️ Galería -->
@@ -69,9 +70,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
 import api from '@/api/axios'
+
 import SiteHeader from '@/components/sites/SiteHeader.vue'
 import SiteGallery from '@/components/sites/SiteGallery.vue'
 import SiteDescription from '@/components/sites/SiteDescription.vue'
@@ -83,6 +86,12 @@ const route = useRoute()
 const site = ref(null)
 const loading = ref(true)
 const error = ref(null)
+
+// 🔑 importar el hook
+const { currentUser, isAuthenticated } = useAuth()
+
+// ✅ userId computado correctamente
+const userId = computed(() => currentUser.value?.id ?? null)
 
 const goBack = () => router.back()
 

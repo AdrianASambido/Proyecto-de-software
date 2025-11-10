@@ -1,5 +1,7 @@
 import { ref, computed } from 'vue'
+import { jwtDecode } from 'jwt-decode'
 
+import api from '@/api/axios'
 // Estado global de autenticación (simplificado)
 const isAuthenticated = ref(false)
 const currentUser = ref(null)
@@ -15,8 +17,16 @@ export function useAuth() {
       
       // Si hay token, intentar obtener información del usuario
       if (token) {
-        // Aquí podrías hacer una petición para obtener el usuario actual
-        // Por ahora, solo marcamos como autenticado
+       const decoded = jwtDecode(token)
+        const userId = decoded.sub || decoded.id || decoded.user_id
+
+       
+        currentUser.value = { id: userId }
+
+      
+        
+      } else {
+        currentUser.value = null
       }
     } catch (error) {
       console.error('Error verificando autenticación:', error)
