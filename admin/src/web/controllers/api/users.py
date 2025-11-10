@@ -96,7 +96,7 @@ def get_favorites():
     filtros = {k.lower(): v for k, v in request.args.to_dict(flat=True).items()}
     page = int(filtros.pop("page", 1))
     per_page = int(filtros.pop("per_page", 25))
-    include_cover = filtros.pop("include_cover", "false").lower() in ("true", "1", "yes")
+    include_cover = filtros.pop("include_cover", "true").lower() in ("true", "1", "yes")
 
     filtros["favoritos"] = True
     filtros["user_id"] = user_id 
