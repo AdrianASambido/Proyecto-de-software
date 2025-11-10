@@ -66,6 +66,7 @@
         v-for="(tag, index) in site.tags"
         :key="index"
         :href="`/sitios?tag=${tag}`"
+        :title="` ${tag}`"
         class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm hover:bg-blue-200"
       >
         {{ tag }}
@@ -96,6 +97,7 @@ import { ref, onMounted, watch } from 'vue'
 import api from '@/api/axios' 
 const props = defineProps({
   site: { type: Object, required: true },
+  userId: { type: Number, required: true },
  
 })
 
@@ -107,7 +109,7 @@ const checkFavorite = async () => {
   if (!props.site?.id) return
   try {
     const res = await api.get(`/sites/${props.site.id}/favorite`, {
-      params: { userId: 1 },
+      params: { userId: props.userId },
     })
     isFavorite.value = !!res.data.favorite
   } catch (err) {
@@ -121,7 +123,7 @@ watch(() => props.site?.id, (newId) => { if (newId) checkFavorite() })
 const toggleFavorite = async () => {
   if (!props.site?.id) return
   loading.value = true
-  const url = `/sites/${props.site.id}/favorite?userId=1` 
+  const url = `/sites/${props.site.id}/favorite?` 
 
   try {
     if (isFavorite.value) {
