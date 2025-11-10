@@ -41,7 +41,8 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     CORS(
         app,
         resources={r"/api/*": {"origins": app.config["CORS_ORIGINS"]}},
-        supports_credentials=True
+        supports_credentials=True,
+        allow_headers=["Authorization", "Content-Type"]
     )
     # Middleware para verificar flags de mantenimiento
     @app.before_request # se ejecuta antes de cada solicitud HTTP
