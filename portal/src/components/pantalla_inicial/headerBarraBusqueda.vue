@@ -1,18 +1,13 @@
 <template>
   <header class="header-container">
     <div class="header-content">
-      <h1 class="logo">Portal Histórico</h1>
+      <div class="logo-container">
+        <img src="/Image_Logo3.png" alt="Logo" class="logo-img" />
+      </div>
 
      
       <div class="buscador-rapido">
-        <input
-          v-model="searchTerm"
-          type="text"
-          placeholder="Buscar..."
-          class="input-busqueda"
-          @keyup.enter="performSearch"
-        />
-        <button class="btn-busqueda" @click="performSearch">🔍</button>
+        <button class="btn-busqueda" @click="goToSites">Buscar</button>
       </div>
 
       <div class="auth-section">
@@ -31,12 +26,13 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '@/api/axios'
 import GoogleLoginButton from '@/components/login_google/login.vue'
 
+const router = useRouter()
 const isLoggedIn = ref(false)
 const username = ref('')
-const searchTerm = ref('')
 
 onMounted(() => {
   const savedUser = localStorage.getItem('user')
@@ -47,10 +43,8 @@ onMounted(() => {
   }
 })
 
-const emit = defineEmits(['search'])
-
-const performSearch = () => {
-  emit('search', searchTerm.value)
+const goToSites = () => {
+  router.push('/sitios')
 }
 
 const handleLoginSuccess = (user) => {
@@ -91,10 +85,15 @@ const handleLogout = async () => {
   width: 100%;
 }
 
-.logo {
-  margin: 0;
-  font-size: 1.8em;
-  font-weight: bold;
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo-img {
+  height: 200px; /* Ajusta el tamaño según sea necesario */
+  width: auto;
 }
 
 .buscador-rapido {
@@ -114,10 +113,12 @@ const handleLogout = async () => {
   background-color: #007bff;
   color: white;
   border: none;
-  padding: 8px 12px;
+  padding: 8px 16px;
   border-radius: 5px;
   cursor: pointer;
-  font-size: 1em;
+  font-size: 0.9em;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
 }
 
 .btn-busqueda:hover {
