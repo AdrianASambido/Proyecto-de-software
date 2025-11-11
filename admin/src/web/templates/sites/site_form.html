@@ -121,8 +121,27 @@
         <div class="dz-preview dz-file-preview relative bg-gray-50 border rounded-lg overflow-hidden">
             <!-- Badge de Portada -->
             <span class="cover-badge hidden absolute top-1 left-1 z-10 bg-blue-600 text-white text-[10px] px-2 py-[2px] rounded">Portada</span>
+            
+            <!-- Indicador de progreso (oculto por defecto) -->
+            <div class="dz-progress hidden absolute inset-0 bg-black/50 flex items-center justify-center z-20">
+                <div class="bg-white rounded-lg p-3 text-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                    <p class="text-xs text-gray-700 font-medium">Subiendo...</p>
+                </div>
+            </div>
+            
+            <!-- Barra de progreso -->
+            <div class="dz-progress-bar hidden absolute bottom-0 left-0 right-0 h-1 bg-gray-200 z-20">
+                <div class="dz-upload h-full bg-blue-600 transition-all duration-300" style="width: 0%"></div>
+            </div>
+            
+            <!-- Mensaje de error -->
+            <div class="dz-error-message hidden absolute inset-0 bg-red-500/90 flex items-center justify-center z-30 p-2">
+                <p class="text-xs text-white text-center font-medium" data-dz-errormessage></p>
+            </div>
+            
             <img data-dz-thumbnail class="w-full h-24 object-cover" />
-            <div class="absolute top-1 right-1 flex gap-1">
+            <div class="absolute top-1 right-1 flex gap-1 z-10">
               <!-- Botón hacer portada -->
               <button type="button" class="make-cover-btn relative z-10 bg-white/80 rounded-full px-2 py-1 text-[10px] shadow text-gray-700 hover:bg-gray-200 cursor-pointer" style="cursor:pointer">Hacer portada</button>
               <!-- Botón eliminar -->
@@ -133,14 +152,21 @@
               </button>
             </div>
             <div class="p-1 text-xs text-gray-600 truncate" data-dz-name></div>
+            <div class="p-1 text-xs text-gray-500" data-dz-size></div>
 
-            <div class="p-2 bg-white">
+            <div class="p-2 bg-white space-y-2">
                 <input
                 type="text"
                 name="images_alts[]"
                 class="image-alt-input w-full border border-gray-200 rounded px-2 py-1 text-sm"
-                placeholder="Título o descripción de la imagen"
+                placeholder="Título de la imagen *"
                 >
+                <textarea
+                name="images_descriptions[]"
+                class="image-description-input w-full border border-gray-200 rounded px-2 py-1 text-sm resize-none"
+                placeholder="Descripción corta (opcional)"
+                rows="2"
+                ></textarea>
             </div>
         </div>
     </div>
@@ -270,10 +296,64 @@
         }
     }
 
+    // Mejorar feedback de errores
     myDropzone.on("error", function(file, message) {
-        // Quitar previews inválidas y avisar
-        showToast(typeof message === 'string' ? message : 'Archivo inválido.', 'error');
-        myDropzone.removeFile(file);
+        const preview = file.previewElement;
+        const errorMessage = preview.querySelector('[data-dz-errormessage]');
+        const errorDiv = preview.querySelector('.dz-error-message');
+        
+        // Mostrar mensaje de error específico
+        let errorText = 'Error al procesar la imagen';
+        if (typeof message === 'string') {
+            errorText = message;
+        } else if (file.status === 'error') {
+            errorText = file.xhr?.responseText || 'Error al subir la imagen';
+        }
+        
+        if (errorMessage) {
+            errorMessage.textContent = errorText;
+        }
+        if (errorDiv) {
+            errorDiv.classList.remove('hidden');
+        }
+        
+        // Mostrar toast con mensaje específico
+        showToast(errorText, 'error');
+        
+        // Auto-remover después de 5 segundos si el usuario no lo hace
+        setTimeout(() => {
+            if (file.status === 'error') {
+                myDropzone.removeFile(file);
+            }
+        }, 5000);
+    });
+    
+    
+    // Mostrar progreso de subida (aunque no subamos realmente, es útil para feedback)
+    myDropzone.on("uploadprogress", function(file, progress, bytesSent) {
+        const preview = file.previewElement;
+        const progressBar = preview.querySelector('.dz-upload');
+        const progressDiv = preview.querySelector('.dz-progress');
+        
+        if (progressBar) {
+            progressBar.style.width = progress + '%';
+        }
+        if (progressDiv && progress < 100) {
+            progressDiv.classList.remove('hidden');
+        }
+    });
+    
+    // Ocultar progreso cuando termine
+    myDropzone.on("success", function(file) {
+        const preview = file.previewElement;
+        const progressDiv = preview.querySelector('.dz-progress');
+        const progressBarDiv = preview.querySelector('.dz-progress-bar');
+        if (progressDiv) {
+            progressDiv.classList.add('hidden');
+        }
+        if (progressBarDiv) {
+            progressBarDiv.classList.add('hidden');
+        }
     });
 
     myDropzone.on("addedfile", function (file) {
@@ -411,19 +491,27 @@
     form.addEventListener("submit", function (e) {
         const altInputs = document.querySelectorAll('#dropzone .image-alt-input');
         let hasError = false;
+        let firstEmptyInput = null;
 
-        for (const input of altInputs) {
-            if (!input.value.trim()) {
-            hasError = true;
-            e.preventDefault();
-            showToast("Completá el título de todas las imágenes antes de guardar.", "error");
-            input.focus();
-            break;
+        // Solo validar si hay imágenes agregadas
+        if (altInputs.length > 0) {
+            for (const input of altInputs) {
+                if (!input.value.trim()) {
+                    hasError = true;
+                    if (!firstEmptyInput) {
+                        firstEmptyInput = input;
+                    }
+                }
             }
-        }
-
-        if (!hasError) {
-            console.log("Formulario válido: todos los ALT completos ✅");
+            
+            if (hasError) {
+                e.preventDefault();
+                showToast("Completá el título de todas las imágenes antes de guardar.", "error");
+                if (firstEmptyInput) {
+                    firstEmptyInput.focus();
+                    firstEmptyInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }
         }
     });
 
