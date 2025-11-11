@@ -23,7 +23,7 @@
     <ReviewForm
       v-if="showForm"
       :site-id="siteId"
-      @review-submitted="loadReviews"
+      @review-submitted="handleReviewSubmitted"
       class="mb-6"
     />
 
@@ -40,7 +40,16 @@
       >
         <div class="flex justify-between items-center mb-2">
           <span class="font-semibold text-gray-800">{{ r.usuario?.nombre || 'Usuario' }}</span>
-          <span class="text-sm text-gray-400">{{ formatDate(r.fecha) }}</span>
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-400">{{ formatDate(r.created_at) }}</span>
+            <button
+              v-if="isOwnReview(r)"
+              @click="confirmDelete(r)"
+              class="text-red-500 hover:text-red-700 text-sm font-medium transition-colors"
+            >
+              Eliminar
+            </button>
+          </div>
         </div>
 
         <div class="flex items-center mb-1">
@@ -61,37 +70,129 @@
         <p class="text-gray-700">{{ r.contenido }}</p>
       </li>
     </ul>
+
+    <div v-if="!loading && hasMoreReviews" class="text-center mt-6">
+      <button
+        @click="loadMoreReviews"
+        :disabled="loadingMore"
+        class="px-6 py-3 bg-yellow-500 text-white font-medium rounded-lg hover:bg-yellow-600 disabled:opacity-50 transition-colors"
+      >
+        {{ loadingMore ? 'Cargando...' : 'Cargar más reseñas' }}
+      </button>
+    </div>
+
+    <ConfirmModal
+      :show="showDeleteModal"
+      title="¿Eliminar reseña?"
+      message="Esta acción no se puede deshacer. Tu reseña será eliminada permanentemente."
+      @confirm="handleDelete"
+      @cancel="showDeleteModal = false"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import { toast } from 'vue-sonner'
 import api from '@/api/axios'
+import { useAuth } from '@/composables/useAuth'
+import { useReviews } from '@/composables/useReviews'
 import ReviewForm from './ReviewForm.vue'
+import ConfirmModal from '@/components/common/ConfirmModal.vue'
 
 const props = defineProps({
   siteId: { type: Number, required: true },
 })
 
+const { currentUser } = useAuth()
+const { deleteReview } = useReviews()
+
 const reviews = ref([])
 const loading = ref(true)
+const loadingMore = ref(false)
 const error = ref(null)
 const showForm = ref(false)
+const showDeleteModal = ref(false)
+const reviewToDelete = ref(null)
+const currentPage = ref(1)
+const meta = ref({
+  page: 1,
+  per_page: 25,
+  total: 0
+})
 
-const loadReviews = async () => {
+const hasMoreReviews = computed(() => {
+  return reviews.value.length < meta.value.total
+})
+
+const loadReviews = async (page = 1) => {
   loading.value = true
+  error.value = null
   try {
-    const { data } = await api.get(`/sites/${props.siteId}/reviews`)
+    const { data } = await api.get(`/sites/${props.siteId}/reviews`, {
+      params: { page, per_page: 10 }
+    })
     reviews.value = data.data
+    meta.value = data.meta
+    currentPage.value = page
   } catch (err) {
     console.error(err)
     error.value = 'No se pudieron cargar las reseñas.'
+    toast.error('Error al cargar las reseñas')
   } finally {
     loading.value = false
   }
 }
 
-onMounted(loadReviews)
+const loadMoreReviews = async () => {
+  loadingMore.value = true
+  try {
+    const nextPage = currentPage.value + 1
+    const { data } = await api.get(`/sites/${props.siteId}/reviews`, {
+      params: { page: nextPage, per_page: 10 }
+    })
+    reviews.value = [...reviews.value, ...data.data]
+    meta.value = data.meta
+    currentPage.value = nextPage
+  } catch (err) {
+    console.error(err)
+    toast.error('Error al cargar más reseñas')
+  } finally {
+    loadingMore.value = false
+  }
+}
 
-const formatDate = (dateStr) => new Date(dateStr).toLocaleDateString()
+const isOwnReview = (review) => {
+  return currentUser.value && review.user_id === currentUser.value.id
+}
+
+const confirmDelete = (review) => {
+  reviewToDelete.value = review
+  showDeleteModal.value = true
+}
+
+const handleDelete = async () => {
+  if (!reviewToDelete.value) return
+
+  try {
+    await deleteReview(props.siteId, reviewToDelete.value.id)
+    showDeleteModal.value = false
+    reviewToDelete.value = null
+    await loadReviews(1)
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+const handleReviewSubmitted = () => {
+  showForm.value = false
+  loadReviews(1)
+}
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  return new Date(dateStr).toLocaleDateString()
+}
+
+onMounted(loadReviews)
 </script>
