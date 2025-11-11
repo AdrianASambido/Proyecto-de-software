@@ -74,6 +74,11 @@ def filter_reviews(filtros: dict):
     if user_email:
         query = query.filter(User.email.ilike(f"%{user_email}%"))
 
+    # Filtro por usuario (ID)
+    user_id = filtros.get("user_id")
+    if user_id:
+        query = query.filter(Review.user_id == int(user_id))
+
     return query
 
 
@@ -191,4 +196,36 @@ def get_review_by_site(site_id: int, review_id: int):
     Obtiene una reseña específica verificando que pertenezca al sitio indicado.
     """
     review = Review.query.filter_by(id=review_id, site_id=site_id).first()
+    return review
+
+
+def update_review(site_id: int, review_id: int, user_id: int, calificacion: int, contenido: str):
+    """
+    Actualiza una reseña existente.
+    Solo permite editar reseñas en estado PENDIENTE que pertenezcan al usuario.
+    """
+    if not isinstance(calificacion, int) or calificacion < 1 or calificacion > 5:
+        raise ValueError("La calificación debe ser un número entre 1 y 5")
+
+    if not contenido or len(contenido.strip()) < 20:
+        raise ValueError("El contenido debe tener al menos 20 caracteres")
+
+    if len(contenido) > 1000:
+        raise ValueError("El contenido no puede exceder los 1000 caracteres")
+
+    review = Review.query.filter_by(id=review_id, site_id=site_id).first()
+    if not review:
+        raise ValueError("Reseña no encontrada")
+
+    if review.user_id != user_id:
+        raise PermissionError("No tiene permisos para editar esta reseña")
+
+    if review.estado != ReviewStatus.PENDIENTE:
+        raise PermissionError("Solo se pueden editar reseñas en estado PENDIENTE")
+
+    review.calificacion = calificacion
+    review.contenido = contenido.strip()
+    review.estado = ReviewStatus.PENDIENTE
+
+    db.session.commit()
     return review

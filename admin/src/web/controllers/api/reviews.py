@@ -1,13 +1,13 @@
 from flask import jsonify, request
 from . import api_bp
+from .auth import jwt_required, get_current_user_from_jwt
 from src.core.services.reviews import (
     list_reviews,
     create_review,
     get_review_by_site,
-    delete_review
+    delete_review,
+    update_review
 )
-
-# FALTA AUTH
 
 @api_bp.get("sites/<int:site_id>/reviews")
 def get_reviews_for_site(site_id):
@@ -43,22 +43,18 @@ def get_reviews_for_site(site_id):
 
 
 @api_bp.post("sites/<int:site_id>/reviews")
+@jwt_required
 def add_review_to_site(site_id):
-    """
-    Crea una nueva reseña para un sitio.
-    """
     try:
         data = request.get_json()
 
         if not data:
             return jsonify({"error": "No se proporcionó información en el body"}), 400
 
-        user_id = data.get("user_id")
+        user_id = get_current_user_from_jwt()
         calificacion = data.get("calificacion")
         contenido = data.get("contenido")
 
-        if user_id is None:
-            return jsonify({"error": "El campo 'user_id' es requerido"}), 400
         if calificacion is None:
             return jsonify({"error": "El campo 'calificacion' es requerido"}), 400
         if not contenido:
@@ -92,20 +88,10 @@ def get_review_by_id(site_id, review_id):
 
 
 @api_bp.delete("sites/<int:site_id>/reviews/<int:review_id>")
+@jwt_required
 def delete_review_endpoint(site_id, review_id):
-    """
-    Elimina una reseña verificando que pertenezca al usuario.
-    """
     try:
-        data = request.get_json()
-
-        if not data:
-            return jsonify({"error": "No se proporcionó información en el body"}), 400
-
-        user_id = data.get("user_id")
-
-        if user_id is None:
-            return jsonify({"error": "El campo 'user_id' es requerido"}), 400
+        user_id = get_current_user_from_jwt()
         review = get_review_by_site(site_id, review_id)
 
         if not review:
@@ -120,5 +106,72 @@ def delete_review_endpoint(site_id, review_id):
 
     except ValueError as e:
         return jsonify({"error": str(e)}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.put("sites/<int:site_id>/reviews/<int:review_id>")
+@jwt_required
+def update_review_endpoint(site_id, review_id):
+    try:
+        user_id = get_current_user_from_jwt()
+        data = request.get_json()
+
+        if not data:
+            return jsonify({"error": "No se proporcionó información en el body"}), 400
+
+        calificacion = data.get("calificacion")
+        contenido = data.get("contenido")
+
+        if calificacion is None:
+            return jsonify({"error": "El campo 'calificacion' es requerido"}), 400
+        if not contenido:
+            return jsonify({"error": "El campo 'contenido' es requerido"}), 400
+
+        review = update_review(site_id, review_id, user_id, calificacion, contenido)
+
+        return jsonify(review.to_dict()), 200
+
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except PermissionError as e:
+        return jsonify({"error": str(e)}), 403
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@api_bp.get("me/reviews")
+@jwt_required
+def get_my_reviews():
+    try:
+        user_id = get_current_user_from_jwt()
+        page = int(request.args.get("page", 1))
+        per_page = int(request.args.get("per_page", 25))
+
+        filtros = {"user_id": user_id}
+        reviews_pag = list_reviews(filtros, page=page, per_page=per_page)
+
+        data = []
+        for review in reviews_pag.items:
+            review_dict = review.to_dict()
+            review_dict["site"] = {
+                "id": review.site.id,
+                "nombre": review.site.nombre,
+                "ciudad": review.site.ciudad,
+                "provincia": review.site.provincia
+            }
+            data.append(review_dict)
+
+        response = {
+            "data": data,
+            "meta": {
+                "page": reviews_pag.page,
+                "per_page": reviews_pag.per_page,
+                "total": reviews_pag.total
+            }
+        }
+
+        return jsonify(response), 200
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500

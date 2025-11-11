@@ -17,25 +17,43 @@
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 justify-items-center bg-gray-50 border rounded-lg p-4"
              id="existing-images">
             {% for img in site.images %}
-            <div class="relative group border rounded overflow-hidden bg-white cursor-move"
+            <div class="relative group border rounded overflow-hidden bg-white"
                  data-image-id="{{ img.id }}"
                  data-is-cover="{{ 'true' if img.is_cover else 'false' }}">
-                <img src="{{ image_url(img.url) }}" alt="{{ img.title or '' }}" class="w-full h-28 object-cover" />
-                <div class="absolute top-1 right-1 flex gap-1 flex-col">
-                    <button type="button" class="set-cover-existing bg-white/80 text-blue-600 rounded px-2 py-1 text-[11px] shadow hover:bg-blue-50 {% if img.is_cover %}opacity-50 cursor-not-allowed{% endif %}"
-                            data-url="{{ url_for('sites.set_cover_image', site_id=site.id, image_id=img.id) }}" {% if img.is_cover %}disabled{% endif %}>
-                        Hacer portada
-                    </button>
-                    <button type="button" class="delete-existing bg-white/80 rounded px-2 py-1 text-[11px] shadow {% if img.is_cover %}text-gray-400 cursor-not-allowed opacity-50{% else %}text-red-600 hover:bg-red-50{% endif %}"
-                            data-url="{{ url_for('sites.delete_image', site_id=site.id, image_id=img.id) }}"
-                            data-is-cover="{{ 'true' if img.is_cover else 'false' }}"
-                            {% if img.is_cover %}disabled{% endif %}>
-                        Eliminar
-                    </button>
+                <!-- Imagen con cursor move para drag -->
+                <div class="cursor-move">
+                    <img src="{{ image_url(img.url) }}" alt="{{ img.title or '' }}" class="w-full h-28 object-cover" />
+                    <div class="absolute top-1 right-1 flex gap-1 flex-col z-10">
+                        <button type="button" class="set-cover-existing bg-white/80 text-blue-600 rounded px-2 py-1 text-[11px] shadow hover:bg-blue-50 {% if img.is_cover %}opacity-50 cursor-not-allowed{% endif %}"
+                                data-url="{{ url_for('sites.set_cover_image', site_id=site.id, image_id=img.id) }}" {% if img.is_cover %}disabled{% endif %}>
+                            Hacer portada
+                        </button>
+                        <button type="button" class="delete-existing bg-white/80 rounded px-2 py-1 text-[11px] shadow {% if img.is_cover %}text-gray-400 cursor-not-allowed opacity-50{% else %}text-red-600 hover:bg-red-50{% endif %}"
+                                data-url="{{ url_for('sites.delete_image', site_id=site.id, image_id=img.id) }}"
+                                data-is-cover="{{ 'true' if img.is_cover else 'false' }}"
+                                {% if img.is_cover %}disabled{% endif %}>
+                            Eliminar
+                        </button>
+                    </div>
+                    {% if img.is_cover %}
+                    <span class="absolute top-1 left-1 bg-blue-600 text-white text-[10px] px-2 py-[2px] rounded z-10">Portada</span>
+                    {% endif %}
                 </div>
-                {% if img.is_cover %}
-                <span class="absolute top-1 left-1 bg-blue-600 text-white text-[10px] px-2 py-[2px] rounded">Portada</span>
-                {% endif %}
+                <!-- Campos editables -->
+                <div class="p-2 bg-gray-50 space-y-1">
+                    <input type="text"
+                           name="existing_image_titles[{{ img.id }}]"
+                           value="{{ img.title or '' }}"
+                           class="existing-title-input w-full border border-gray-200 rounded px-2 py-1 text-xs"
+                           placeholder="Título *"
+                           required
+                           data-image-id="{{ img.id }}">
+                    <textarea name="existing_image_descriptions[{{ img.id }}]"
+                              class="existing-description-input w-full border border-gray-200 rounded px-2 py-1 text-xs resize-none"
+                              placeholder="Descripción (opcional)"
+                              rows="2"
+                              data-image-id="{{ img.id }}">{{ img.description or '' }}</textarea>
+                </div>
             </div>
             {% endfor %}
         </div>
