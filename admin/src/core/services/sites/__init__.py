@@ -23,6 +23,7 @@ import csv
 from io import StringIO
 from flask import current_app
 import json
+from src.core.services.upload_service import delete_file as delete_minio_file
 
 def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=False):
     """
@@ -338,6 +339,16 @@ def modify_site(site_id, site_data, user_id):
     if images_data:
         # Obtener el máximo order de las imágenes existentes
         existing_images = sitio.images
+        existing_count = len(existing_images) if existing_images else 0
+        new_count = len(images_data)
+        
+        # Validar límite total de 10 imágenes
+        if existing_count + new_count > 10:
+            raise ValueError(
+                f"Máximo 10 imágenes por sitio. Ya tienes {existing_count} imagen(es), "
+                f"intentas agregar {new_count}. Puedes agregar máximo {10 - existing_count} imagen(es) más."
+            )
+        
         max_order = max([img.order for img in existing_images if img.order is not None], default=-1) if existing_images else -1
         
         # Verificar si ya hay una imagen de portada
@@ -365,6 +376,27 @@ def modify_site(site_id, site_data, user_id):
             new_image_ids.append(nueva_imagen.id)
     
     db.session.commit()
+
+    # Actualizar metadatos de imágenes existentes si vienen
+    existing_titles = site_data.get("existing_image_titles", {})
+    existing_descriptions = site_data.get("existing_image_descriptions", {})
+    
+    if existing_titles or existing_descriptions:
+        for img_id_str, title in existing_titles.items():
+            try:
+                img_id = int(img_id_str)
+                img = Image.query.filter_by(id=img_id, site_id=sitio.id).first()
+                if img:
+                    if not title or not title.strip():
+                        raise ValueError(f"La imagen '{img.title or 'sin título'}' debe tener un título")
+                    img.title = title.strip()
+                    # Actualizar descripción si viene
+                    if img_id_str in existing_descriptions:
+                        img.description = existing_descriptions[img_id_str].strip() if existing_descriptions[img_id_str] else None
+            except ValueError as e:
+                raise e
+            except Exception as e:
+                current_app.logger.debug(f"Error al actualizar metadatos de imagen {img_id_str}: {e}")
 
     # Actualizar orden de imágenes existentes si viene
     order_payload = site_data.get("existing_images_order")
@@ -463,6 +495,15 @@ def add_site(site_data,user_id):
 
     images_data = site_data.get("images", [])
     
+    # Validar límite de 10 imágenes
+    if len(images_data) > 10:
+        raise ValueError(f"Máximo 10 imágenes por sitio. Intentas agregar {len(images_data)}.")
+    
+    # Validar que todas las imágenes tengan título
+    for img_info in images_data:
+        if not img_info.get("title") or not img_info["title"].strip():
+            raise ValueError("Todas las imágenes deben tener un título")
+    
     # crear las imagenes en la db y asociarlas
     for idx, img_info in enumerate(images_data):
         nueva_imagen = Image(**img_info)
@@ -507,9 +548,20 @@ def delete_site_image(site_id: int, image_id: int):
     if imagen.is_cover:
         raise ValueError("No se puede eliminar la imagen portada. Debe cambiar la portada primero.")
     
-    # Eliminar la imagen
+    # Guardar la URL del archivo antes de eliminar
+    object_name = imagen.url
+    
+    # Eliminar la imagen de la base de datos
     db.session.delete(imagen)
     db.session.commit()
+    
+    # Eliminar el archivo físico de MinIO
+    if object_name:
+        try:
+            delete_minio_file(object_name)
+        except Exception as e:
+            current_app.logger.error(f"Error al eliminar archivo de MinIO {object_name}: {e}")
+            # No lanzamos excepción porque la imagen ya se eliminó de la BD
 
 def set_cover_image(site_id: int, image_id: int):
     """Marca una imagen como portada del sitio, desmarcando las demás."""
