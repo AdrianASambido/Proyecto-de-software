@@ -49,6 +49,7 @@ export function useSites() {
   const fetchRecientementeAgregados = async () => {
     return await fetchSites({ order: 'fecha_desc' })
   }
+  
 const fetchFavoritos = async () => {
   loading.value = true
   error.value = null

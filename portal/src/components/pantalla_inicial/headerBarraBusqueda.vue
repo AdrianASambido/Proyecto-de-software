@@ -58,7 +58,6 @@
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import GoogleLoginButton from '@/components/login_google/login.vue'
 
-const router = useRouter()
 const isLoggedIn = ref(false)
 const username = ref('')
 const searchTerm = ref('')
