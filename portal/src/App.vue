@@ -1,5 +1,6 @@
 <script setup>
 import { useRouter } from 'vue-router';
+import { Toaster } from 'vue-sonner';
 import HeaderBarraBusqueda from './components/pantalla_inicial/headerBarraBusqueda.vue';
 import HeroPrincipal from './components/pantalla_inicial/heroPrincipal.vue';
 import Footer from './components/pantalla_inicial/Footer.vue';
@@ -11,11 +12,10 @@ const handleSearch = (searchTerm) => {
 };
 </script>
 <template>
+  <Toaster position="bottom-right" richColors />
   <HeaderBarraBusqueda @search="handleSearch" />
 
   <main>
-    
-   
     <router-view />
   </main>
 
