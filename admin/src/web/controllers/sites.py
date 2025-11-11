@@ -26,18 +26,24 @@ def process_uploaded_images():
     if "images" in request.files:
         images = request.files.getlist("images")
         images_alts = request.form.getlist("images_alts[]")
+        images_descriptions = request.form.getlist("images_descriptions[]")
         uploaded_images = []
         for i, image in enumerate(images):
             if image.filename == "":
                 continue
             object_name = upload_file(image, folder_name="sites")
+            if not object_name:
+                continue  # Si falla la subida, saltar esta imagen
             image_data = {
                 "url": object_name,
                 "title": images_alts[i] if i < len(images_alts) else "",
-                "description": "",
+                "description": images_descriptions[i] if i < len(images_descriptions) else "",
                 "order": i,
                 "is_cover": False
             }
+            # Validar que el título no esté vacío
+            if not image_data["title"] or not image_data["title"].strip():
+                raise ValueError("Todas las imágenes deben tener un título")
             uploaded_images.append(image_data)
         params["images"] = uploaded_images
         
@@ -185,6 +191,23 @@ def modify(site_id):
             order_payload = request.form.get('existing_images_order')
             if order_payload:
                 data["existing_images_order"] = order_payload
+            
+            # Capturar metadatos de imágenes existentes (títulos y descripciones)
+            existing_titles = {}
+            existing_descriptions = {}
+            for key, value in request.form.items():
+                if key.startswith('existing_image_titles['):
+                    # Extraer el ID de la imagen del formato existing_image_titles[123]
+                    img_id = key.split('[')[1].rstrip(']')
+                    existing_titles[img_id] = value
+                elif key.startswith('existing_image_descriptions['):
+                    img_id = key.split('[')[1].rstrip(']')
+                    existing_descriptions[img_id] = value
+            
+            if existing_titles:
+                data["existing_image_titles"] = existing_titles
+            if existing_descriptions:
+                data["existing_image_descriptions"] = existing_descriptions
             
             board_sites.modify_site(site_id, data, user_id)
             flash("Sitio actualizado correctamente.", "success")

@@ -49,3 +49,26 @@ def upload_file(file, folder_name):
     except Exception as e:
         current_app.logger.error(f"Error al subir archivo a MinIO: {e}")
         return None
+
+
+def delete_file(object_name: str):
+    """
+    Elimina un archivo de MinIO.
+
+    :param object_name: El nombre del objeto completo (ej: 'sites/123e45-abc.jpg').
+    :return: True si se eliminó correctamente, False en caso contrario.
+    """
+    if not object_name:
+        return False
+
+    try:
+        client = current_app.storage
+        bucket_name = current_app.config["MINIO_BUCKET"]
+        
+        client.remove_object(bucket_name=bucket_name, object_name=object_name)
+        current_app.logger.info(f"Archivo eliminado exitosamente: {object_name}")
+        return True
+
+    except Exception as e:
+        current_app.logger.error(f"Error al eliminar archivo de MinIO: {e}")
+        return False

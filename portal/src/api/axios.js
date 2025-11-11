@@ -1,11 +1,6 @@
 import axios from 'axios'
-
-const api = axios.create({
-  baseURL: 'http://localhost:5000/api',
-  withCredentials: true, // Para enviar cookies/sesiones si es necesario
-  headers: {
-    'Content-Type': 'application/json'
-  }
+const api=axios.create({
+  baseURL:'https://admin-grupo01.proyecto2025.linti.unlp.edu.ar/api'
 })
 
 // Interceptor para agregar token si existe
