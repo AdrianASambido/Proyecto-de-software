@@ -1,80 +1,135 @@
 <template>
   <section class="carrusel-container">
-    <h2>{{ title }}</h2>
-    <div class="slide">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6 px-4">{{ title }}</h2>
+    
+    <div v-if="loading" class="text-center py-12">
+      <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <p class="mt-4 text-gray-600">Cargando...</p>
+    </div>
 
+    <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700 mx-4">
+      {{ error }}
+    </div>
+
+    <div v-else-if="items.length === 0" class="text-center py-12 bg-gray-50 rounded-lg mx-4">
+      <p class="text-gray-600">No hay sitios destacados disponibles</p>
+    </div>
+
+    <div v-else class="slide">
       <baseCard 
         v-for="item in items" 
         :key="item.id"
         :item="item"  
+        class="carrusel-item"
       /> 
-
-      <div v-for="item in items" :key="item.id">
-        <img :src="item.src" :alt="item.title">
-        <p>{{ item.description }}</p>
-      </div>
     </div>
   </section>
 </template>
 
 <script setup>
+import { ref, computed, onMounted } from 'vue';
 import baseCard from '../baseCard.vue';
-import { defineProps } from 'vue';
-// 1. Define las propiedades que el componente espera recibir de( home.vue)
+import { useSites } from '@/composables/useSites';
+
 const props = defineProps({
-  // 'items' es la lista de datos a mostrar ()
-  
+  // 'items' puede venir como prop o cargarse internamente
   items: {
     type: Array,
-    required: true,
-    default : () => []
+    default: () => null // null significa que debe cargarse internamente
   },
   // 'title' es un título opcional para la sección
   title: {
     type: String,
     default: 'Elementos Destacados'
+  },
+  // Si debe cargar datos automáticamente
+  autoLoad: {
+    type: Boolean,
+    default: true
+  },
+  // Parámetros para la carga de datos
+  loadParams: {
+    type: Object,
+    default: () => ({ order: 'mejor_puntuado', per_page: 6 })
+  }
+});
+
+const { loading, error, fetchSites } = useSites();
+const internalItems = ref([]);
+
+const loadData = async () => {
+  if (props.items !== null) {
+    // Si se pasan items como prop, no cargar
+    return;
+  }
+  
+  if (loading.value || internalItems.value.length > 0) return;
+  
+  const data = await fetchSites(props.loadParams);
+  internalItems.value = data;
+};
+
+const items = computed(() => {
+  return props.items !== null ? props.items : internalItems.value;
+});
+
+onMounted(() => {
+  if (props.autoLoad && props.items === null) {
+    loadData();
   }
 });
 </script>
 
 <style scoped>
-.carousel-container {
-  max-width: 2500px;
+.carrusel-container {
+  max-width: 1400px;
   margin: 2rem auto;
   padding: 1rem;
 }
 
-.images-wrapper {
+.slide {
   display: flex;
-  gap: 1rem;
-  overflow: hidden;
-  width: 100%;
-  justify-content: center;
+  gap: 1.5rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 1rem;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
 }
 
-.carousel-item {
-  flex: 0 0 calc(33.333% - 1rem);
-  transition: transform 0.5s ease;
+.slide::-webkit-scrollbar {
+  height: 8px;
 }
 
-.nav-button {
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 1.5rem;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
+.slide::-webkit-scrollbar-track {
+  background: #f7fafc;
+  border-radius: 10px;
 }
 
-.nav-button:disabled {
-  background-color: rgba(0, 0, 0, 0.2);
-  cursor: not-allowed;
+.slide::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 10px;
+}
+
+.slide::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+.carrusel-item {
+  flex: 0 0 300px;
+  min-width: 300px;
+  transition: transform 0.3s ease;
+}
+
+.carrusel-item:hover {
+  transform: translateY(-5px);
+}
+
+@media (max-width: 768px) {
+  .carrusel-item {
+    flex: 0 0 250px;
+    min-width: 250px;
+  }
 }
 </style>

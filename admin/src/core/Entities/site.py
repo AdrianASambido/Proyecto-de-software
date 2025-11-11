@@ -27,7 +27,6 @@ class Site(db.Model):
 
 
 
-
     created_at = db.Column(
         db.DateTime,
         nullable=False,
@@ -74,6 +73,13 @@ class Site(db.Model):
         back_populates="site",
         cascade="all, delete-orphan",
         lazy="select"
+    )
+
+    favorite_users = db.relationship(
+        "User",
+        secondary="users_favorites",
+        back_populates="favorite_sites",
+        lazy="dynamic"
     )
 
     def __repr__(self):

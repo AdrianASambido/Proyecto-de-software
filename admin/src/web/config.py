@@ -50,8 +50,8 @@ class DevelopmentConfig(Config):
     Configuración para desarrollo
     """
     MINIO_SERVER = "localhost:9000"
-    MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "admin")
-    MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "admin123")
+    MINIO_ACCESS_KEY = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
+    MINIO_SECRET_KEY = os.getenv("MINIO_SECRET_KEY", "minioadmin")
     MINIO_SECURE = False
     MINIO_BUCKET = "grupo01"
 
@@ -79,8 +79,10 @@ class DevelopmentConfig(Config):
         f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
 
+    JWT_SECRET = os.getenv("JWT_SECRET", "dev-jwt-secret-change-me")
+    JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
     GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
-    GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+    GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_SECRET_ID")
 
 
 class TestingConfig(Config):

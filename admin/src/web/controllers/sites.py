@@ -20,6 +20,33 @@ bp = Blueprint("sites", __name__, url_prefix="/sitios")
 provincias_arg = [sub.name for sub in pycountry.subdivisions.get(country_code="AR")]
 
 
+def process_uploaded_images():
+    """Procesa las imágenes subidas desde el formulario y retorna un diccionario con los datos."""
+    params = {}
+    if "images" in request.files:
+        images = request.files.getlist("images")
+        images_alts = request.form.getlist("images_alts[]")
+        uploaded_images = []
+        for i, image in enumerate(images):
+            if image.filename == "":
+                continue
+            object_name = upload_file(image, folder_name="sites")
+            image_data = {
+                "url": object_name,
+                "title": images_alts[i] if i < len(images_alts) else "",
+                "description": "",
+                "order": i,
+                "is_cover": False
+            }
+            uploaded_images.append(image_data)
+        params["images"] = uploaded_images
+        
+        # Obtener índice de portada si viene en el formulario
+        cover_index = request.form.get("cover_index")
+        if cover_index and cover_index.isdigit():
+            params["cover_index"] = int(cover_index)
+    return params
+
 
 @bp.get("/")
 @permission_required('site_index')
@@ -90,23 +117,8 @@ def add_site():
             
             tags_seleccionados = request.form.getlist("tags[]")
 
-            params = {}
-            if "images" in request.files:
-                images = request.files.getlist("images")
-                uploaded_images = []
-                for i, image in enumerate(images):
-                    if image.filename == "":
-                        continue
-                    object_name = upload_file(image, folder_name="sites")
-                    image = {
-                        "url": object_name,
-                        "title": "",
-                        "description": "",
-                        "order": i,
-                        "is_cover": False
-                    }
-                    uploaded_images.append(image)
-                params["images"] = uploaded_images
+            # images_alts = request.form.getlist("image_alt[]")
+            params = process_uploaded_images()
 
             site_data = {
                 "nombre": siteForm.nombre.data,
@@ -152,24 +164,35 @@ def modify(site_id):
     """
     
     try:
-        site = board_sites.get_site(site_id)
+        site = board_sites.get_site(site_id, include_images=True)
         form = SiteForm(obj=site)
         form.provincia.choices = [(p, p) for p in provincias_arg]
         form.tags.choices = [(t.id, t.name) for t in board_tags.list_tags()]
-    
-        
         form.tags.data = [t.id for t in site.tags] 
+
         if form.validate_on_submit():
             user_id=session.get("user_id")
             data = form.data
             data["tags"] = request.form.getlist("tags[]")
-            board_sites.modify_site(site_id, data,user_id)
+            
+            # Procesar imágenes nuevas si se suben
+            params = process_uploaded_images()
+            data["images"] = params.get("images", [])
+            if not site.images_data:
+                data["cover_index"] = params.get("cover_index")
+            
+            # pasar el orden de imágenes existentes (si viene) al servicio
+            order_payload = request.form.get('existing_images_order')
+            if order_payload:
+                data["existing_images_order"] = order_payload
+            
+            board_sites.modify_site(site_id, data, user_id)
             flash("Sitio actualizado correctamente.", "success")
             return redirect(url_for("sites.index"))
     except Exception as e:
         flash(str(e),"error")
 
-    return render_template("sites/modify_site.html", form=form)
+    return render_template("sites/modify_site.html", form=form, site=site)
 
 
 @bp.post("/eliminar/<int:site_id>")
@@ -190,6 +213,31 @@ def delete(site_id):
     except Exception as e:
         flash(str(e),"error")
     return redirect(url_for("sites.index"))
+
+
+@bp.post("/<int:site_id>/images/<int:image_id>/delete")
+@login_required
+@permission_required('site_update')
+def delete_image(site_id, image_id):
+    """Elimina una imagen del sitio (usado en la edición)."""
+    try:
+        board_sites.delete_site_image(site_id, image_id)
+        flash("Imagen eliminada exitosamente.", "success")
+    except Exception as e:
+        flash(str(e), "error")
+    return redirect(url_for("sites.modify", site_id=site_id))
+
+@bp.post("/<int:site_id>/images/<int:image_id>/set-cover")
+@login_required
+@permission_required('site_update')
+def set_cover_image(site_id, image_id):
+    """Marca una imagen como portada del sitio."""
+    try:
+        board_sites.set_cover_image(site_id, image_id)
+        flash("Imagen marcada como portada exitosamente.", "success")
+    except Exception as e:
+        flash(str(e), "error")
+    return redirect(url_for("sites.modify", site_id=site_id))
 
 @bp.get("/exportar")
 @login_required

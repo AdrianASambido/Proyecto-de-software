@@ -2,6 +2,8 @@ from flask import jsonify,request
 from src.web.controllers.api.schemas.site import SiteSchema
 from . import api_bp
 from src.core.services.sites import list_sites,add_site,get_site
+#from flask_jwt_extended import jwt_required, get_jwt_identity, verify_jwt_in_request_optional
+from src.core.services.users import get_user_by_email
 
 @api_bp.get("/sites")
 def get_sites():
@@ -15,6 +17,7 @@ def get_sites():
         filtros["tags"] = filtros["tags"].split(",")
 
     include_cover = filtros.pop("include_cover", "false").lower() in ("true", "1", "yes")
+    
     
     sitios_pag = list_sites(filtros, page=page, per_page=per_page,include_cover=include_cover)
 

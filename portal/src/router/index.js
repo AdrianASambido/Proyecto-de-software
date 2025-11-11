@@ -4,6 +4,7 @@ import Home from '../home.vue'
 
 const routes = [
   { path: '/', name: 'home', component: Home },
+  { path: '/sitios', name: 'sites-list', component: () => import('@/views/sites/sites_list.vue') },
   { path: '/sitio/:id', name: 'site-detail', component: SiteDetailView },
   { path: '/login', name: 'login', component: () => import('@/components/login_google/login.vue')},
 ]

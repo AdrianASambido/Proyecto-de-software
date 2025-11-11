@@ -1,6 +1,111 @@
 {% extends "sites/site_form.html" %}
 {% set title = "Editar sitio histórico" %}
+
+{% block images_label %}Agregar imágenes{% endblock %}
+
+{% block existing_images %}
+    {% if site and site.images %}
+    <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Imágenes existentes</label>
+
+        <!-- hidden input que guarda el orden actual (lista de ids) -->
+        <input type="hidden"
+               id="existing-images-order"
+               name="existing_images_order"
+               value='{{ site.images|map(attribute="id")|list|tojson }}' />
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 justify-items-center bg-gray-50 border rounded-lg p-4"
+             id="existing-images">
+            {% for img in site.images %}
+            <div class="relative group border rounded overflow-hidden bg-white cursor-move"
+                 data-image-id="{{ img.id }}"
+                 data-is-cover="{{ 'true' if img.is_cover else 'false' }}">
+                <img src="{{ image_url(img.url) }}" alt="{{ img.title or '' }}" class="w-full h-28 object-cover" />
+                <div class="absolute top-1 right-1 flex gap-1 flex-col">
+                    <button type="button" class="set-cover-existing bg-white/80 text-blue-600 rounded px-2 py-1 text-[11px] shadow hover:bg-blue-50 {% if img.is_cover %}opacity-50 cursor-not-allowed{% endif %}"
+                            data-url="{{ url_for('sites.set_cover_image', site_id=site.id, image_id=img.id) }}" {% if img.is_cover %}disabled{% endif %}>
+                        Hacer portada
+                    </button>
+                    <button type="button" class="delete-existing bg-white/80 rounded px-2 py-1 text-[11px] shadow {% if img.is_cover %}text-gray-400 cursor-not-allowed opacity-50{% else %}text-red-600 hover:bg-red-50{% endif %}"
+                            data-url="{{ url_for('sites.delete_image', site_id=site.id, image_id=img.id) }}"
+                            data-is-cover="{{ 'true' if img.is_cover else 'false' }}"
+                            {% if img.is_cover %}disabled{% endif %}>
+                        Eliminar
+                    </button>
+                </div>
+                {% if img.is_cover %}
+                <span class="absolute top-1 left-1 bg-blue-600 text-white text-[10px] px-2 py-[2px] rounded">Portada</span>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}
+
 {% block content %}
-    
     {{ super() }}
+
+    {% include "common/delete_modal.html" %}
+
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const container = document.getElementById('existing-images');
+        const orderInput = document.getElementById('existing-images-order');
+        if (!container || !orderInput) return;
+
+        // Inicializar Sortable para reordenar por drag & drop
+        const sortable = Sortable.create(container, {
+            animation: 150,
+            draggable: '[data-image-id]',
+            onEnd: function () {
+                // actualizar hidden con nuevo orden de ids
+                const ids = Array.from(container.querySelectorAll('[data-image-id]')).map(el => el.dataset.imageId);
+                orderInput.value = JSON.stringify(ids);
+            }
+        });
+
+        // asegurar que al enviar el formulario el orden esté actualizado
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', () => {
+                const ids = Array.from(container.querySelectorAll('[data-image-id]')).map(el => el.dataset.imageId);
+                orderInput.value = JSON.stringify(ids);
+            });
+        }
+
+        // existing handlers (delete / set cover) preserved
+        container.addEventListener('click', function(e){
+            const deleteBtn = e.target.closest('.delete-existing');
+            if (deleteBtn) {
+                e.preventDefault();
+                const isCover = deleteBtn.dataset.isCover === 'true';
+                if (isCover) {
+                    alert('No se puede eliminar la imagen portada. Debe cambiar la portada primero seleccionando otra imagen como portada.');
+                    return;
+                }
+                const card = deleteBtn.closest('[data-image-id]');
+                const delUrl = deleteBtn.dataset.url;
+                openDeleteModal({
+                    url: delUrl,
+                    title: '¿Eliminar imagen?',
+                    message: 'Esta acción eliminará la imagen definitivamente. ¿Estás seguro?'
+                });
+                return;
+            }
+
+            const coverBtn = e.target.closest('.set-cover-existing');
+            if (coverBtn) {
+                e.preventDefault();
+                const coverUrl = coverBtn.dataset.url;
+                const form2 = document.createElement('form');
+                form2.method = 'POST';
+                form2.action = coverUrl;
+                document.body.appendChild(form2);
+                form2.submit();
+            }
+        });
+    });
+    </script>
 {% endblock %}

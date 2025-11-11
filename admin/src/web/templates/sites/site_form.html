@@ -100,10 +100,13 @@
         <span class="text-red-500 text-sm">{{ error }}</span>
     {% endfor %}
 
+    <!-- Imágenes existentes (solo en edición) -->
+    {% block existing_images %}{% endblock %}
+    
     <!-- Imágenes con Dropzone -->
     
     <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Imágenes</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">{% block images_label %}Agregar imágenes{% endblock %}</label>
         <div id="dropzone" class="dropzone border-dashed border-2 border-gray-300 rounded-lg p-6 bg-gray-50 text-center cursor-pointer">
             <div class="dz-message text-gray-500">
                 Arrastra tus imágenes aquí o haz clic para seleccionarlas
@@ -130,6 +133,15 @@
               </button>
             </div>
             <div class="p-1 text-xs text-gray-600 truncate" data-dz-name></div>
+
+            <div class="p-2 bg-white">
+                <input
+                type="text"
+                name="images_alts[]"
+                class="image-alt-input w-full border border-gray-200 rounded px-2 py-1 text-sm"
+                placeholder="Título o descripción de la imagen"
+                >
+            </div>
         </div>
     </div>
 
@@ -354,30 +366,29 @@
             animation: 150,
             draggable: '.dz-preview',
             onEnd: function (evt) {
-                // obtener previews en su nuevo orden
+                const previewsContainer = myDropzone.previewsContainer || document.querySelector("#dropzone");
                 const previewEls = Array.from(previewsContainer.querySelectorAll('.dz-preview'));
                 const newFilesOrder = [];
+                const newAlts = [];
 
                 previewEls.forEach(el => {
                     const nameEl = el.querySelector('[data-dz-name]');
+                    const altInput = el.querySelector('.image-alt-input');
                     const name = nameEl ? nameEl.textContent.trim() : null;
                     if (!name) return;
-                    // buscar el file correspondiente en myDropzone.files por nombre y tamaño
                     const file = myDropzone.files.find(f => f.name === name);
-                    if (file) newFilesOrder.push(file);
+                    if (file) {
+                        newFilesOrder.push(file);
+                        newAlts.push(altInput ? altInput.value : "");
+                    }
                 });
 
-                // fallback: si algo falta, añadir los que quedaron fuera
-                myDropzone.files.forEach(f => {
-                    if (!newFilesOrder.includes(f)) newFilesOrder.push(f);
-                });
-
-                // actualizar el array interno de dropzone y el array de selectedFiles
                 myDropzone.files = newFilesOrder.slice();
                 selectedFiles = newFilesOrder.slice();
 
                 // sincronizar input oculto
                 syncInputFiles();
+
                 // actualizar UI de portada (primero es portada)
                 updateCoverUI();
             }
@@ -395,6 +406,27 @@
         document.body.appendChild(toast);
         setTimeout(() => toast.remove(), 3000);
     }
+
+    // Validación de títulos/alt antes de enviar el formulario
+    form.addEventListener("submit", function (e) {
+        const altInputs = document.querySelectorAll('#dropzone .image-alt-input');
+        let hasError = false;
+
+        for (const input of altInputs) {
+            if (!input.value.trim()) {
+            hasError = true;
+            e.preventDefault();
+            showToast("Completá el título de todas las imágenes antes de guardar.", "error");
+            input.focus();
+            break;
+            }
+        }
+
+        if (!hasError) {
+            console.log("Formulario válido: todos los ALT completos ✅");
+        }
+    });
+
 
 </script>
 
