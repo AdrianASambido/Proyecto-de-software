@@ -15,7 +15,8 @@
 
     <!-- 🏷️ Encabezado -->
     <div class="w-full max-w-5xl">
-      <SiteHeader v-if="site" :site="site" />
+     <SiteHeader v-if="site" :site="site" :user-id="userId" />
+
     </div>
 
     <!-- 🖼️ Galería -->
@@ -57,6 +58,10 @@
         </div>
       </div>
     </div>
+<!-- ✨ Reseñas -->
+<div class="w-full max-w-5xl">
+  <SiteReviews v-if="site" :site-id="site.id" />
+</div>
 
     <!-- 🌀 Estado -->
     <div v-if="loading" class="text-gray-500">Cargando...</div>
@@ -65,19 +70,28 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
 import api from '@/api/axios'
+
 import SiteHeader from '@/components/sites/SiteHeader.vue'
 import SiteGallery from '@/components/sites/SiteGallery.vue'
 import SiteDescription from '@/components/sites/SiteDescription.vue'
 import SiteMap from '@/components/sites/SiteMap.vue'
+import SiteReviews from '@/components/sites/SiteReviews.vue'
 
 const router = useRouter()
 const route = useRoute()
 const site = ref(null)
 const loading = ref(true)
 const error = ref(null)
+
+// 🔑 importar el hook
+const { currentUser, isAuthenticated } = useAuth()
+
+// ✅ userId computado correctamente
+const userId = computed(() => currentUser.value?.id ?? null)
 
 const goBack = () => router.back()
 

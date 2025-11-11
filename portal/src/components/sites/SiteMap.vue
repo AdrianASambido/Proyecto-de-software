@@ -13,6 +13,15 @@ const props = defineProps({
   nombre: String,
   descripcion: String
 })
+const customIcon = L.divIcon({
+  html: `
+    <div class="w-6 h-6 bg-blue-600 rounded-full border-2 border-white shadow-lg"></div>
+  `,
+  className: '', 
+  iconSize: [24, 24],
+  iconAnchor: [12, 12]
+})
+
 
 onMounted(() => {
   const map = L.map('map', {
@@ -24,8 +33,10 @@ onMounted(() => {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map)
 
-  L.marker([props.latitud, props.longitud])
-    .addTo(map)
-    .bindPopup(`<b>${props.nombre}</b><br>${props.descripcion}`)
+const marker = L.marker([props.latitud, props.longitud], { icon: customIcon })
+  .addTo(map)
+  .bindPopup(`<b>${props.nombre}</b><br>${props.descripcion}`)
+  .openPopup()
+
 })
 </script>

@@ -6,6 +6,7 @@ from src.core.database import db
 from src.core.Entities.site import Site
 from src.core.Entities.review import Review,ReviewStatus
 from src.core.Entities.site_history import HistoryAction
+from src.core.Entities.user import User
 
 from src.core.services.history import add_site_history
 from datetime import datetime, timezone
@@ -20,6 +21,8 @@ from src.core.Entities.image import Image
 from sqlalchemy.orm import aliased
 import csv
 from io import StringIO
+from flask import current_app
+import json
 
 def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=False):
     """
@@ -48,14 +51,15 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=F
 
         results = []
         for site, cover_url in pagination.items:
-         
-            site._cover_url = cover_url  
+            site._cover_url = f"http://{current_app.config['MINIO_SERVER']}/{current_app.config['MINIO_BUCKET']}/{cover_url}" if cover_url else None  
+            # sort_site_images(site)
             results.append(site)
 
         pagination.items = results
         return pagination
 
     return query.paginate(page=page, per_page=per_page, error_out=False)
+
 
 def calculate_review_count(site_id):
     """
@@ -114,7 +118,6 @@ from sqlalchemy.orm import aliased
 def order_sites(query, filtros):
     orden = filtros.get("order", "fecha_desc")
 
-   
     if orden == "mejor_puntuado":
         avg_reviews_subq = (
             db.session.query(
@@ -149,6 +152,17 @@ def filter_sites(filtros):
     Filtra los sitios según los filtros proporcionados.
     """
     query = Site.query.filter(Site.eliminated_at.is_(None))
+
+    # Filtro por favoritos y user_id
+    if filtros.get("favoritos") and filtros.get("user_id"):
+        user_id = filtros["user_id"]
+     
+        query = (
+            query
+            .join(Site.favorite_users)
+            .filter(User.id == user_id)
+        )
+    
 
     # Texto de búsqueda
     busqueda = filtros.get("busqueda")
@@ -217,20 +231,45 @@ def filter_sites(filtros):
         if tags_ids:
             query = query.join(Tag, Site.tags).filter(Tag.id.in_(tags_ids)).distinct()
 
+
     return query
 
-def get_site(site_id, include_images=False):
+from flask import current_app
+
+def get_site(site_id, include_images=False, include_cover=False):
     sitio = Site.query.get(site_id)
     if not sitio:
         return None
 
-    
+    # Construir URL base de MinIO directamente desde config existente
+    minio_server = current_app.config.get("MINIO_SERVER", "localhost:9000")
+    minio_secure = current_app.config.get("MINIO_SECURE", False)
+    minio_bucket= current_app.config.get("MINIO_BUCKET", "grupo01")
+    scheme = "https" if minio_secure else "http"
+    base_url = f"{scheme}://{minio_server}/{minio_bucket}/"
 
+    # Obtener la portada si se solicita
+    if include_cover:
+        cover_image = Image.query.filter_by(site_id=site_id, is_cover=True).first()
+        if cover_image:
+            sitio._cover_url = (
+                f"{base_url}{cover_image.url}" 
+                if not cover_image.url.startswith("http") 
+                else cover_image.url
+            )
+        else:
+            sitio._cover_url = None
+
+   
     if include_images:
         sitio.images_data = [
             {
                 "id": img.id,
-                "url": img.url,
+                "url": (
+                    f"{base_url}{img.url}"
+                    if not img.url.startswith("http") 
+                    else img.url
+                ),
                 "title": img.title,
                 "description": img.description,
                 "order": img.order,
@@ -238,15 +277,16 @@ def get_site(site_id, include_images=False):
             }
             for img in sitio.images
         ]
-    return sitio
+        sort_site_images(sitio)
 
+    return sitio
 
 
 def modify_site(site_id, site_data, user_id):
     """
     Modifica un sitio histórico existente.
     """
-   
+
     sitio = Site.query.get(site_id)
     if not sitio:
         return None
@@ -292,7 +332,64 @@ def modify_site(site_id, site_data, user_id):
         if tag is None:
             raise ValueError(f"Tag '{tag_id}' no encontrado")
         sitio.tags.append(tag)
+
+    # Agregar imágenes nuevas si vienen
+    images_data = site_data.get("images", [])
+    if images_data:
+        # Obtener el máximo order de las imágenes existentes
+        existing_images = sitio.images
+        max_order = max([img.order for img in existing_images if img.order is not None], default=-1) if existing_images else -1
+        
+        # Verificar si ya hay una imagen de portada
+        has_cover = any(img.is_cover for img in existing_images) if existing_images else False
+        
+        # Crear y agregar las nuevas imágenes
+        new_image_ids = []
+        for idx, img_info in enumerate(images_data):
+            nueva_imagen = Image(**img_info)
+            nueva_imagen.site_id = sitio.id
+            nueva_imagen.order = max_order + 1 + idx
+            # Si se especifica un índice de portada, establecer esta imagen como portada
+            cover_index = site_data.get("cover_index")
+            if cover_index is not None and idx == cover_index:
+                nueva_imagen.is_cover = True
+                # Desmarcar otras imágenes como portada si esta es la nueva portada
+                if existing_images:
+                    for img in existing_images:
+                        img.is_cover = False
+            # Si no hay portada actual y es la primera imagen nueva, marcarla como portada
+            elif not has_cover and idx == 0:
+                nueva_imagen.is_cover = True
+            db.session.add(nueva_imagen)
+            db.session.flush()  # Para obtener el ID
+            new_image_ids.append(nueva_imagen.id)
+    
     db.session.commit()
+
+    # Actualizar orden de imágenes existentes si viene
+    order_payload = site_data.get("existing_images_order")
+    try:
+        if order_payload:
+            # order_payload puede venir como JSON string o como lista ya
+            if isinstance(order_payload, str):
+                ids = json.loads(order_payload)
+            else:
+                ids = order_payload
+
+            # actualizar order de cada imagen (solo si pertenece a este sitio)
+            for idx, img_id in enumerate(ids):
+                try:
+                    img = Image.query.get(int(img_id))
+                    if img and img.site_id == sitio.id:
+                        img.order = idx
+                except Exception:
+                    current_app.logger.debug("skip invalid image id in ordering: %s", img_id)
+
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        current_app.logger.exception("Error al modificar sitio y/o actualizar orden de imágenes")
+        raise
 
     # Nuevo snapshot después de la modificación
     nuevo_snapshot = {
@@ -370,6 +467,10 @@ def add_site(site_data,user_id):
     for idx, img_info in enumerate(images_data):
         nueva_imagen = Image(**img_info)
         nuevo_sitio.images.append(nueva_imagen)
+    
+    # establecer la primera imagen como portada si hay imágenes
+    if nuevo_sitio.images:
+        nuevo_sitio.images[0].is_cover = True
 
     db.session.add(nuevo_sitio)
     db.session.commit()
@@ -385,6 +486,54 @@ def add_site(site_data,user_id):
 
 def actualizar_historial(nuevo,accion,original=None):
     pass
+
+def delete_site_image(site_id: int, image_id: int):
+    """Elimina una imagen de un sitio. Si era portada, reasigna portada a la siguiente por orden."""
+    sitio = Site.query.get(site_id)
+    if not sitio:
+        raise ValueError("Sitio no encontrado")
+    
+    # Verificar directamente que la imagen existe y pertenece al sitio
+    imagen = Image.query.filter_by(id=image_id, site_id=site_id).first()
+    if not imagen:
+        # Verificar si la imagen existe pero pertenece a otro sitio
+        imagen_existe = Image.query.get(image_id)
+        if imagen_existe:
+            raise ValueError("La imagen no pertenece al sitio")
+        else:
+            raise ValueError("Imagen no encontrada")
+
+    # Verificar que no sea la portada antes de eliminar
+    if imagen.is_cover:
+        raise ValueError("No se puede eliminar la imagen portada. Debe cambiar la portada primero.")
+    
+    # Eliminar la imagen
+    db.session.delete(imagen)
+    db.session.commit()
+
+def set_cover_image(site_id: int, image_id: int):
+    """Marca una imagen como portada del sitio, desmarcando las demás."""
+    sitio = Site.query.get(site_id)
+    if not sitio:
+        raise ValueError("Sitio no encontrado")
+    
+    # Verificar que la imagen existe y pertenece al sitio
+    imagen = Image.query.filter_by(id=image_id, site_id=site_id).first()
+    if not imagen:
+        imagen_existe = Image.query.get(image_id)
+        if imagen_existe:
+            raise ValueError("La imagen no pertenece al sitio")
+        else:
+            raise ValueError("Imagen no encontrada")
+    
+    # Desmarcar todas las imágenes como portada
+    for img in sitio.images:
+        img.is_cover = False
+    
+    # Marcar la imagen seleccionada como portada
+    imagen.is_cover = True
+    
+    db.session.commit()
 
 def delete_site(site_id,user_id):
     """
@@ -468,3 +617,13 @@ def get_current_timestamp_str():
     Retorna la fecha y hora actual en formato YYYYMMDD_HHMM para usar en nombres de archivo.
     """
     return datetime.now().strftime("%Y%m%d_%H%M")
+
+
+def sort_site_images(sitio):
+    """Asegura que sitio.images esté ordenado por Image.order (None -> 0)."""
+    try:
+        sitio.images = sorted(sitio.images, key=lambda im: (im.order if getattr(im, "order", None) is not None else 0))
+    except Exception:
+        # no fallar si algo raro sucede con la relación
+        pass
+

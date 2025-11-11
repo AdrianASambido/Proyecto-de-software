@@ -1,53 +1,31 @@
 <script setup>
-import Carrusel from '@/components/pantalla_inicial/carruselImagenes.vue';
-import galeriaTarjetasMonumentos from '@/components/pantalla_inicial/galeriaTarjetasMonumentos.vue';
-import { ref, onMounted } from 'vue';
-
-import api from '@/api/axios.js';
-
-// 1. Estado para los datos del Carrusel A
-const carruselMejorPuntuados = ref([]);
-
-// 2. Estado para los datos del Carrusel B
-const carruselRecientementeAgregados = ref([]);
-
-// 3. Estado para los datos de la grilla de tarjetas de monumentos 
-const galeriaTarjetasSitios = ref([]);
-
-onMounted(async () => {
-  try {
-    // Carrusel A (Puntuados)
-    const responseMejorPuntuados = await api.get('/sites?order=mejor_puntuado&include_cover=True');
-    carruselMejorPuntuados.value = responseMejorPuntuados.data;
-    
-    // Carrusel B (Recientemente Agregados) 
-    const responseRecientementeAgregados = await api.get('/sites?order=fecha=desc&include_cover=True');
-    carruselRecientementeAgregados.value = responseRecientementeAgregados.data;
-
-    // galeria tarjetas 
-    const responseSitios = await api.get('/sites');
-    galeriaTarjetasSitios.value = responseSitios.data;
-  } catch (error) {
-    console.error('Error fetching data:', error);
-  }
-});
+import HeroPrincipal from '@/components/pantalla_inicial/heroPrincipal.vue';
+import SeccionMejorPuntuados from '@/components/pantalla_inicial/SeccionMejorPuntuados.vue';
+import SeccionRecientementeAgregados from '@/components/pantalla_inicial/SeccionRecientementeAgregados.vue';
+import SeccionFavoritos from '@/components/pantalla_inicial/SeccionFavoritos.vue';
+import CarruselImagenes from '@/components/pantalla_inicial/carruselImagenes.vue';
 </script>
 
 <template>
-  <h1>Página de Inicio</h1>
-  
-  <Carrusel 
-    :items="carruselMejorPuntuados" 
-    title="Mejor puntuados"
-  />
+  <div class="home-page">
+    <!-- Hero principal solo visible en Home -->
+    <HeroPrincipal />
 
-  <Carrusel 
-    :items="carruselRecientementeAgregados" 
-    title="Recientemente agregados"
-  />
+    <!-- Carrusel principal -->
+    <CarruselImagenes 
+      title="Imágenes Destacadas"
+      :load-params="{ order: 'mejor_puntuado', per_page: 6 }"
+    />
 
-  <galeriaTarjetasMonumentos
-    :items="galeriaTarjetasSitios"
-    title="Sitios Históricos"
-  />
+    <!-- Secciones -->
+    <SeccionMejorPuntuados />
+    <SeccionRecientementeAgregados />
+    <SeccionFavoritos />
+  </div>
 </template>
+
+<style scoped>
+.home-page {
+  min-height: 100vh;
+}
+</style>

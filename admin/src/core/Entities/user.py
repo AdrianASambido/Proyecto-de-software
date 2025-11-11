@@ -16,7 +16,7 @@ class User(db.Model):
     nombre=db.Column(db.String(100), nullable=False)
     username=db.Column(db.String(50), unique=True, nullable=False)
     apellido=db.Column(db.String(100), nullable=False)
-    contraseña_cifrada=db.Column(db.String(128), nullable=False)
+    contraseña_cifrada=db.Column(db.String(128), nullable=True)
     is_system_admin=db.Column(db.Boolean, default=False)
     activo=db.Column(db.Boolean, default=True)
     created_at=db.Column(db.DateTime, default=datetime.now(timezone.utc))
@@ -25,6 +25,12 @@ class User(db.Model):
     bloqueado=db.Column(db.Boolean, default=False)
 
     roles=db.relationship("Role", secondary="user_roles", back_populates="users")
+    favorite_sites = db.relationship(
+        "Site",
+        secondary=users_favorites,
+        back_populates="favorite_users",
+        lazy="dynamic"
+    )
 
     def __repr__(self):
         return f"<User {self.email}>"
