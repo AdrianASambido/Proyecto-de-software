@@ -9,7 +9,7 @@ import { ref, onMounted } from "vue"
 import axios from "axios"
 
 const emit = defineEmits(["logged-in"])
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "156550318843-bag3rvvvo3kquesgsgdrr8f6j4p0nmv4.apps.googleusercontent.com"
 const googleButton = ref(null)
 
 onMounted(() => {
