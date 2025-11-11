@@ -43,6 +43,11 @@ class ProductionConfig(Config):
         if all([DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME])
         else None
     )
+    JWT_SECRET = os.getenv("JWT_SECRET")
+    JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
+    GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+    GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_SECRET_ID")
+
 
 
 class DevelopmentConfig(Config):
