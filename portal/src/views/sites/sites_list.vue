@@ -380,20 +380,20 @@ const loadSites = async () => {
       params.radio = filters.value.radio || 5
     }
     
-    // Solo incluir favoritos si el usuario está autenticado
+    // Si se filtran por favoritos y el usuario está autenticado, usar el endpoint /me/favorites
+    // que requiere JWT y obtiene el user_id del token
+    let endpoint = '/sites'
     if (filters.value.favoritos && isAuthenticated.value) {
-      params.favoritos = 'true'
-      // Nota: El backend puede requerir user_id, pero si usa JWT podría obtenerlo del token
-      // Por ahora, confiamos en que el backend lo maneje desde la sesión/token
+      endpoint = '/me/favorites'
     } else if (filters.value.favoritos && !isAuthenticated.value) {
       // Si se intenta filtrar por favoritos sin autenticación, remover el filtro
       filters.value.favoritos = false
     }
-
-    const { data } = await api.get('/sites', { params })
+    const { data } = await api.get(endpoint, { params })
     sites.value = data.data || []
     total.value = data.meta?.total || 0
     currentPage.value = data.meta?.page || 1
+
   } catch (err) {
     console.error('Error cargando sitios:', err)
     error.value = 'Error al cargar los sitios. Por favor, intenta nuevamente.'
