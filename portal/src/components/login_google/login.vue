@@ -9,6 +9,7 @@ import { ref, onMounted } from "vue"
 import axios from "axios"
 
 const emit = defineEmits(["logged-in"])
+const BASE_URL = import.meta.env.VITE_BASE_URL || "https://admin-grupo01.proyecto2025.linti.unlp.edu.ar/api"
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "156550318843-bag3rvvvo3kquesgsgdrr8f6j4p0nmv4.apps.googleusercontent.com"
 const googleButton = ref(null)
 
@@ -39,7 +40,7 @@ async function handleCredentialResponse(response) {
   try {
     const id_token = response.credential
 
-    const res = await axios.post("http://localhost:5000/api/login/google", {
+    const res = await axios.post(BASE_URL + "/login/google", {
       id_token,
     })
 

@@ -1,6 +1,9 @@
 import axios from 'axios'
+
+const BASE_URL = import.meta.env.VITE_BASE_URL || "https://admin-grupo01.proyecto2025.linti.unlp.edu.ar/api"
+
 const api=axios.create({
-  baseURL: import.meta.env.VITE_BASE_URL || "https://admin-grupo01.proyecto2025.linti.unlp.edu.ar/api"
+  baseURL: BASE_URL
 })
 
 // Interceptor para agregar token si existe
