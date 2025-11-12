@@ -8,7 +8,7 @@
 
 <h2 class="text-2xl font-bold mb-4">{{ title }}</h2>
 
-<form method="POST" enctype="multipart/form-data" class="bg-white shadow-md rounded-lg p-6  mx-auto">
+<form method="POST" enctype="multipart/form-data" class="bg-white shadow-md rounded-lg p-4 sm:p-6 mx-auto w-full max-w-4xl">
     {{ form.hidden_tag() }}
 
     <!-- Nombre -->
@@ -94,7 +94,7 @@
     <!-- Mapa -->
     <div class="mb-6">
         <label class="block font-semibold mb-2">Ubicación en el mapa</label>
-        <div id="map" class="w-full h-96 border border-gray-300 rounded-lg mt-2"></div>
+        <div id="map" class="w-full h-64 sm:h-80 md:h-96 border border-gray-300 rounded-lg mt-2 relative z-0"></div>
     </div>
      {% for error in form.latitud.errors %}
         <span class="text-red-500 text-sm">{{ error }}</span>
@@ -107,8 +107,8 @@
     
     <div class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-2">{% block images_label %}Agregar imágenes{% endblock %}</label>
-        <div id="dropzone" class="dropzone border-dashed border-2 border-gray-300 rounded-lg p-6 bg-gray-50 text-center cursor-pointer">
-            <div class="dz-message text-gray-500">
+        <div id="dropzone" class="dropzone border-dashed border-2 border-gray-300 rounded-lg p-3 sm:p-6 bg-gray-50 text-center cursor-pointer grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+            <div class="dz-message text-gray-500 col-span-full">
                 Arrastra tus imágenes aquí o haz clic para seleccionarlas
             </div>
         </div>
@@ -118,15 +118,15 @@
     </div>
 
     <div id="dz-template" class="hidden">
-        <div class="dz-preview dz-file-preview relative bg-gray-50 border rounded-lg overflow-hidden">
+        <div class="dz-preview dz-file-preview relative bg-gray-50 border rounded-lg overflow-hidden flex flex-col">
             <!-- Badge de Portada -->
-            <span class="cover-badge hidden absolute top-1 left-1 z-10 bg-blue-600 text-white text-[10px] px-2 py-[2px] rounded">Portada</span>
+            <span class="cover-badge hidden absolute top-1 left-1 z-10 bg-blue-600 text-white text-[9px] sm:text-[10px] px-1.5 sm:px-2 py-[2px] rounded">Portada</span>
             
             <!-- Indicador de progreso (oculto por defecto) -->
             <div class="dz-progress hidden absolute inset-0 bg-black/50 flex items-center justify-center z-20">
-                <div class="bg-white rounded-lg p-3 text-center">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
-                    <p class="text-xs text-gray-700 font-medium">Subiendo...</p>
+                <div class="bg-white rounded-lg p-2 sm:p-3 text-center">
+                    <div class="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-blue-600 mx-auto mb-2"></div>
+                    <p class="text-[10px] sm:text-xs text-gray-700 font-medium">Subiendo...</p>
                 </div>
             </div>
             
@@ -137,34 +137,36 @@
             
             <!-- Mensaje de error -->
             <div class="dz-error-message hidden absolute inset-0 bg-red-500/90 flex items-center justify-center z-30 p-2">
-                <p class="text-xs text-white text-center font-medium" data-dz-errormessage></p>
+                <p class="text-[10px] sm:text-xs text-white text-center font-medium" data-dz-errormessage></p>
             </div>
             
-            <img data-dz-thumbnail class="w-full h-24 object-cover" />
-            <div class="absolute top-1 right-1 flex gap-1 z-10">
-              <!-- Botón hacer portada -->
-              <button type="button" class="make-cover-btn relative z-10 bg-white/80 rounded-full px-2 py-1 text-[10px] shadow text-gray-700 hover:bg-gray-200 cursor-pointer" style="cursor:pointer">Hacer portada</button>
-              <!-- Botón eliminar -->
-              <button type="button" class="relative z-10 bg-white/80 rounded-full p-1 shadow text-gray-700 hover:bg-gray-200 cursor-pointer pointer-events-auto" style="cursor:pointer" data-dz-remove>
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 pointer-events-none cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="cursor:pointer">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+            <div class="relative w-full">
+                <img data-dz-thumbnail class="w-full h-20 sm:h-24 md:h-28 object-cover" />
+                <div class="absolute top-1 right-1 flex gap-1 z-10">
+                  <!-- Botón hacer portada -->
+                  <button type="button" class="make-cover-btn relative z-10 bg-white/90 rounded-full px-1.5 sm:px-2 py-0.5 sm:py-1 text-[9px] sm:text-[10px] shadow text-gray-700 hover:bg-gray-200 cursor-pointer whitespace-nowrap" style="cursor:pointer">Portada</button>
+                  <!-- Botón eliminar -->
+                  <button type="button" class="relative z-10 bg-white/90 rounded-full p-0.5 sm:p-1 shadow text-gray-700 hover:bg-gray-200 cursor-pointer pointer-events-auto flex items-center justify-center" style="cursor:pointer" data-dz-remove>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 sm:w-4 sm:h-4 pointer-events-none cursor-pointer" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="cursor:pointer">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
             </div>
-            <div class="p-1 text-xs text-gray-600 truncate" data-dz-name></div>
-            <div class="p-1 text-xs text-gray-500" data-dz-size></div>
+            <div class="p-1 text-[10px] sm:text-xs text-gray-600 truncate" data-dz-name></div>
+            <div class="p-1 text-[10px] sm:text-xs text-gray-500" data-dz-size></div>
 
-            <div class="p-2 bg-white space-y-2">
+            <div class="p-2 bg-white space-y-1.5 sm:space-y-2 flex-grow">
                 <input
                 type="text"
                 name="images_alts[]"
-                class="image-alt-input w-full border border-gray-200 rounded px-2 py-1 text-sm"
-                placeholder="Título de la imagen *"
+                class="image-alt-input w-full border border-gray-200 rounded px-1.5 sm:px-2 py-1 text-xs sm:text-sm"
+                placeholder="Título *"
                 >
                 <textarea
                 name="images_descriptions[]"
-                class="image-description-input w-full border border-gray-200 rounded px-2 py-1 text-sm resize-none"
-                placeholder="Descripción corta (opcional)"
+                class="image-description-input w-full border border-gray-200 rounded px-1.5 sm:px-2 py-1 text-xs sm:text-sm resize-none"
+                placeholder="Descripción (opcional)"
                 rows="2"
                 ></textarea>
             </div>
@@ -194,11 +196,20 @@
 
 <script>
     const bounds = [[-55.0, -73.0], [-21.0, -53.0]];
-    const map = L.map("map", { maxBounds: bounds, maxBoundsViscosity: 1.0 })
-        .setView([-34.6037, -58.3816], 5);
+    const map = L.map("map", { 
+        maxBounds: bounds, 
+        maxBoundsViscosity: 1.0,
+        zoomControl: true
+    }).setView([-34.6037, -58.3816], 5);
+    
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: '&copy; OpenStreetMap contributors',
     }).addTo(map);
+
+    // Asegurar que el mapa se ajuste correctamente después de cargar
+    setTimeout(() => {
+        map.invalidateSize();
+    }, 100);
 
     let marker;
     map.on("click", function (e) {
@@ -225,6 +236,13 @@
             map.setView([lat, lng], 12);
         }
     }
+
+    // Redimensionar el mapa cuando cambie el tamaño de la ventana
+    window.addEventListener('resize', function() {
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 100);
+    });
 </script>
 
 <link href="https://cdn.jsdelivr.net/npm/tom-select@2.3.1/dist/css/tom-select.css" rel="stylesheet">
@@ -254,14 +272,101 @@
     const form = document.querySelector("form");
     form.appendChild(inputHidden);
 
-    // input oculto para portada (índice 0 por defecto)
+    // Agregar estilos CSS para el grid responsive de Dropzone y el mapa
+    const style = document.createElement('style');
+    style.textContent = `
+        #dropzone.dz-started .dz-message {
+            display: none;
+        }
+        #dropzone .dz-preview {
+            margin: 0;
+            min-width: 0;
+        }
+        @media (max-width: 640px) {
+            #dropzone {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* Asegurar que el mapa no se posicione sobre el navbar */
+        #map {
+            position: relative;
+            z-index: 0;
+        }
+        /* Asegurar que Leaflet no tenga z-index problemático */
+        .leaflet-container {
+            z-index: 0 !important;
+        }
+        .leaflet-top,
+        .leaflet-bottom {
+            z-index: 1 !important;
+        }
+    `;
+    document.head.appendChild(style);
+
+    // input oculto para portada (vacío por defecto si hay imágenes existentes)
     const coverInput = document.createElement("input");
     coverInput.type = "hidden";
     coverInput.name = "cover_index";
     coverInput.id = "cover-index";
-    coverInput.value = 0;
+    // Verificar si hay imágenes existentes
+    const existingImagesContainer = document.getElementById('existing-images');
+    // Contar solo los divs principales que contienen las imágenes (no los inputs/textarea dentro)
+    const existingImagesCount = existingImagesContainer ? 
+        Array.from(existingImagesContainer.children).filter(el => el.hasAttribute('data-image-id')).length : 0;
+    const hasExistingImagesVar = existingImagesCount > 0;
+    coverInput.value = hasExistingImagesVar ? "" : 0; // Solo marcar primera como portada si no hay imágenes existentes
     form.appendChild(coverInput);
 
+    // Calcular el máximo de imágenes nuevas permitidas (máximo 10 imágenes totales)
+    const MAX_TOTAL_IMAGES = 10;
+    const maxNewImages = Math.max(0, MAX_TOTAL_IMAGES - existingImagesCount);
+
+    // Funciones auxiliares para manejar el estado de la dropzone
+    function updateDropzoneState(isDisabled, currentNewImagesCount = 0) {
+        const dropzoneEl = document.getElementById('dropzone');
+        if (!dropzoneEl) return;
+        
+        const messageEl = dropzoneEl.querySelector('.dz-message');
+        const totalImages = existingImagesCount + currentNewImagesCount;
+        
+        if (isDisabled) {
+            // Informar al usuario pero mantener la dropzone clickeable para mejor UX
+            if (messageEl) {
+                messageEl.textContent = `Límite alcanzado (${totalImages}/${MAX_TOTAL_IMAGES} imágenes). Haz clic para ver el mensaje.`;
+                messageEl.classList.add('text-red-600', 'font-medium');
+                messageEl.style.cursor = 'pointer';
+            }
+            // Mantener la dropzone habilitada pero validar al intentar agregar
+            dropzoneEl.style.pointerEvents = 'auto';
+            dropzoneEl.style.cursor = 'pointer';
+            // Asegurar que las previews sean interactivas
+            const previews = dropzoneEl.querySelectorAll('.dz-preview');
+            previews.forEach(preview => {
+                preview.style.pointerEvents = 'auto';
+            });
+        } else {
+            dropzoneEl.style.pointerEvents = 'auto';
+            dropzoneEl.style.cursor = 'pointer';
+            if (messageEl) {
+                messageEl.textContent = 'Arrastra tus imágenes aquí o haz clic para seleccionarlas';
+                messageEl.classList.remove('text-red-600', 'font-medium');
+                messageEl.style.cursor = 'pointer';
+            }
+        }
+    }
+
+    function getLimitToastMessage() {
+        return `Límite de imágenes alcanzado. Máximo ${MAX_TOTAL_IMAGES} imágenes por sitio. Ya tienes ${existingImagesCount} imagen${existingImagesCount !== 1 ? 'es' : ''} existente${existingImagesCount !== 1 ? 's' : ''} y puedes agregar hasta ${maxNewImages} imagen${maxNewImages !== 1 ? 'es' : ''} más.`;
+    }
+
+    function hasExistingImages() {
+        const container = document.getElementById('existing-images');
+        return container && container.children.length > 0;
+    }
+
+    // Deshabilitar dropzone solo si ya se alcanzó el límite total (10 imágenes existentes)
+    // No deshabilitar si maxNewImages es 0, porque el usuario podría eliminar imágenes existentes
+    // La validación se hará dinámicamente al intentar agregar imágenes
 
     const previewTemplate = document.querySelector("#dz-template").innerHTML;
 
@@ -271,13 +376,32 @@
         clickable: true,
         acceptedFiles: "image/*",
         maxFilesize: 5,
-        maxFiles: 10,
+        maxFiles: MAX_TOTAL_IMAGES, // Permitir hasta el máximo total, validaremos manualmente
         previewTemplate: previewTemplate,
         addRemoveLinks: false,
         dictInvalidFileType: "Formato no permitido. Solo imágenes (JPG/PNG/WEBP).",
         dictFileTooBig: "La imagen supera el límite de 5 MB.",
-        dictMaxFilesExceeded: "Máximo 10 imágenes.",
+        dictMaxFilesExceeded: `Máximo ${MAX_TOTAL_IMAGES} imágenes por sitio.`,
     });
+
+    // Interceptar clicks en la dropzone cuando se alcanzó el límite
+    const dropzoneEl = document.getElementById('dropzone');
+    if (dropzoneEl) {
+        dropzoneEl.addEventListener('click', function(e) {
+            // Verificar si se alcanzó el límite antes de abrir el explorador
+            const currentNewImages = myDropzone ? myDropzone.files.length : 0;
+            const totalImages = existingImagesCount + currentNewImages;
+            
+            if (totalImages >= MAX_TOTAL_IMAGES) {
+                // Prevenir que se abra el explorador de archivos
+                e.preventDefault();
+                e.stopPropagation();
+                // Mostrar toast en lugar de abrir el explorador
+                showToast(getLimitToastMessage(), 'error');
+                return false;
+            }
+        }, true); // Usar capture phase para interceptar antes que Dropzone
+    }
 
 
     // mantenemos todos los archivos seleccionados
@@ -361,6 +485,18 @@
         if (!(file.type && file.type.startsWith('image/')) || file.size > 5 * 1024 * 1024) {
             return; // será removido por el handler de error/accept
         }
+        
+        // Verificar límite antes de agregar
+        let currentNewImages = this.files.length;
+        const totalImages = existingImagesCount + currentNewImages;
+        if (totalImages > MAX_TOTAL_IMAGES) {
+            this.removeFile(file);
+            showToast(getLimitToastMessage(), 'error');
+            // Actualizar mensaje de la dropzone para informar al usuario
+            updateDropzoneState(true, currentNewImages - 1);
+            return;
+        }
+        
         selectedFiles.push(file);
         syncInputFiles();
 
@@ -375,16 +511,26 @@
             });
         }
 
-        // si es el primer archivo, marcarlo como portada por defecto
-        if (myDropzone.files.length === 1) {
+        // Solo marcar como portada automáticamente si NO hay imágenes existentes
+        if (myDropzone.files.length === 1 && !hasExistingImages()) {
             updateCoverUI();
+        }
+        
+        // Actualizar mensaje de la dropzone si se alcanzó el límite
+        currentNewImages = this.files.length;
+        const totalImagesAfterAdd = existingImagesCount + currentNewImages;
+        if (totalImagesAfterAdd >= MAX_TOTAL_IMAGES) {
+            updateDropzoneState(true, currentNewImages);
+        } else {
+            // Restaurar mensaje normal si aún hay espacio
+            updateDropzoneState(false, currentNewImages);
         }
     });
 
-    // evitar superar el máximo de 10 imágenes
+    // evitar superar el máximo de imágenes permitidas
     myDropzone.on("maxfilesexceeded", function(file) {
         this.removeFile(file);
-        showToast("Máximo 10 imágenes.", 'error');
+        showToast(getLimitToastMessage(), 'error');
     });
 
     myDropzone.on("removedfile", function (file) {
@@ -393,6 +539,15 @@
         );
         syncInputFiles();
         updateCoverUI();
+        
+        // Actualizar mensaje de la dropzone después de eliminar
+        const currentNewImages = this.files.length;
+        const totalImagesAfterRemove = existingImagesCount + currentNewImages;
+        if (totalImagesAfterRemove < MAX_TOTAL_IMAGES) {
+            updateDropzoneState(false, currentNewImages);
+        } else {
+            updateDropzoneState(true, currentNewImages);
+        }
     });
 
     const syncInputFiles = () => {
@@ -402,20 +557,52 @@
     }
 
     function updateCoverUI() {
-        // portada = primer preview
+        // portada = primer preview (solo si hay previews)
         const previewsContainer = myDropzone.previewsContainer || document.querySelector("#dropzone");
         const previewEls = Array.from(previewsContainer.querySelectorAll('.dz-preview'));
+        const hasExisting = hasExistingImages();
+        
         previewEls.forEach((el, idx) => {
             const badge = el.querySelector('.cover-badge');
             if (!badge) return;
-            if (idx === 0) {
-                badge.classList.remove('hidden');
+            // Si hay imágenes existentes, no mostrar badge por defecto
+            // Solo mostrar si idx === 0 Y no hay imágenes existentes O si coverInput.value === "0"
+            if (hasExisting) {
+                // Solo mostrar badge si coverInput.value está establecido en 0 (usuario hizo click en "Hacer portada")
+                if (idx === 0 && coverInput.value === "0") {
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
             } else {
-                badge.classList.add('hidden');
+                // Si no hay imágenes existentes, primera es portada por defecto
+                if (idx === 0) {
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
             }
         });
+        
         // actualizar cover_index oculto
-        coverInput.value = previewEls.length ? 0 : "";
+        if (previewEls.length > 0) {
+            if (hasExisting) {
+                // Si hay imágenes existentes, solo establecer cover_index si hay una marcada como portada
+                const firstPreview = previewEls[0];
+                const firstBadge = firstPreview.querySelector('.cover-badge');
+                if (firstBadge && !firstBadge.classList.contains('hidden')) {
+                    coverInput.value = 0;
+                } else {
+                    // Si no hay badge visible, dejar vacío (no reemplazar portada existente)
+                    coverInput.value = "";
+                }
+            } else {
+                // Si no hay imágenes existentes, primera es portada por defecto
+                coverInput.value = 0;
+            }
+        } else {
+            coverInput.value = "";
+        }
     }
 
     function setAsCover(previewEl) {
@@ -436,6 +623,8 @@
                 syncInputFiles();
             }
         }
+        // Marcar esta imagen nueva como portada (reemplazará a la existente)
+        coverInput.value = 0;
         updateCoverUI();
     }
 
