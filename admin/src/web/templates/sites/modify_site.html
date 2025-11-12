@@ -6,7 +6,10 @@
 {% block existing_images %}
     {% if site and site.images %}
     <div class="mb-6">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Imágenes existentes</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+            Imágenes existentes
+            <span class="text-xs text-gray-500 font-normal ml-2">(Arrastra para reordenar)</span>
+        </label>
 
         <!-- hidden input que guarda el orden actual (lista de ids) -->
         <input type="hidden"
@@ -21,8 +24,25 @@
                  data-image-id="{{ img.id }}"
                  data-is-cover="{{ 'true' if img.is_cover else 'false' }}">
                 <!-- Imagen con cursor move para drag -->
-                <div class="cursor-move">
+                <div class="cursor-move relative">
                     <img src="{{ image_url(img.url) }}" alt="{{ img.title or '' }}" class="w-full h-28 object-cover" />
+                    <!-- Indicador visual de que se puede arrastrar (solo visible al hacer hover) -->
+                    {% if not img.is_cover %}
+                    <div class="absolute top-1 left-1 bg-gray-800/70 text-white rounded px-1.5 py-0.5 flex items-center gap-0.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity" title="Arrastra para reordenar">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                        </svg>
+                        <span class="text-[9px] hidden sm:inline">Arrastrar</span>
+                    </div>
+                    {% else %}
+                    <!-- Si es portada, mostrar el indicador en otra posición -->
+                    <div class="absolute top-8 left-1 bg-gray-800/70 text-white rounded px-1.5 py-0.5 flex items-center gap-0.5 z-10 opacity-0 group-hover:opacity-100 transition-opacity" title="Arrastra para reordenar">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                        </svg>
+                        <span class="text-[9px] hidden sm:inline">Arrastrar</span>
+                    </div>
+                    {% endif %}
                     <div class="absolute top-1 right-1 flex gap-1 flex-col z-10">
                         <button type="button" class="set-cover-existing bg-white/80 text-blue-600 rounded px-2 py-1 text-[11px] shadow hover:bg-blue-50 {% if img.is_cover %}opacity-50 cursor-not-allowed{% endif %}"
                                 data-url="{{ url_for('sites.set_cover_image', site_id=site.id, image_id=img.id) }}" {% if img.is_cover %}disabled{% endif %}>
