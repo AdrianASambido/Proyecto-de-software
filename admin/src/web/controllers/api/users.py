@@ -6,6 +6,7 @@ from src.core.services.users import is_favorite as is_favorite_service
 from src.core.services.sites import get_site, list_sites
 from src.web.controllers.api.schemas.site import SiteSchema
     
+    
 @api_bp.put("/sites/<int:site_id>/favorite")
 @jwt_required
 def favorite(site_id):
