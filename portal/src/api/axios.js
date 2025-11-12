@@ -1,6 +1,6 @@
 import axios from 'axios'
 const api=axios.create({
-  baseURL:'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_BASE_URL
 })
 
 // Interceptor para agregar token si existe
@@ -13,6 +13,25 @@ api.interceptors.request.use(
     return config
   },
   (error) => {
+    return Promise.reject(error)
+  }
+)
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('user')
+      toast.error('Sesión expirada. Por favor, inicia sesión nuevamente.')
+
+      setTimeout(() => {
+        window.location.href = '/login'
+      }, 1500)
+    } else if (error.response?.status === 403) {
+      toast.error('No tienes permisos para realizar esta acción')
+    }
+
     return Promise.reject(error)
   }
 )
