@@ -35,9 +35,9 @@
               v-if="menuOpen"
               class="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg overflow-hidden z-50"
             >
-              <a href="/perfil" class="menu-item">Perfil</a>
+              <router-link to="/perfil" class="menu-item">Perfil</router-link>
               <router-link to="/mis-resenas" class="menu-item">Mis reseñas</router-link>
-              <a href="/favoritos" class="menu-item">Sitios favoritos</a>
+              <router-link to="/favoritos" class="menu-item">Sitios favoritos</router-link>
               <button @click="handleLogout" class="menu-item text-red-600 hover:bg-red-50">
                 Cerrar sesión
               </button>
