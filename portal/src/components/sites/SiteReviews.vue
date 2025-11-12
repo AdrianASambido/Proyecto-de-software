@@ -212,5 +212,55 @@ const formatDate = (dateStr) => {
   return new Date(dateStr).toLocaleDateString()
 }
 
+const loadMoreReviews = async () => {
+  loadingMore.value = true
+  try {
+    const nextPage = currentPage.value + 1
+    const { data } = await api.get(`/sites/${props.siteId}/reviews`, {
+      params: { page: nextPage, per_page: 10 }
+    })
+    reviews.value = [...reviews.value, ...data.data]
+    meta.value = data.meta
+    currentPage.value = nextPage
+  } catch (err) {
+    console.error(err)
+    toast.error('Error al cargar más reseñas')
+  } finally {
+    loadingMore.value = false
+  }
+}
+
+const isOwnReview = (review) => {
+  return currentUser.value && review.user_id === currentUser.value.id
+}
+
+const confirmDelete = (review) => {
+  reviewToDelete.value = review
+  showDeleteModal.value = true
+}
+
+const handleDelete = async () => {
+  if (!reviewToDelete.value) return
+
+  try {
+    await deleteReview(props.siteId, reviewToDelete.value.id)
+    showDeleteModal.value = false
+    reviewToDelete.value = null
+    await loadReviews(1)
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+const handleReviewSubmitted = () => {
+  showForm.value = false
+  loadReviews(1)
+}
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  return new Date(dateStr).toLocaleDateString()
+}
+
 onMounted(loadReviews)
 </script>
