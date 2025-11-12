@@ -14,7 +14,7 @@ import CarruselImagenes from '@/components/pantalla_inicial/carruselImagenes.vue
     <!-- Carrusel principal -->
     <CarruselImagenes 
       title="Imágenes Destacadas"
-      :load-params="{ order: 'mejor_puntuado', per_page: 6 }"
+      :load-params="{ order: 'mejor_puntuado', per_page: 5 }"
     />
     
     <!-- Secciones -->
