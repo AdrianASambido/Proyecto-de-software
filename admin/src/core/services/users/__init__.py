@@ -279,12 +279,16 @@ def login_google(idinfo):
     user = User.query.filter_by(email=email).first()
 
     if not user:
+        # Crear un hash de contraseña no utilizable
+        hashed_password = bcrypt.generate_password_hash("google_user_placeholder_password").decode("utf-8")
+        
         user = User(
             email=email,
             nombre=idinfo.get("given_name", ""),
             apellido=idinfo.get("family_name", ""),
             username=email.split("@")[0],
-           
+            contraseña_cifrada=hashed_password,
+            activo=True  # Marcar al usuario como activo por defecto
         )
         db.session.add(user)
         db.session.commit()

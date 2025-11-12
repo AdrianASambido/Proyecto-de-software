@@ -1,18 +1,13 @@
 <template>
   <header class="header-container">
     <div class="header-content">
-      <h1 class="logo">Portal Histórico</h1>
+      <div class="logo-container">
+        <img src="/Image_Logo3.png" alt="Logo" class="logo-img" />
+      </div>
 
 
       <div class="buscador-rapido">
-        <input
-          v-model="searchTerm"
-          type="text"
-          placeholder="Buscar..."
-          class="input-busqueda"
-          @keyup.enter="performSearch"
-        />
-        <button class="btn-busqueda" @click="performSearch">🔍</button>
+        <button class="btn-busqueda" @click="goToSites">Buscar</button>
       </div>
 
     
@@ -40,9 +35,9 @@
               v-if="menuOpen"
               class="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg overflow-hidden z-50"
             >
-              <a href="/perfil" class="menu-item">Perfil</a>
-              <router-link to="/mis-resenas" class="menu-item">Mis reseñas</router-link>
-              <a href="/favoritos" class="menu-item">Sitios favoritos</a>
+              <router-link to="/perfil" class="menu-item" @click="toggleMenu">Perfil</router-link>
+              <router-link to="/mis-resenas" class="menu-item" @click="toggleMenu">Mis reseñas</router-link>
+              <router-link to="/favoritos" class="menu-item" @click="toggleMenu">Sitios favoritos</router-link>
               <button @click="handleLogout" class="menu-item text-red-600 hover:bg-red-50">
                 Cerrar sesión
               </button>
@@ -134,10 +129,15 @@ const handleLogout = () => {
   width: 100%;
 }
 
-.logo {
-  margin: 0;
-  font-size: 1.8em;
-  font-weight: bold;
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.logo-img {
+  height: 200px; /* Ajusta el tamaño según sea necesario */
+  width: auto;
 }
 
 .buscador-rapido {
