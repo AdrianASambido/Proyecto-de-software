@@ -2,7 +2,6 @@
 Este módulo representa las operaciones relacionadas con las reseñas de sitios históricos.
 """
 
-from math import isfinite
 from src.core.database import db
 from src.core.Entities.review import Review, ReviewStatus
 from src.core.Entities.site import Site
@@ -160,7 +159,7 @@ def create_review(site_id: int, user_id: int, calificacion: int, contenido: str)
     """
     Función para crear una reseña asociada a un sitio y un usuario.
     """
-    if not isfinite(calificacion) or not calificacion.is_integer() or calificacion < 1 or calificacion > 5:
+    if not isinstance(calificacion, int) or calificacion < 1 or calificacion > 5:
         raise ValueError("La calificación debe ser un número entre 1 y 5")
 
     if not contenido or len(contenido.strip()) < 10:
