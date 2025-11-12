@@ -89,6 +89,13 @@
         </span>
       </div>
     </div>
+ <LoginPopup
+  v-model="showLoginPopup"
+  @login="onLoginSuccess"
+/>
+
+
+
   </header>
 </template>
 
@@ -100,11 +107,11 @@ const props = defineProps({
   userId: { type: Number, required: true },
  
 })
-
+import LoginPopup from '@/components/login_google/loginPopUp.vue'
 const emit = defineEmits(['update:favorite'])
 const isFavorite = ref(false)
 const loading = ref(false)
-
+const showLoginPopup = ref(false)
 const checkFavorite = async () => {
   if (!props.site?.id) return
   try {
@@ -121,9 +128,14 @@ const checkFavorite = async () => {
 onMounted(checkFavorite)
 watch(() => props.site?.id, (newId) => { if (newId) checkFavorite() })
 const toggleFavorite = async () => {
+  if (!props.userId) {
+    showLoginPopup.value = true
+    return
+  }
+
   if (!props.site?.id) return
   loading.value = true
-  const url = `/sites/${props.site.id}/favorite?` 
+  const url = `/sites/${props.site.id}/favorite?userId=${props.userId}`
 
   try {
     if (isFavorite.value) {
@@ -140,6 +152,12 @@ const toggleFavorite = async () => {
     loading.value = false
   }
 }
+const onLoginSuccess = (user) => {
+  console.log("Usuario logueado:", user)
+  // Podés hacer reload o guardar user info si querés
+  window.location.reload()
+}
+
 
 const statusColor = (estado) => {
   switch (estado) {

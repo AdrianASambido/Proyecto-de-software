@@ -9,15 +9,13 @@
       Reseñas
     </h2>
 
-    <!-- Botón para abrir el formulario -->
-    <div class="mb-4">
-      <button
-        @click="showForm = !showForm"
-        class="px-4 py-2 bg-yellow-500 text-white font-medium rounded-lg shadow hover:bg-yellow-600 transition"
-      >
-        {{ showForm ? 'Cancelar' : 'Escribir reseña' }}
-      </button>
-    </div>
+   <button
+  @click="handleWriteReview"
+  class="px-4 py-2 bg-yellow-500 text-white font-medium rounded-lg shadow hover:bg-yellow-600 transition"
+>
+  {{ showForm ? 'Cancelar' : 'Escribir reseña' }}
+</button>
+
 
     <!-- Mostrar formulario -->
     <ReviewForm
@@ -89,6 +87,11 @@
       @cancel="showDeleteModal = false"
     />
   </div>
+  <LoginPopup
+  v-model="showLoginPopup"
+  @login="onLoginSuccess"
+/>
+
 </template>
 
 <script setup>
@@ -99,6 +102,14 @@ import { useAuth } from '@/composables/useAuth'
 import { useReviews } from '@/composables/useReviews'
 import ReviewForm from './ReviewForm.vue'
 import ConfirmModal from '@/components/common/ConfirmModal.vue'
+import LoginPopup from '@/components/login_google/loginPopUp.vue'
+const showLoginPopup = ref(false)
+
+const onLoginSuccess = (user) => {
+  console.log("Usuario logueado:", user)
+  showLoginPopup.value = false
+  showForm.value = true // abre automáticamente el formulario
+}
 
 const props = defineProps({
   siteId: { type: Number, required: true },
@@ -142,6 +153,63 @@ const loadReviews = async (page = 1) => {
   } finally {
     loading.value = false
   }
+}
+const handleWriteReview = () => {
+  if (!currentUser.value) {
+    showLoginPopup.value = true
+    return
+  }
+  showForm.value = !showForm.value
+}
+
+const loadMoreReviews = async () => {
+  loadingMore.value = true
+  try {
+    const nextPage = currentPage.value + 1
+    const { data } = await api.get(`/sites/${props.siteId}/reviews`, {
+      params: { page: nextPage, per_page: 10 }
+    })
+    reviews.value = [...reviews.value, ...data.data]
+    meta.value = data.meta
+    currentPage.value = nextPage
+  } catch (err) {
+    console.error(err)
+    toast.error('Error al cargar más reseñas')
+  } finally {
+    loadingMore.value = false
+  }
+}
+
+const isOwnReview = (review) => {
+  return currentUser.value && review.user_id === currentUser.value.id
+}
+
+const confirmDelete = (review) => {
+  reviewToDelete.value = review
+  showDeleteModal.value = true
+}
+
+const handleDelete = async () => {
+  if (!reviewToDelete.value) return
+
+  try {
+    await deleteReview(props.siteId, reviewToDelete.value.id)
+    showDeleteModal.value = false
+    reviewToDelete.value = null
+    await loadReviews(1)
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+const handleReviewSubmitted = () => {
+  showForm.value = false
+  loadReviews(1)
+}
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return ''
+  return new Date(dateStr).toLocaleDateString()
 }
 
 const loadMoreReviews = async () => {
