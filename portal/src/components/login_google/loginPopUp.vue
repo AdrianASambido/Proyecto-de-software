@@ -1,65 +1,63 @@
 <template>
-  <!-- Fondo semi-transparente -->
   <div
     v-if="modelValue"
-    class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50"
-    @click.self="close"
+    class="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50"
   >
-    <!-- Contenedor del popup -->
-    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 relative text-center animate-fade-in">
-      <!-- Botón de cierre -->
+    <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-sm w-full relative animate-fade-in">
+      <!-- Botón cerrar -->
       <button
-        @click="close"
-        class="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+        @click="emit('update:modelValue', false)"
+        class="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
       >
         ✕
       </button>
-
-      <h2 class="text-xl font-semibold text-gray-800 mb-4">
+ 
+      <h2 class="text-2xl font-semibold text-gray-900 mb-3 text-center">
         Inicia sesión para continuar
       </h2>
 
-      <p class="text-gray-500 text-sm mb-6">
-        Usa tu cuenta de Google para acceder rápidamente
+     
+      <p class="text-gray-600 text-center mb-6 px-2">
+        Para realizar esta acción, necesitamos que inicies sesión con tu cuenta de Google.
       </p>
 
-      <!-- Aquí va tu botón Google reutilizado -->
-      <GoogleLoginButton @logged-in="onLoginSuccess" />
+     
+      <div class="flex justify-center">
+        <GoogleLoginButton @logged-in="onLoginSuccess" />
+      </div>
+
+     
     </div>
   </div>
 </template>
 
-<script setup>
-import { defineProps, defineEmits } from "vue"
-import GoogleLoginButton from "@/components/login_google/login.vue"
 
-const props = defineProps({
-  modelValue: { type: Boolean, required: true },
+<script setup>
+import GoogleLoginButton from './login.vue'
+
+defineProps({
+  modelValue: Boolean
 })
 
-const emit = defineEmits(["update:modelValue", "login"])
-
-function close() {
-  emit("update:modelValue", false)
-}
+const emit = defineEmits(['update:modelValue', 'logged-in'])
 
 function onLoginSuccess(user) {
-  emit("login", user)
-  close()
+  emit('logged-in', user)
+  emit('update:modelValue', false)
 }
 </script>
 
 <style scoped>
-@keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+:host {
+  position: relative;
+  z-index: 9999;
 }
+
+@keyframes fade-in {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
 .animate-fade-in {
   animation: fade-in 0.2s ease-out;
 }

@@ -115,6 +115,10 @@ const showLoginPopup = ref(false)
 const checkFavorite = async () => {
   if (!props.site?.id) return
   try {
+    if (!props.userId) {
+      isFavorite.value = false
+      return
+    }
     const res = await api.get(`/sites/${props.site.id}/favorite`, {
       params: { userId: props.userId },
     })
@@ -154,7 +158,7 @@ const toggleFavorite = async () => {
 }
 const onLoginSuccess = (user) => {
   console.log("Usuario logueado:", user)
-  // Podés hacer reload o guardar user info si querés
+ 
   window.location.reload()
 }
 

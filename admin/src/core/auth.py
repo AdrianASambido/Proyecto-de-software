@@ -67,6 +67,7 @@ def permission_required(permission_name):
     return decorator
 
 
+
 def get_current_user():
     """
     Obtiene el usuario actual de la sesión
