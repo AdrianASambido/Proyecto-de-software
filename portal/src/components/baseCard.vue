@@ -3,13 +3,13 @@
     :to="`/sitio/${item.id}`" 
     class="block max-w-sm rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 bg-white"
   >
-    <!-- Imagen de portada -->
+    <!-- Imagen de portada en la linea 12 se corrige que se adapte al contenedor -->
     <div class="relative h-48 bg-gray-200 overflow-hidden">
       <img 
         v-if="item.cover_url" 
         :src="item.cover_url" 
         :alt="item.nombre"
-        class="w-full h-full object-cover"
+        class="w-full h-full object-fill"
       />
       <div v-else class="w-full h-full flex items-center justify-center bg-gray-300">
         <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

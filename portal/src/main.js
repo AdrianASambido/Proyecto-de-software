@@ -6,7 +6,7 @@ import 'vue-sonner/style.css'
 import router from './router'
 import GoogleSignInPlugin from 'vue3-google-signin'
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || "156550318843-bag3rvvvo3kquesgsgdrr8f6j4p0nmv4.apps.googleusercontent.com"
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '15655123456-abcde12345fghij67890klmnopqrstu.apps.googleusercontent.com'
 const app = createApp(App)
 app.use(router)
 app.use(GoogleSignInPlugin, {

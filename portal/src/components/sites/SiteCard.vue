@@ -7,7 +7,7 @@
         v-if="site.cover_url" 
         :src="site.cover_url" 
         :alt="site.nombre"
-        class="w-full h-full object-cover"
+        class="w-full h-full object-fill"
       />
       <div v-else class="w-full h-full flex items-center justify-center bg-gray-300">
         <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,5 +119,3 @@ const formattedRating = computed(() => {
   overflow: hidden;
 }
 </style>
-
-

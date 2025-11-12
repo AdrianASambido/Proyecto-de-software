@@ -10,16 +10,19 @@ import CarruselImagenes from '@/components/pantalla_inicial/carruselImagenes.vue
   <div class="home-page">
     <!-- Hero principal solo visible en Home -->
     <HeroPrincipal />
-
+    <hr class="section-divider" />
     <!-- Carrusel principal -->
     <CarruselImagenes 
       title="Imágenes Destacadas"
-      :load-params="{ order: 'mejor_puntuado', per_page: 6 }"
+      :load-params="{ order: 'mejor_puntuado', per_page: 5 }"
     />
-
+    
     <!-- Secciones -->
+    <hr class="section-divider" />
     <SeccionMejorPuntuados />
+    <hr class="section-divider" />
     <SeccionRecientementeAgregados />
+    <hr class="section-divider" />
     <SeccionFavoritos />
   </div>
 </template>
@@ -27,5 +30,12 @@ import CarruselImagenes from '@/components/pantalla_inicial/carruselImagenes.vue
 <style scoped>
 .home-page {
   min-height: 100vh;
+}
+
+.section-divider {
+  border: 0;
+  height: 3px;
+  background-color: #e0e0e0;
+  margin: 40px 0;
 }
 </style>

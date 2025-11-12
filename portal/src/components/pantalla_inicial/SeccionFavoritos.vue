@@ -51,10 +51,7 @@ const items = ref([])
 // Ruta para "Ver todos" con el filtro de favoritos aplicado
 const viewAllRoute = computed(() => {
   if (!isAuthenticated.value) return null
-  return {
-    path: '/sitios',
-    query: { favoritos: 'true' }
-  }
+  return fetchFavoritos;
 })
 const showLoginPopup = ref(false)
 

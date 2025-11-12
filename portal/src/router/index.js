@@ -13,6 +13,18 @@ const routes = [
     component: () => import('@/views/profile/MyReviews.vue'),
     meta: { requiresAuth: true }
   },
+  {
+    path: '/perfil',
+    name: 'profile',
+    component: () => import('@/views/profile/Profile.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/favoritos',
+    name: 'favorites',
+    component: () => import('@/views/profile/FavoriteSites.vue'),
+    meta: { requiresAuth: true }
+  },
 ]
 
 const router = createRouter({
