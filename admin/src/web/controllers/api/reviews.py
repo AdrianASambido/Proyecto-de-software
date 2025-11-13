@@ -1,5 +1,5 @@
 from flask import jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+# from flask_jwt_extended import jwt_required, get_jwt_identity
 from . import api_bp
 from .auth import jwt_required, get_current_user_from_jwt
 from src.core.services.reviews import (
@@ -47,14 +47,14 @@ def get_reviews_for_site(site_id):
 @jwt_required
 def add_review_to_site(site_id):
     try:
-        current_user_id = get_jwt_identity()
+        #current_user_id = get_jwt_identity()
         data = request.get_json()
 
         if not data:
             return jsonify({"error": "No se proporcionó información en el body"}), 400
 
         user_id = get_current_user_from_jwt()
-        if user_id:
+        if not user_id:
             return jsonify({"error": "Usuario no autenticado"}), 401
 
         calificacion = data.get("calificacion")
