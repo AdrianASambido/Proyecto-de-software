@@ -137,19 +137,19 @@ const hasMoreReviews = computed(() => {
 })
 
 const loadReviews = async (page = 1) => {
-  loading.value = true
-  error.value = null
+  loading.value = true;
+  error.value = null;
   try {
     const { data } = await api.get(`/sites/${props.siteId}/reviews`, {
       params: { page, per_page: 10 }
     })
-    reviews.value = data.data
-    meta.value = data.meta
-    currentPage.value = page
+    reviews.value = data.data;
+    meta.value = data.meta;
+    currentPage.value = page;
   } catch (err) {
-    console.error(err)
-    error.value = 'No se pudieron cargar las reseñas.'
-    toast.error('Error al cargar las reseñas')
+    console.error(err);
+    error.value = 'No se pudieron cargar las reseñas.';
+    toast.error('Error al cargar las reseñas');
   } finally {
     loading.value = false
   }

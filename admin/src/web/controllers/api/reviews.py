@@ -1,5 +1,5 @@
 from flask import jsonify, request
-# from flask_jwt_extended import jwt_required, get_jwt_identity   
+# from flask_jwt_extended import jwt_required, get_jwt_identity
 from . import api_bp
 from .auth import jwt_required, get_current_user_from_jwt
 from src.core.services.reviews import (
