@@ -14,17 +14,16 @@ export function useAuth() {
       // Por ahora, simplemente verificamos si hay un token en localStorage
       const token = localStorage.getItem('token')
       isAuthenticated.value = !!token
-      
+
       // Si hay token, intentar obtener información del usuario
       if (token) {
        const decoded = jwtDecode(token)
         const userId = decoded.sub || decoded.id || decoded.user_id
 
-       
         currentUser.value = { id: userId }
 
-      
-        
+
+
       } else {
         currentUser.value = null
       }
