@@ -152,13 +152,33 @@
             </div>
 
             <!-- Mapa (si está activo) -->
-            <div v-if="showMap" class="mb-4 h-64 rounded-lg overflow-hidden border border-gray-300">
-              <div id="search-map" class="w-full h-full"></div>
-              <div v-if="mapLocation" class="mt-2 p-2 bg-blue-50 rounded text-sm">
-                <p class="text-gray-700">Radio: {{ filters.radio || 5 }} km</p>
+            <div v-if="showMap" class="mb-4">
+              <div class="h-64 rounded-lg overflow-hidden border border-gray-300">
+                <div id="search-map" class="w-full h-full"></div>
+              </div>
+              <div v-if="mapLocation" class="mt-2 p-3 bg-blue-50 rounded text-sm">
+                <div class="mb-2">
+                  <label class="block text-sm font-medium text-gray-700 mb-1">
+                    Radio de búsqueda: {{ filters.radio || 5 }} km
+                  </label>
+                  <input
+                    type="range"
+                    v-model.number="filters.radio"
+                    @input="updateRadius"
+                    min="1"
+                    max="50"
+                    step="1"
+                    class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                  />
+                  <div class="flex justify-between text-xs text-gray-500 mt-1">
+                    <span>1 km</span>
+                    <span>25 km</span>
+                    <span>50 km</span>
+                  </div>
+                </div>
                 <button
                   @click="clearMapLocation"
-                  class="mt-1 text-blue-600 hover:text-blue-800 text-xs"
+                  class="mt-2 text-blue-600 hover:text-blue-800 text-xs underline"
                 >
                   Limpiar ubicación
                 </button>
@@ -527,6 +547,16 @@ const updateMapLocation = (lat, lng) => {
   map.setView([lat, lng], 12)
 
   // Agregar círculo de radio
+  updateCircle(lat, lng)
+}
+
+// Actualizar círculo de radio
+const updateCircle = (lat, lng) => {
+  if (!map) return
+  
+  // Remover círculo anterior si existe
+  if (circle) map.removeLayer(circle)
+  
   const radiusKm = filters.value.radio || 5
   circle = L.circle([lat, lng], {
     radius: radiusKm * 1000, // convertir a metros
@@ -534,6 +564,17 @@ const updateMapLocation = (lat, lng) => {
     fillColor: '#3B82F6',
     fillOpacity: 0.2
   }).addTo(map)
+}
+
+// Actualizar radio cuando cambia el slider
+const updateRadius = () => {
+  if (!mapLocation.value || !map) return
+  
+  // Actualizar el círculo con el nuevo radio
+  updateCircle(mapLocation.value.lat, mapLocation.value.lng)
+  
+  // Aplicar filtros con el nuevo radio
+  applyFilters()
 }
 
 // Limpiar ubicación del mapa
@@ -563,17 +604,27 @@ const goToPage = (page) => {
 
 // Watchers
 watch(showMap, (newVal) => {
-  if (newVal && !map) {
+  if (newVal) {
     // Esperar un poco para que el DOM se actualice
     setTimeout(() => {
-      initMap()
+      if (map) {
+        // Si el mapa ya existe, solo invalidar el tamaño para que se ajuste
+        map.invalidateSize()
+        // Si hay ubicación guardada, actualizarla
+        if (mapLocation.value) {
+          updateMapLocation(mapLocation.value.lat, mapLocation.value.lng)
+        }
+      } else {
+        // Si no existe, inicializarlo
+        initMap()
+      }
     }, 200)
   } else if (!newVal && map) {
-    // Limpiar el mapa cuando se oculta (opcional, para ahorrar memoria)
-    // map.remove()
-    // map = null
-    // marker = null
-    // circle = null
+    // Limpiar el mapa cuando se oculta para evitar problemas al volver a mostrarlo
+    map.remove()
+    map = null
+    marker = null
+    circle = null
   }
 })
 

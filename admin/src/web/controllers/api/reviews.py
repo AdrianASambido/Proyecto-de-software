@@ -54,6 +54,9 @@ def add_review_to_site(site_id):
             return jsonify({"error": "No se proporcionó información en el body"}), 400
 
         user_id = get_current_user_from_jwt()
+        if not user_id:
+            return jsonify({"error": "Usuario no autenticado"}), 401
+
         calificacion = data.get("calificacion")
         contenido = data.get("contenido")
 
@@ -62,7 +65,15 @@ def add_review_to_site(site_id):
         if not contenido:
             return jsonify({"error": "El campo 'contenido' es requerido"}), 400
 
-        review = create_review(site_id, current_user_id, calificacion, contenido)
+        # Convertir calificacion a entero y validar
+        try:
+            calificacion = int(calificacion)
+            if calificacion < 1 or calificacion > 5:
+                return jsonify({"error": "La calificación debe ser un número entre 1 y 5"}), 400
+        except (ValueError, TypeError):
+            return jsonify({"error": "La calificación debe ser un número válido"}), 400
+
+        review = create_review(site_id, user_id, calificacion, contenido)
 
         return jsonify(review.to_dict()), 201
 
