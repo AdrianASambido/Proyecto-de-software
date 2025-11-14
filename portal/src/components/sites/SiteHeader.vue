@@ -33,7 +33,7 @@
         </button>
       </div>
 
-      <!-- ⭐ Rating -->
+     
       <div class="flex items-center space-x-2">
         <div class="flex items-center space-x-1">
           <template v-for="n in 5" :key="n">
@@ -60,20 +60,21 @@
 
     <hr class="border-gray-200" />
 
-    <!-- 🏷️ Tags -->
+  
     <div class="mt-2 flex gap-2 flex-wrap">
-      <a
-        v-for="(tag, index) in site.tags"
-        :key="index"
-        :href="`/sitios?tag=${tag}`"
-        :title="` ${tag}`"
-        class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm hover:bg-blue-200"
-      >
-        {{ tag }}
-      </a>
+   <button
+  v-for="tag in site.tags"
+  :key="tag.id"
+  :title="`${tag.nombre}`"
+  @click="goToTag(tag)"
+  class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm hover:bg-blue-200 transition"
+>
+  {{ tag.nombre }}
+</button>
+
     </div>
 
-    <!-- 📍 Info básica -->
+  
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm text-gray-700 mt-2">
       <div>
         <span class="font-semibold text-gray-900">Ubicación:</span>
@@ -108,6 +109,17 @@ const props = defineProps({
  
 })
 import LoginPopup from '@/components/login_google/loginPopUp.vue'
+
+
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+const goToTag = (tag) => {
+ 
+  if (!tag?.id) return
+  router.push({ path: '/sitios', query: { tags: tag.id } })
+}
+
 const emit = defineEmits(['update:favorite'])
 const isFavorite = ref(false)
 const loading = ref(false)

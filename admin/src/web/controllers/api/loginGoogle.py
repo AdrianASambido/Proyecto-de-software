@@ -67,15 +67,19 @@ def login_with_google():
             "sub": str(user["id"]),
             "email": idinfo["email"],
             "name": idinfo.get("name"),
+            
             "exp": datetime.utcnow() + timedelta(hours=1),
         }
-
+        user["picture"] = idinfo.get("picture")
         jwt_token = jwt.encode(payload, jwt_secret, algorithm=jwt_algorithm)
         
-        # Decodificar si es bytes (PyJWT < 2.0)
+       
         if isinstance(jwt_token, bytes):
             jwt_token = jwt_token.decode("utf-8")
     except Exception as e:
         return jsonify({"error": "Error al generar el token JWT", "details": str(e)}), 500
 
-    return jsonify({"token": jwt_token, "user": user}), 200
+    return jsonify({
+        "token": jwt_token,
+        "user": user
+    }), 200
