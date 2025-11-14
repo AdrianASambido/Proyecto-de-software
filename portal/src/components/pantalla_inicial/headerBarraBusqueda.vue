@@ -3,14 +3,13 @@
     <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
 
       <!-- LOGO -->
-      <div class="flex items-center gap-3">
+      <router-link to="/" class="flex items-center gap-3">
         <img
           src="/Image_Logo3.png"
           alt="Logo"
           class="h-20 sm:h-28 md:h-32 w-auto object-contain"
-          href="/"
         />
-      </div>
+      </router-link>
 
       <!-- MOBILE MENU BUTTON -->
       <button
