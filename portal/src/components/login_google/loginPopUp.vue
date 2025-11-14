@@ -31,7 +31,6 @@
   </div>
 </template>
 
-
 <script setup>
 import GoogleLoginButton from './login.vue'
 
