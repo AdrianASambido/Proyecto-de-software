@@ -3,12 +3,13 @@
     <div class="header-content">
       <div class="logo-container">
         <img src="/Image_Logo3.png" alt="Logo" class="logo-img" />
+        <div class="separator-bar"></div>
+        <span class="logo-text">Portal histórico</span>
       </div>
 
-
-      <div class="buscador-rapido">
+<!--- <div class="buscador-rapido">
         <button class="btn-busqueda" @click="goToSites">Buscar</button>
-      </div>
+      </div> -->
 
     
       <div class="auth-section">
@@ -33,7 +34,7 @@
           <transition name="fade">
             <div
               v-if="menuOpen"
-              class="absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg overflow-hidden z-50"
+              class="dropdown-menu absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg overflow-hidden z-50"
             >
               <router-link to="/perfil" class="menu-item" @click="toggleMenu">Perfil</router-link>
               <router-link to="/mis-resenas" class="menu-item" @click="toggleMenu">Mis reseñas</router-link>
@@ -111,8 +112,8 @@ const handleLogout = () => {
 <style scoped>
 
 .header-container {
-  background-color: #333;
-  padding: 15px 20px;
+  background-color: #ece8e8; /* #333 es un gris oscuro*/
+  padding: 15px 0px 15px 20px;
   color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   display: flex;
@@ -124,26 +125,40 @@ const handleLogout = () => {
 .header-content {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  max-width: 1200px;
+  align-items: stretch;
+  max-width: 100%;
   width: 100%;
+  gap: 0;
 }
 
 .logo-container {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 0px;
 }
 
 .logo-img {
-  height: 200px; /* Ajusta el tamaño según sea necesario */
+  height: 70px; /* Ajusta el tamaño según sea necesario */
   width: auto;
 }
 
-.buscador-rapido {
+.separator-bar {
+  width: 2px;
+  height: 2.5em;
+  background-color: rgb(10, 10, 10);
+  margin: 0 15px;
+}
+
+.logo-text {
+  color: rgb(10, 10, 10);
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+/*/.buscador-rapido {
   display: flex;
   gap: 5px;
-}
+}*/
 
 .input-busqueda {
   padding: 8px 12px;
@@ -167,6 +182,14 @@ const handleLogout = () => {
   background-color: #0056b3;
 }
 
+.auth-section {
+display: flex;
+align-items: stretch;
+justify-content: center;
+height: 80%;
+padding: 0 20px;
+margin-right: 56px; /* desplaza el botón ~1.5cm hacia el centro */
+}
 
 .menu-item {
   display: block;
