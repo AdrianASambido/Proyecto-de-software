@@ -9,6 +9,9 @@ module.exports = {
     extend: {
       colors: {
         'portal-red': 'rgb(169, 17, 20)', // Tu color rojo perdonalizado
+        'gris-claro': 'rgb(240, 240, 240)', // Gris claro para fondos
+        'gris-oscuro': 'rgb(100, 100, 100)', // Gris oscuro para textos
+        'cherry-rose': '#B1004A', // O 'rgb(177, 0, 74)'
       },
       fontFamily: {
         // Fuentes personalizadas
