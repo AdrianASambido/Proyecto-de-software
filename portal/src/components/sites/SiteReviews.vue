@@ -69,15 +69,41 @@
       </li>
     </ul>
 
-    <div v-if="!loading && hasMoreReviews" class="text-center mt-6">
+    <div
+      v-if="!loading && totalPages > 1"
+      class="flex justify-center items-center gap-2 mt-6"
+    >
       <button
-        @click="loadMoreReviews"
-        :disabled="loadingMore"
-        class="px-6 py-3 bg-yellow-500 text-white font-medium rounded-lg hover:bg-yellow-600 disabled:opacity-50 transition-colors"
+        @click="prevPage"
+        :disabled="currentPage === 1"
+        class="px-3 py-1 bg-gray-200 rounded-lg disabled:opacity-50 hover:bg-gray-300"
       >
-        {{ loadingMore ? 'Cargando...' : 'Cargar más reseñas' }}
+        ← Anterior
+      </button>
+
+      <button
+        v-for="p in totalPages"
+        :key="p"
+        @click="goToPage(p)"
+        :class="[
+          'px-3 py-1 rounded-lg',
+          p === currentPage
+            ? 'bg-yellow-500 text-white'
+            : 'bg-gray-200 hover:bg-gray-300'
+        ]"
+      >
+        {{ p }}
+      </button>
+
+      <button
+        @click="nextPage"
+        :disabled="currentPage === totalPages"
+        class="px-3 py-1 bg-gray-200 rounded-lg disabled:opacity-50 hover:bg-gray-300"
+      >
+        Siguiente →
       </button>
     </div>
+
 
     <ConfirmModal
       :show="showDeleteModal"
@@ -120,7 +146,7 @@ const { deleteReview } = useReviews()
 
 const reviews = ref([])
 const loading = ref(true)
-const loadingMore = ref(false)
+
 const error = ref(null)
 const showForm = ref(false)
 const showDeleteModal = ref(false)
@@ -132,28 +158,41 @@ const meta = ref({
   total: 0
 })
 
-const hasMoreReviews = computed(() => {
-  return reviews.value.length < meta.value.total
-})
+
 
 const loadReviews = async (page = 1) => {
   loading.value = true;
   error.value = null;
+
   try {
     const { data } = await api.get(`/sites/${props.siteId}/reviews`, {
-      params: { page, per_page: 10 }
+      params: { page, per_page: meta.value.per_page }
     })
-    reviews.value = data.data;
-    meta.value = data.meta;
-    currentPage.value = page;
+
+    reviews.value = data.data
+    meta.value = data.meta
+    currentPage.value = page
   } catch (err) {
-    console.error(err);
-    error.value = 'No se pudieron cargar las reseñas.';
-    toast.error('Error al cargar las reseñas');
+    console.error(err)
+    error.value = 'No se pudieron cargar las reseñas.'
+    toast.error('Error al cargar reseñas')
   } finally {
     loading.value = false
   }
 }
+const goToPage = (page) => {
+  if (page < 1 || page > totalPages.value) return
+  loadReviews(page)
+}
+
+const nextPage = () => goToPage(currentPage.value + 1)
+const prevPage = () => goToPage(currentPage.value - 1)
+
+
+const totalPages = computed(() => {
+  return Math.ceil(meta.value.total / meta.value.per_page)
+})
+
 const handleWriteReview = () => {
   if (!currentUser.value) {
     showLoginPopup.value = true
@@ -162,23 +201,7 @@ const handleWriteReview = () => {
   showForm.value = !showForm.value
 }
 
-const loadMoreReviews = async () => {
-  loadingMore.value = true
-  try {
-    const nextPage = currentPage.value + 1
-    const { data } = await api.get(`/sites/${props.siteId}/reviews`, {
-      params: { page: nextPage, per_page: 10 }
-    })
-    reviews.value = [...reviews.value, ...data.data]
-    meta.value = data.meta
-    currentPage.value = nextPage
-  } catch (err) {
-    console.error(err)
-    toast.error('Error al cargar más reseñas')
-  } finally {
-    loadingMore.value = false
-  }
-}
+
 
 const isOwnReview = (review) => {
   return currentUser.value && review.user_id === currentUser.value.id
