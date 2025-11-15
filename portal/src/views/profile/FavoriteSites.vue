@@ -21,10 +21,22 @@
           Explorar sitios
         </router-link>
       </div>
+        <div v-else>
+          
+          <div class="flex justify-end mb-4">
+            <button
+              @click="toggleSort"
+              class="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+            >
+              Ordenar: {{ sortOrderLabel }}
+            </button>
+          </div>
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <SiteCard v-for="site in sites" :key="site.id" :site="site" />
-      </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <SiteCard v-for="site in sites" :key="site.id" :site="site" />
+          </div>
+
+        </div>
 
       <div class="mt-8 text-center">
         <router-link
@@ -39,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted,computed } from 'vue'
 import { toast } from 'vue-sonner'
 import api from '@/api/axios'
 import SiteCard from '@/components/sites/SiteCard.vue'
@@ -47,15 +59,32 @@ import SiteCard from '@/components/sites/SiteCard.vue'
 const sites = ref([])
 const loading = ref(true)
 const error = ref(null)
+const sortOrder = ref('fecha_desc') // desc = más recientes
+
+
+onMounted(() => {
+  console.log('Componente montado')
+  loadFavoriteSites()
+})
+
+const sortOrderLabel = computed(() =>
+  sortOrder.value === 'fecha_desc' ? 'Más recientes' : 'Más antiguos'
+)
+const toggleSort = () => {
+  sortOrder.value = sortOrder.value === 'fecha_desc' ? 'fecha_asc' : 'fecha_desc'
+  loadFavoriteSites()
+}
 
 const loadFavoriteSites = async () => {
   loading.value = true
   error.value = null
   try {
-    const { data } = await api.get('/me/favorites')
+    const params = { order: sortOrder.value }
+   
+    const { data } = await api.get('/me/favorites', { params })
     sites.value = data.data
   } catch (err) {
-    console.error(err)
+ 
     error.value = 'No se pudieron cargar tus sitios favoritos.'
     toast.error('Error al cargar los sitios favoritos')
   } finally {
@@ -63,7 +92,9 @@ const loadFavoriteSites = async () => {
   }
 }
 
-onMounted(loadFavoriteSites)
+
+
+
 </script>
 
 <style scoped>
