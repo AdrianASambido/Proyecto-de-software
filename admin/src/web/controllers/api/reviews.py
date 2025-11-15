@@ -159,7 +159,12 @@ def get_my_reviews():
         page = int(request.args.get("page", 1))
         per_page = int(request.args.get("per_page", 25))
 
-        filtros = {"user_id": user_id}
+        order = request.args.get("order", "fecha_desc")
+
+        filtros = {
+            "user_id": user_id,
+            "order": order
+        }
         reviews_pag = list_reviews(filtros, page=page, per_page=per_page)
 
         data = []

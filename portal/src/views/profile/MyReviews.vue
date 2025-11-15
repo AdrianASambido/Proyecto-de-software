@@ -23,6 +23,15 @@
       </div>
 
       <div v-else class="space-y-4">
+        <div class="flex justify-end mb-4">
+  <button
+    @click="toggleSort"
+    class="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+  >
+    Ordenar: {{ sortOrderLabel }}
+  </button>
+</div>
+
         <div
           v-for="review in reviews"
           :key="review.id"
@@ -157,6 +166,23 @@ import ConfirmModal from '@/components/common/ConfirmModal.vue'
 import EditReviewModal from '@/components/common/EditReviewModal.vue'
 
 const { deleteReview, updateReview } = useReviews()
+const sortOrder = ref('desc') // desc = más recientes
+const sortOrderLabel = computed(() =>
+  sortOrder.value === 'desc' ? 'Más recientes' : 'Más antiguas'
+)
+const toggleSort = () => {
+  sortOrder.value = sortOrder.value === 'desc' ? 'asc' : 'desc'
+  sortReviews()
+}
+const sortReviews = () => {
+  reviews.value.sort((a, b) => {
+    const dateA = new Date(a.created_at)
+    const dateB = new Date(b.created_at)
+    return sortOrder.value === 'asc'
+      ? dateA - dateB
+      : dateB - dateA
+  })
+}
 
 const reviews = ref([])
 const loading = ref(true)
@@ -182,9 +208,12 @@ const loadMyReviews = async (page = 1) => {
     const { data } = await api.get('/me/reviews', {
       params: { page, per_page: 25 }
     })
+    
     reviews.value = data.data
     meta.value = data.meta
     currentPage.value = page
+    sortReviews()
+
   } catch (err) {
     console.error(err)
     error.value = 'No se pudieron cargar tus reseñas.'
