@@ -161,8 +161,8 @@ const meta = ref({
 
 
 const loadReviews = async (page = 1) => {
-  loading.value = true
-  error.value = null
+  loading.value = true;
+  error.value = null;
 
   try {
     const { data } = await api.get(`/sites/${props.siteId}/reviews`, {

@@ -1,15 +1,17 @@
 <template>
-  <header class="w-full bg-gray-900 text-white shadow-md relative">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+  <header class="header-container">
+    <div class="header-content">
+      <div class="logo-container" @click="goToHome" style="cursor: pointer;">
+        <img src="/Image_Logo3.png" alt="Logo" class="logo-img" />
+        <div class="separator-bar"></div>
+        <span class="logo-text">Portal histórico</span>
+      </div>
 
-      <!-- LOGO -->
-      <router-link to="/" class="flex items-center gap-3">
-        <img
-          src="/Image_Logo3.png"
-          alt="Logo"
-          class="h-20 sm:h-28 md:h-32 w-auto object-contain"
-        />
-      </router-link>
+<!--- <div class="buscador-rapido">
+        <button class="btn-busqueda" @click="goToSites">Buscar</button>
+      </div> 
+  <header class="w-full bg-gray-900 text-white shadow-md relative">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between"> -->
 
       <!-- MOBILE MENU BUTTON -->
       <button
@@ -52,7 +54,7 @@
           <transition name="fade">
             <div
               v-if="menuOpen"
-              class="desktop-menu absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg z-50"
+              class="dropdown-menu absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg overflow-hidden z-50"
             >
               <router-link to="/perfil" class="menu-item" @click="toggleMenu">Perfil</router-link>
               <router-link to="/mis-resenas" class="menu-item" @click="toggleMenu">Mis reseñas</router-link>
@@ -168,9 +170,94 @@ const handleLogout = () => {
 const goToSites = () => {
   window.location.href = '/sitios'
 }
+
+const goToHome = () => {
+  window.location.href = '/'
+}
 </script>
 
 <style scoped>
+
+.header-container {
+  background-color: #ece8e8; /* #333 es un gris oscuro*/
+  padding: 15px 0px 15px 20px;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  max-width: 100%;
+  width: 100%;
+  gap: 0;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 0px;
+}
+
+.logo-img {
+  height: 70px; /* Ajusta el tamaño según sea necesario */
+  width: auto;
+}
+
+.separator-bar {
+  width: 2px;
+  height: 2.5em;
+  background-color: rgb(10, 10, 10);
+  margin: 0 15px;
+}
+
+.logo-text {
+  color: rgb(10, 10, 10);
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+/*/.buscador-rapido {
+  display: flex;
+  gap: 5px;
+}*/
+
+.input-busqueda {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  width: 200px;
+}
+
+.btn-busqueda {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+.btn-busqueda:hover {
+  background-color: #0056b3;
+}
+
+.auth-section {
+display: flex;
+align-items: stretch;
+justify-content: center;
+height: 80%;
+padding: 0 20px;
+margin-right: 56px; /* desplaza el botón ~1.5cm hacia el centro */
+}
+
 .menu-item {
   @apply block px-4 py-2 hover:bg-gray-100 text-sm;
 }
