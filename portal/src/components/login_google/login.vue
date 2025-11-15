@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted } from "vue" 
 import axios from "axios"
 
 const emit = defineEmits(["logged-in"])
@@ -18,8 +18,8 @@ onMounted(() => {
   script.src = "https://accounts.google.com/gsi/client"
   script.async = true
   script.defer = true
-  script.onload = initializeGoogleButton
-  document.head.appendChild(script)
+  script.onload = initializeGoogleButton //"callback"  Llama a la función para inicializar el botón después de cargar el script
+  document.head.appendChild(script)        
 })
 
 function initializeGoogleButton() {
@@ -41,10 +41,10 @@ async function handleCredentialResponse(response) {
     const id_token = response.credential
 
     const res = await axios.post(BASE_URL + "/login/google", {
-      id_token,
-    })
+      id_token, //se la pasa id_token recibido de Google al backEnd para que 
+    })          //genere el JWT propio (Token de sesión propio)
 
-    const { token, user } = res.data
+    const { token, user } = res.data //el back responde con el token JWT y datos del usuario
 
     localStorage.setItem("token", token)
     localStorage.setItem("user", JSON.stringify(user))

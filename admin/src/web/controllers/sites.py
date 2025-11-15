@@ -31,7 +31,7 @@ def process_uploaded_images():
         for i, image in enumerate(images):
             if image.filename == "":
                 continue
-            object_name = upload_file(image, folder_name="public")
+            object_name = upload_file(image, folder_name="sites")
             if not object_name:
                 continue  # Si falla la subida, saltar esta imagen
             image_data = {
