@@ -70,9 +70,14 @@ def get_favorites():
     page = int(filtros.pop("page", 1))
     per_page = int(filtros.pop("per_page", 25))
     include_cover = filtros.pop("include_cover", "true").lower() in ("true", "1", "yes")
+    order = filtros.pop("order", "fecha_desc")  # por defecto más recientes
+    filtros["order"] = order
 
+    # Solo filtrar los sitios que el usuario marcó como favorito
     filtros["favoritos"] = True
     filtros["user_id"] = user_id
+
+    # Cargar los sitios con orden por created_at
     sitios_pag = list_sites(filtros, page=page, per_page=per_page, include_cover=include_cover)
 
     schema = SiteSchema(many=True)

@@ -61,20 +61,35 @@
     <hr class="border-gray-200" />
 
   
-    <div class="mt-2 flex gap-2 flex-wrap">
-   <button
-  v-for="tag in site.tags"
-  :key="tag.id"
-  :title="`${tag.nombre}`"
-  @click="goToTag(tag)"
-  class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm hover:bg-blue-200 transition"
+<div
+  class="mt-2 gap-2"
+  :class="showAllTags 
+      ? 'grid grid-cols-5 auto-rows-min gap-2' 
+      : 'flex flex-wrap gap-2'"
 >
-  {{ tag.nombre }}
-</button>
+  <!-- Tags visibles -->
+  <button
+    v-for="tag in visibleTags"
+    :key="tag.id"
+    :title="tag.nombre"
+    @click="goToTag(tag)"
+    class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm hover:bg-blue-200 transition w-fit whitespace-nowrap"
+  >
+    {{ tag.nombre }}
+  </button>
 
-    </div>
+  <!-- Botón Ver más / Ver menos -->
+  <button
+    v-if="site.tags.length > 5"
+    @click="showAllTags = !showAllTags"
+    class="px-2 py-1 bg-gray-200 text-gray-800 rounded-full text-sm hover:bg-gray-300 transition w-fit whitespace-nowrap"
+  >
+    {{ showAllTags ? 'Ver menos' : `+${site.tags.length - 5} más` }}
+  </button>
+</div>
 
-  
+
+
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm text-gray-700 mt-2">
       <div>
         <span class="font-semibold text-gray-900">Ubicación:</span>
@@ -101,7 +116,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
+
 import api from '@/api/axios' 
 const props = defineProps({
   site: { type: Object, required: true },
@@ -139,6 +155,13 @@ const checkFavorite = async () => {
     console.warn('Error comprobando favorito:', err)
   }
 }
+const showAllTags = ref(false)
+
+const visibleTags = computed(() =>
+  showAllTags.value
+    ? props.site.tags
+    : props.site.tags.slice(0, 5)
+)
 
 
 onMounted(checkFavorite)
