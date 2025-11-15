@@ -21,11 +21,25 @@
       <div class="hidden md:flex items-center gap-6">
 
         <button
-          @click="goToSites"
-          class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-white text-sm"
+          @click="goToSites" 
+          class="
+            bg-transparent                      
+            text-red-700                      
+            border border-red-700            
+            hover:bg-portal-red                   
+            hover:text-portal-red          
+            px-4 py-2 rounded-md text-sm
+
+            /* CAMBIO AL PASAR EL RATÓN (HOVER) */
+            hover:bg-transparent                        /* Se vuelve transparente al pasar el ratón */
+            hover:text-gray-900                         /* El texto se vuelve gris oscuro */
+            hover:border-gray-900                       /* El borde se vuelve gris oscuro */
+
+            transition-colors duration-200   "
         >
           Buscar
         </button>
+    
 
 
         <div v-if="isLoggedIn" class="relative desktop-menu">
@@ -152,39 +166,85 @@ const goToSites = () => router.push("/sitios")
 const goToHome = () => router.push("/")
 </script>
 <style scoped>
+
 .header-container {
-  background-color: #ece8e8;
-  padding: 15px 20px;
+  background-color: #ece8e8; /* #333 es un gris oscuro*/
+  padding: 15px 0px 15px 20px;
+  color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .header-content {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: stretch;
+  max-width: 100%;
   width: 100%;
+  gap: 0;
 }
 
 .logo-container {
   display: flex;
   align-items: center;
+  gap: 0px;
 }
 
 .logo-img {
-  height: 70px;
+  height: 70px; /* Ajusta el tamaño según sea necesario */
+  width: auto;
 }
 
 .separator-bar {
-  width: 2px;
+  width: 6px;
   height: 2.5em;
-  background-color: #000;
+  background-color: rgb(169, 17, 20); /* rgb (10, 10, 10) */
   margin: 0 15px;
 }
 
 .logo-text {
-  color: #000;
+  color: rgb(10, 10, 10); /* COLOR DEL TEXTO hover:bg-gray-700*/ 
   font-size: 1.8rem;
   font-weight: bold;
+}
+
+/*/.buscador-rapido {
+  display: flex;
+  gap: 5px;
+}*/
+
+.input-busqueda {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 1em;
+  width: 200px;
+}
+
+.btn-busqueda {
+  background-color: rgb(169, 17, 20); /* #007bff;*/
+  color: white;
+  border: rgb(169, 17, 20); /* NONE */
+  padding: 8px 12px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-size: 1em;
+}
+
+.btn-busqueda:hover {
+  background-color: #0056b3;
+}
+
+.auth-section {
+display: flex;
+align-items: stretch;
+justify-content: center;
+height: 80%;
+padding: 0 20px;
+margin-right: 56px; /* desplaza el botón ~1.5cm hacia el centro */
 }
 
 .menu-item {
