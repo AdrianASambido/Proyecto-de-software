@@ -1,6 +1,8 @@
 <template>
-  <header class="header-container">
+  <header class="header-container relative">
     <div class="header-content">
+
+      <!-- LOGO -->
       <div class="logo-container" @click="goToHome" style="cursor: pointer;">
         <img src="/Image_Logo3.png" alt="Logo" class="logo-img" />
         <div class="separator-bar"></div>
@@ -65,13 +67,13 @@
 
       <!-- MOBILE MENU BUTTON -->
       <button
-        class="md:hidden text-3xl"
+        class="md:hidden text-3xl text-black pr-4"
         @click="mobileMenuOpen = !mobileMenuOpen"
       >
         ☰
       </button>
 
-      <!-- DESKTOP MENU -->
+
       <div class="hidden md:flex items-center gap-6">
 
         <button
@@ -98,14 +100,13 @@
         <div v-if="isLoggedIn" class="relative">
           <button
             @click="toggleMenu"
-            class="desktop-btn flex items-center gap-2 bg-gray-500 hover:bg-gray-700 px-3 py-2 rounded-lg text-sm"
+            class="desktop-btn flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white px-3 py-2 rounded-lg text-sm"
           >
             <img
               v-if="user?.picture"
               :src="user.picture"
               class="w-8 h-8 rounded-full object-cover"
             />
-
             <span>{{ user?.nombre || user?.email }}</span>
 
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,7 +118,7 @@
           <transition name="fade">
             <div
               v-if="menuOpen"
-              class="dropdown-menu absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-lg overflow-hidden z-50"
+              class="dropdown-menu absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg overflow-hidden z-50"
             >
               <router-link to="/perfil" class="menu-item" @click="toggleMenu">Perfil</router-link>
               <router-link to="/mis-resenas" class="menu-item" @click="toggleMenu">Mis reseñas</router-link>
@@ -129,116 +130,96 @@
           </transition>
         </div>
 
-    
+   
         <div v-else>
           <GoogleLoginButton @logged-in="handleLoginSuccess" />
         </div>
       </div>
     </div>
 
-
-    <div
-      v-show="mobileMenuOpen"
-      class="md:hidden absolute top-full left-0 w-full bg-gray-800 px-4 pt-4 pb-6 space-y-4 shadow-lg z-50"
-    >
-      <button
-        @click="goToSites"
-        class="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md text-sm"
+  
+    <transition name="fade">
+      <div
+        v-if="mobileMenuOpen"
+        class="md:hidden absolute right-4 top-full mt-2 w-56 bg-white text-black rounded-lg shadow-lg p-4 z-50"
       >
-        Buscar
-      </button>
+        <button
+          @click="navAndClose('/sitios')"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm mb-2"
+        >
+          Buscar
+        </button>
 
-   <div v-if="isLoggedIn" class="space-y-4">
+        <div v-if="isLoggedIn" class="space-y-2">
+          <router-link to="/perfil" @click="closeMobileMenu" class="mobile-item">Perfil</router-link>
+          <router-link to="/mis-resenas" @click="closeMobileMenu" class="mobile-item">Mis reseñas</router-link>
+          <router-link to="/favoritos" @click="closeMobileMenu" class="mobile-item">Sitios favoritos</router-link>
 
-    
-        <div class="flex items-center gap-3 px-2">
-          <img
-            v-if="user?.picture"
-            :src="user.picture"
-            class="w-10 h-10 rounded-full object-cover"
-          />
-          <span class="text-white text-lg font-medium">
-            {{ user?.nombre || username }}
-          </span>
+          <button @click="handleLogout" class="mobile-item text-red-500">Cerrar sesión</button>
         </div>
 
-        <router-link to="/perfil" class="mobile-item">Perfil</router-link>
-        <router-link to="/mis-resenas" class="mobile-item">Mis reseñas</router-link>
-        <router-link to="/favoritos" class="mobile-item">Sitios favoritos</router-link>
-
-        <button @click="handleLogout" class="w-full text-left mobile-item text-red-400">
-          Cerrar sesión
-        </button>
+        <div v-else>
+          <GoogleLoginButton @logged-in="handleLoginSuccess" />
+        </div>
       </div>
+    </transition>
 
-
-      <div v-else>
-        <GoogleLoginButton @logged-in="handleLoginSuccess" />
-      </div>
-    </div>
   </header>
 </template>
 
+
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
-import GoogleLoginButton from '@/components/login_google/login.vue'
+import { ref, onMounted, onBeforeUnmount } from "vue"
+import { useRouter } from "vue-router"
+import GoogleLoginButton from "@/components/login_google/login.vue"
+
+const router = useRouter()
 
 const isLoggedIn = ref(false)
-const user = ref(null)       
+const user = ref(null)
 const menuOpen = ref(false)
 const mobileMenuOpen = ref(false)
 
-const toggleMenu = () => {
-  menuOpen.value = !menuOpen.value
-}
-
-const closeMenu = (e) => {
-  const dropdown = e.target.closest('.desktop-menu')
-  const dropdownBtn = e.target.closest('.desktop-btn')
-
-  if (!dropdown && !dropdownBtn) {
-    menuOpen.value = false
-  }
-}
+const toggleMenu = () => (menuOpen.value = !menuOpen.value)
+const closeMobileMenu = () => (mobileMenuOpen.value = false)
 
 onMounted(() => {
-  document.addEventListener('click', closeMenu)
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".desktop-btn")
+    const menu = e.target.closest(".desktop-menu")
+    if (!btn && !menu) menuOpen.value = false
+  })
 
-  const savedUser = localStorage.getItem('user')
-  const savedToken = localStorage.getItem('token')
+  const savedUser = localStorage.getItem("user")
+  const savedToken = localStorage.getItem("token")
 
   if (savedUser && savedToken) {
-    user.value = JSON.parse(savedUser)   
+    user.value = JSON.parse(savedUser)
     isLoggedIn.value = true
   }
 })
 
-onBeforeUnmount(() => {
-  document.removeEventListener('click', closeMenu)
-})
-
 const handleLoginSuccess = (u) => {
-  user.value = u                 
+  user.value = u
   isLoggedIn.value = true
 }
 
 const handleLogout = () => {
-  localStorage.removeItem('token')
-  localStorage.removeItem('user')
+  localStorage.removeItem("token")
+  localStorage.removeItem("user")
   user.value = null
   isLoggedIn.value = false
-  window.location.reload()
+  location.reload()
 }
 
-const goToSites = () => {
-  window.location.href = '/sitios'
+const navAndClose = (path) => {
+  mobileMenuOpen.value = false
+  router.push(path)
 }
 
-const goToHome = () => {
-  window.location.href = '/'
-}
+const goToSites = () => router.push("/sitios")
+const goToHome = () => router.push("/")
 </script>
-
 <style scoped>
 
 .header-container {
@@ -322,11 +303,17 @@ margin-right: 56px; /* desplaza el botón ~1.5cm hacia el centro */
 }
 
 .menu-item {
-  @apply block px-4 py-2 hover:bg-gray-100 text-sm;
+  display: block;
+  padding: 10px 16px;
 }
+
 .mobile-item {
-  @apply block w-full px-4 py-2 bg-gray-700 text-white rounded-md;
+  display: block;
+  padding: 8px;
+  border-radius: 6px;
+  background: #f3f3f3;
 }
+
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.15s ease;
