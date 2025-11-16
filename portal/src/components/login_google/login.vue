@@ -41,19 +41,23 @@ async function handleCredentialResponse(response) {
     const id_token = response.credential
 
     const res = await axios.post(BASE_URL + "/login/google", {
-      id_token, //se la pasa id_token recibido de Google al backEnd para que 
-    })          //genere el JWT propio (Token de sesión propio)
+      id_token,
+    })
 
-    const { token, user } = res.data //el back responde con el token JWT y datos del usuario
+    const { token, user } = res.data
 
+    // Guardar en localStorage
     localStorage.setItem("token", token)
     localStorage.setItem("user", JSON.stringify(user))
-    window.location.reload()
- 
-    emit("logged-in", user)
+
+    // Enviar ambos valores al componente padre
+    emit("logged-in", { user, token })
+   window.location.reload();
+
   } catch (error) {
     console.error("Error en login con Google:", error)
     alert("Error al iniciar sesión con Google")
   }
 }
+
 </script>
