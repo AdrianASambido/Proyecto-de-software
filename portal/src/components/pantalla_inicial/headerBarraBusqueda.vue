@@ -26,10 +26,8 @@
 
       </div>
 
-      <!-- Hamburguesa -->
-
-     
-      <button class="hamburger md:hidden" @click="mobileMenuOpen = !mobileMenuOpen" aria-label="Abrir menú">
+      <!-- Hamburguesa oculta en mantenimiento -->
+      <button v-if="!isMaintenance" class="hamburger md:hidden" @click="mobileMenuOpen = !mobileMenuOpen" aria-label="Abrir menú">
         ☰
       </button>
 
@@ -38,9 +36,9 @@
      <div v-if="!isMaintenance" class="menu-desktop hidden md:flex items-center gap-6">
 
 
-        <button @click="goToSites" class="btn-search hidden md:inline-block">Buscar</button>
+        <button v-if="!isMaintenance" @click="goToSites" class="btn-search hidden md:inline-block">Buscar</button>
 
-        <div v-if="isLoggedIn" class="relative hidden md:block">
+        <div v-if="isLoggedIn && !isMaintenance" class="relative hidden md:block">
           <button @click="toggleMenu" class="desktop-btn flex items-center gap-2">
             <img v-if="user?.picture" :src="user.picture" class="w-8 h-8 rounded-full object-cover" />
             <span>{{ user?.nombre || user?.email }}</span>
@@ -64,7 +62,7 @@
           </transition>
         </div>
         
-        <div v-else class="hidden md:block">
+        <div v-else-if="!isMaintenance" class="hidden md:block">
           <GoogleLoginButton @logged-in="handleLoginSuccess" />
         </div>
       </div>
@@ -75,7 +73,7 @@
 
     <transition name="fade">
       <div 
-        v-if="mobileMenuOpen"
+        v-if="mobileMenuOpen && !isMaintenance"
         class="mobile-menu md:hidden absolute top-full left-1/2 transform -translate-x-1/2 mt-3 bg-white text-black rounded-lg shadow-lg p-4 z-50 w-[92vw] max-w-xs">
 
         <router-link to="/sitios" @click="closeMobileMenu" class="mobile-item">Buscar</router-link>
@@ -103,7 +101,7 @@ const router = useRouter()
 const system = useSystemStore()
 
 
-const isMaintenance = computed(() => system.maintenance?.maintenanceMode === true)
+const isMaintenance = computed(() => system.maintenance?.maintenance === true)
 
 const isLoggedIn = ref(false)
 const user = ref(null)
