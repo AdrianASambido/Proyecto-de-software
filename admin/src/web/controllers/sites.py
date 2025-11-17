@@ -302,17 +302,10 @@ def export():
 
         return response
         
-
-
 @bp.route("/<int:sitio_id>")
 @permission_required('site_show')
 @login_required
 def detail(sitio_id):
-    """
-    renderiza los detalles del sitio
-    """
-  
-    sitio = board_sites.get_site(sitio_id,include_cover=True)
+    sitio = board_sites.get_site(sitio_id, include_cover=True, include_images=True)
     return render_template("sites/detail.html", sitio=sitio)
-  
 
