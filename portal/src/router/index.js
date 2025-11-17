@@ -50,14 +50,14 @@ router.beforeEach(async (to, from, next) => {
     await system.loadStatus()
   }
 
- 
+
  if (system.maintenance?.maintenance === true) {
   if (to.path !== '/maintenance') {
     return next('/maintenance')
   }
 }
 
- 
+
   const token = localStorage.getItem('token')
   if (to.meta.requiresAuth && !token) {
     return next('/login')
