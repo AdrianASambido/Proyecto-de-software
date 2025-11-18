@@ -3,11 +3,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white shadow-xl rounded-lg overflow-hidden">
       
       <div class="relative h-64 md:h-full">
-        <img 
-          src="\mexico-1093919_1920.jpg" 
-          alt="Monumento a San Martín"
-          class="w-full h-full object-cover"
-        />
+        <heroCarrusel />
       </div>
       
       <div class="p-6 flex flex-col justify-center items-start">
@@ -42,6 +38,7 @@
 </template>
 
 <script setup>
+import heroCarrusel from './heroCarrusel.vue';
 // Lógica para cargar los datos de la imagen desde una API
 </script>
 
