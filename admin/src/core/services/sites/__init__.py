@@ -38,7 +38,7 @@ def list_sites(filtros: dict, page: int = 1, per_page: int = 25, include_cover=F
         subquery = (
             db.session.query(
                 Cover.site_id,
-                func.max(Cover.url).label("url")  # o MIN si preferís la primera portada
+                func.max(Cover.url).label("url")
             )
             .filter(Cover.is_cover == True)
             .group_by(Cover.site_id)
