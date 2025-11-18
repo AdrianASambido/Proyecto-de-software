@@ -43,33 +43,70 @@
     </div>
   </div>
 
-  <!-- Información principal -->
-  <div class="bg-white rounded-lg shadow p-4 sm:p-6 space-y-3 sm:space-y-4">
-    <p><span class="font-semibold">Descripción breve:</span> {{ sitio.descripcion_breve }}</p>
-    <p><span class="font-semibold">Descripción completa:</span> {{ sitio.descripcion_completa }}</p>
-    <p><span class="font-semibold">Ciudad:</span> {{ sitio.ciudad }}</p>
-    <p><span class="font-semibold">Provincia:</span> {{ sitio.provincia }}</p>
-    <p><span class="font-semibold">Categoría:</span> {{ sitio.categoria }}</p>
-    <p><span class="font-semibold">Estado de conservación:</span> {{ sitio.estado_conservacion }}</p>
-    <p><span class="font-semibold">Año de inauguración:</span> {{ sitio.inauguracion }}</p>
-    <p><span class="font-semibold">Visible:</span> {{ 'Sí' if sitio.visible else 'No' }}</p>
-    <p><span class="font-semibold">Fecha de registro:</span> {{ sitio.created_at.strftime("%d/%m/%Y %H:%M") }}</p>
-    <div class="grid grid-cols-1 gap-2 sm:grid-cols-12">
-                <div class="sm:col-span-5 flex flex-col">
-                    <div class="font-semibold">Tags:</div>
-                    <div class="flex flex-wrap gap-1 mt-1">
-                        {% if sitio.tags|length > 0 %}
-                        {% for tag in sitio.tags %}
-                        <span
-                            class="inline-flex items-center px-2 py-1 text-xs font-medium bg-neutral-700 text-neutral-300 rounded">
-                             #{{ tag.name }}
-                        </span>
-                        {% endfor %}
-                        {% else %}
-                        <span class="font-semibold">Sin tags</span>
-                        {% endif %}
-                    </div>
-                </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    {% if sitio.images_data and sitio.images_data|length > 0 %}
+    <div class="lg:col-span-1">
+      <div class="bg-white rounded-lg shadow p-4 sm:p-6">
+        <h2 class="text-lg font-bold text-gray-800 mb-4">Galería</h2>
+        <div class="relative group flex justify-center">
+          <div class="aspect-square bg-gray-100 rounded overflow-hidden w-full transition-opacity duration-300">
+            <img id="mainGalleryImage"
+                 src="{{ image_url(sitio.cover_url) if sitio.cover_url else sitio.images_data[0].url }}"
+                 alt="Imagen galería"
+                 class="w-full h-full object-cover opacity-100 transition-opacity duration-300">
+          </div>
+          {% if sitio.images_data|length > 1 %}
+          <button onclick="prevGalleryImage()"
+                  class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full w-8 h-8 flex items-center justify-center transition-opacity duration-200 opacity-0 group-hover:opacity-100">
+            ‹
+          </button>
+          <button onclick="nextGalleryImage()"
+                  class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full w-8 h-8 flex items-center justify-center transition-opacity duration-200 opacity-0 group-hover:opacity-100">
+            ›
+          </button>
+          {% endif %}
+          {% if sitio.images_data|length > 1 %}
+          <div class="text-center mt-3 text-sm text-gray-600 absolute bottom-[-2.5rem] left-1/2 transform -translate-x-1/2">
+            <span id="currentImageIndex">1</span> / <span id="totalImages">{{ sitio.images_data|length }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+
+    <div class="lg:col-span-2">
+      <div class="bg-white rounded-lg shadow p-4 sm:p-6 space-y-3 sm:space-y-4">
+        <p><span class="font-semibold">Descripción breve:</span> {{ sitio.descripcion_breve }}</p>
+        <p><span class="font-semibold">Descripción completa:</span> {{ sitio.descripcion_completa }}</p>
+        <p><span class="font-semibold">Ciudad:</span> {{ sitio.ciudad }}</p>
+        <p><span class="font-semibold">Provincia:</span> {{ sitio.provincia }}</p>
+        <p><span class="font-semibold">Categoría:</span> {{ sitio.categoria }}</p>
+        <p><span class="font-semibold">Estado de conservación:</span> {{ sitio.estado_conservacion }}</p>
+        <p><span class="font-semibold">Año de inauguración:</span> {{ sitio.inauguracion }}</p>
+        <p><span class="font-semibold">Visible:</span> {{ 'Sí' if sitio.visible else 'No' }}</p>
+        <p><span class="font-semibold">Fecha de registro:</span> {{ sitio.created_at.strftime("%d/%m/%Y %H:%M") }}</p>
+        <div class="grid grid-cols-1 gap-2 sm:grid-cols-12">
+          <div class="sm:col-span-5 flex flex-col">
+            <div class="font-semibold">Tags:</div>
+            <div class="flex flex-wrap gap-1 mt-1">
+              {% if sitio.tags|length > 0 %}
+              {% for tag in sitio.tags %}
+              <span class="inline-flex items-center px-2 py-1 text-xs font-medium bg-neutral-700 text-neutral-300 rounded">
+                #{{ tag.name }}
+              </span>
+              {% endfor %}
+              {% else %}
+              <span class="font-semibold">Sin tags</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 {% if sitio.images_data and sitio.images_data|length > 0 %}
 <div class="mt-8">
@@ -113,12 +150,16 @@
 
 </div>
 
-  <!-- Mapa -->
-  <div class="mt-6">
-    <h2 class="text-lg font-bold text-gray-800 mb-2">Ubicación</h2>
+  
+
+  <!-- Mapa (ancho completo) -->
+  <div class="mt-6 bg-white rounded-lg shadow p-4 sm:p-6">
+    <h2 class="text-lg font-bold text-gray-800 mb-4">Ubicación</h2>
     <div id="map" class="w-full h-64 sm:h-80 rounded-lg border"></div>
   </div>
 </div>
+
+
 
 <link
     rel="stylesheet"
@@ -159,39 +200,54 @@ L.marker([lat, lng])
     .bindPopup(popupContent)
     .openPopup();
 
-const images = {{ sitio.images_data | tojson }};
+let images = {{ sitio.images_data | tojson }} || [];
+
+images = images.filter(i => i && i.url).map(i => ({ url: i.url, title: i.title || '' }));
+
+const coverUrlJS = "{{ image_url(sitio.cover_url) if sitio.cover_url else '' }}";
+if (coverUrlJS) {
+  if (!images.some(img => img.url === coverUrlJS)) {
+    images.unshift({ url: coverUrlJS, title: 'Portada' });
+  }
+}
 let currentIndex = 0;
 
-function openGallery(index) {
-    currentIndex = index;
-    updateGalleryImage();
-    document.getElementById("galleryModal").classList.remove("hidden");
+// Funciones para la galería del sidebar
+function updateMainGalleryDisplay() {
+  const img = images[currentIndex];
+  const el = document.getElementById("mainGalleryImage");
+  if (!el) return;
+
+  el.classList.remove('opacity-100');
+  el.classList.add('opacity-0');
+  el.onload = function () {
+
+    el.classList.remove('opacity-0');
+    el.classList.add('opacity-100');
+    const idx = document.getElementById("currentImageIndex");
+    if (idx) idx.innerText = currentIndex + 1;
+  };
+  el.src = img.url;
 }
 
-function closeGallery() {
-    document.getElementById("galleryModal").classList.add("hidden");
-}
-
-function updateGalleryImage() {
-    const img = images[currentIndex];
-    document.getElementById("galleryImage").src = img.url;
-    document.getElementById("galleryTitle").innerText = img.title || "";
-}
-
-function nextImage() {
+function nextGalleryImage() {
     currentIndex = (currentIndex + 1) % images.length;
-    updateGalleryImage();
+    updateMainGalleryDisplay();
 }
 
-function prevImage() {
+function prevGalleryImage() {
     currentIndex = (currentIndex - 1 + images.length) % images.length;
-    updateGalleryImage();
+    updateMainGalleryDisplay();
 }
 
-// cerrar con ESC
-document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeGallery();
-});
+
+if (images && images.length > 0) {
+  const totalEl = document.getElementById('totalImages');
+  if (totalEl) totalEl.innerText = images.length;
+
+  updateMainGalleryDisplay();
+}
+
 
 
 </script>
