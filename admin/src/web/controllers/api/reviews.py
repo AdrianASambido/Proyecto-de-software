@@ -1,4 +1,5 @@
 from flask import jsonify, request
+# from flask_jwt_extended import jwt_required, get_jwt_identity
 from . import api_bp
 from .auth import jwt_required, get_current_user_from_jwt
 from src.core.services.reviews import (
@@ -46,12 +47,16 @@ def get_reviews_for_site(site_id):
 @jwt_required
 def add_review_to_site(site_id):
     try:
+        #current_user_id = get_jwt_identity()
         data = request.get_json()
 
         if not data:
             return jsonify({"error": "No se proporcionó información en el body"}), 400
 
         user_id = get_current_user_from_jwt()
+        if not user_id:
+            return jsonify({"error": "Usuario no autenticado"}), 401
+
         calificacion = data.get("calificacion")
         contenido = data.get("contenido")
 
@@ -59,6 +64,14 @@ def add_review_to_site(site_id):
             return jsonify({"error": "El campo 'calificacion' es requerido"}), 400
         if not contenido:
             return jsonify({"error": "El campo 'contenido' es requerido"}), 400
+
+        # Convertir calificacion a entero y validar
+        try:
+            calificacion = int(calificacion)
+            if calificacion < 1 or calificacion > 5:
+                return jsonify({"error": "La calificación debe ser un número entre 1 y 5"}), 400
+        except (ValueError, TypeError):
+            return jsonify({"error": "La calificación debe ser un número válido"}), 400
 
         review = create_review(site_id, user_id, calificacion, contenido)
 
@@ -148,7 +161,12 @@ def get_my_reviews():
         page = int(request.args.get("page", 1))
         per_page = int(request.args.get("per_page", 25))
 
-        filtros = {"user_id": user_id}
+        order = request.args.get("order", "fecha_desc")
+
+        filtros = {
+            "user_id": user_id,
+            "order": order
+        }
         reviews_pag = list_reviews(filtros, page=page, per_page=per_page)
 
         data = []

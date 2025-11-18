@@ -51,5 +51,7 @@ def get_site_by_id(site_id):
         data["valoracion_promedio"] = 0.0
     if hasattr(site, "images_data"):
         data["imagenes"] = site.images_data
+    if hasattr(site, "tags_data"):
+        data["tags"] = site.tags_data
 
     return jsonify(data), 200

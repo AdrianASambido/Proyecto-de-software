@@ -5,7 +5,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue"
+import { ref, onMounted } from "vue" 
 import axios from "axios"
 
 const emit = defineEmits(["logged-in"])
@@ -18,8 +18,8 @@ onMounted(() => {
   script.src = "https://accounts.google.com/gsi/client"
   script.async = true
   script.defer = true
-  script.onload = initializeGoogleButton
-  document.head.appendChild(script)
+  script.onload = initializeGoogleButton //"callback"  Llama a la función para inicializar el botón después de cargar el script
+  document.head.appendChild(script)        
 })
 
 function initializeGoogleButton() {
@@ -46,14 +46,18 @@ async function handleCredentialResponse(response) {
 
     const { token, user } = res.data
 
+    // Guardar en localStorage
     localStorage.setItem("token", token)
     localStorage.setItem("user", JSON.stringify(user))
-    window.location.reload()
- 
-    emit("logged-in", user)
+
+    // Enviar ambos valores al componente padre
+    emit("logged-in", { user, token })
+   window.location.reload();
+
   } catch (error) {
     console.error("Error en login con Google:", error)
     alert("Error al iniciar sesión con Google")
   }
 }
+
 </script>

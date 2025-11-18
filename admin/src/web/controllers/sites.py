@@ -184,7 +184,12 @@ def modify(site_id):
             # Procesar imágenes nuevas si se suben
             params = process_uploaded_images()
             data["images"] = params.get("images", [])
+            # Si no hay imágenes existentes, usar cover_index de las nuevas imágenes
+            # Si hay imágenes existentes pero el usuario marcó una nueva como portada, también usar cover_index
             if not site.images_data:
+                data["cover_index"] = params.get("cover_index")
+            elif "cover_index" in params:
+                # Hay imágenes existentes pero el usuario marcó una nueva como portada (reemplazará a la existente)
                 data["cover_index"] = params.get("cover_index")
             
             # pasar el orden de imágenes existentes (si viene) al servicio
@@ -257,7 +262,7 @@ def set_cover_image(site_id, image_id):
     """Marca una imagen como portada del sitio."""
     try:
         board_sites.set_cover_image(site_id, image_id)
-        flash("Imagen marcada como portada exitosamente.", "success")
+        flash("Imagen establecida como portada exitosamente.", "success")
     except Exception as e:
         flash(str(e), "error")
     return redirect(url_for("sites.modify", site_id=site_id))
@@ -297,17 +302,10 @@ def export():
 
         return response
         
-
-
 @bp.route("/<int:sitio_id>")
 @permission_required('site_show')
 @login_required
 def detail(sitio_id):
-    """
-    renderiza los detalles del sitio
-    """
-  
-    sitio = board_sites.get_site(sitio_id,include_cover=True)
+    sitio = board_sites.get_site(sitio_id, include_cover=True, include_images=True)
     return render_template("sites/detail.html", sitio=sitio)
-  
 

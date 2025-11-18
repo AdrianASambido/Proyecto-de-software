@@ -1,4 +1,5 @@
 <template>
+  
   <div class="min-h-screen bg-gray-50 flex flex-col items-center py-10 px-4 space-y-10">
     <!-- 🔙 Botón Volver -->
     <div class="w-full max-w-5xl">
