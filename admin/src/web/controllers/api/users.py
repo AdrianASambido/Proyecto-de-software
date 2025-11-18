@@ -72,7 +72,7 @@ def get_favorites():
     include_cover = filtros.pop("include_cover", "true").lower() in ("true", "1", "yes")
     order = filtros.pop("order", "fecha_desc")  # por defecto más recientes
     filtros["order"] = order
-
+    filtros["visible"] = True
     # Solo filtrar los sitios que el usuario marcó como favorito
     filtros["favoritos"] = True
     filtros["user_id"] = user_id

@@ -12,7 +12,7 @@ def get_sites():
 
     page = int(filtros.pop("page", 1))
     per_page = int(filtros.pop("per_page", 25))
-    
+    filtros["visible"]= True
     if "tags" in filtros:
         filtros["tags"] = filtros["tags"].split(",")
 
