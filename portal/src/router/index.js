@@ -8,6 +8,7 @@ const routes = [
   { path: '/sitios', name: 'sites-list', component: () => import('@/views/sites/sites_list.vue') },
   { path: '/sitio/:id', name: 'site-detail', component: SiteDetailView },
   { path: '/login', name: 'login', component: () => import('@/components/login_google/login.vue') },
+  { path: '/map', name: 'map', component: () => import('@/views/MapView.vue')},
   {
     path: '/mis-resenas',
     name: 'my-reviews',
