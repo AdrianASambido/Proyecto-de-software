@@ -279,6 +279,11 @@ def get_site(site_id, include_images=False, include_cover=False):
             for img in sitio.images
         ]
         sort_site_images(sitio)
+ 
+    sitio.tags_data = [
+        {"id": tag.id, "nombre": tag.name}
+        for tag in sitio.tags
+    ]
 
     return sitio
 

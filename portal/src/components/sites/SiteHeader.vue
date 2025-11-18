@@ -33,7 +33,7 @@
         </button>
       </div>
 
-      <!-- ⭐ Rating -->
+     
       <div class="flex items-center space-x-2">
         <div class="flex items-center space-x-1">
           <template v-for="n in 5" :key="n">
@@ -60,20 +60,36 @@
 
     <hr class="border-gray-200" />
 
-    <!-- 🏷️ Tags -->
-    <div class="mt-2 flex gap-2 flex-wrap">
-      <a
-        v-for="(tag, index) in site.tags"
-        :key="index"
-        :href="`/sitios?tag=${tag}`"
-        :title="` ${tag}`"
-        class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm hover:bg-blue-200"
-      >
-        {{ tag }}
-      </a>
-    </div>
+  
+<div
+  class="mt-2 gap-2"
+  :class="showAllTags 
+      ? 'grid grid-cols-5 auto-rows-min gap-2' 
+      : 'flex flex-wrap gap-2'"
+>
+  <!-- Tags visibles -->
+  <button
+    v-for="tag in visibleTags"
+    :key="tag.id"
+    :title="tag.nombre"
+    @click="goToTag(tag)"
+    class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm hover:bg-blue-200 transition w-fit whitespace-nowrap"
+  >
+    {{ tag.nombre }}
+  </button>
 
-    <!-- 📍 Info básica -->
+  <!-- Botón Ver más / Ver menos -->
+  <button
+    v-if="site.tags.length > 5"
+    @click="showAllTags = !showAllTags"
+    class="px-2 py-1 bg-gray-200 text-gray-800 rounded-full text-sm hover:bg-gray-300 transition w-fit whitespace-nowrap"
+  >
+    {{ showAllTags ? 'Ver menos' : `+${site.tags.length - 5} más` }}
+  </button>
+</div>
+
+
+
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 text-sm text-gray-700 mt-2">
       <div>
         <span class="font-semibold text-gray-900">Ubicación:</span>
@@ -100,7 +116,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
+
 import api from '@/api/axios' 
 const props = defineProps({
   site: { type: Object, required: true },
@@ -108,6 +125,17 @@ const props = defineProps({
  
 })
 import LoginPopup from '@/components/login_google/loginPopUp.vue'
+
+
+import { useRouter } from 'vue-router'
+const router = useRouter()
+
+const goToTag = (tag) => {
+ 
+  if (!tag?.id) return
+  router.push({ path: '/sitios', query: { tags: tag.id } })
+}
+
 const emit = defineEmits(['update:favorite'])
 const isFavorite = ref(false)
 const loading = ref(false)
@@ -127,6 +155,13 @@ const checkFavorite = async () => {
     console.warn('Error comprobando favorito:', err)
   }
 }
+const showAllTags = ref(false)
+
+const visibleTags = computed(() =>
+  showAllTags.value
+    ? props.site.tags
+    : props.site.tags.slice(0, 5)
+)
 
 
 onMounted(checkFavorite)

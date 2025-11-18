@@ -52,7 +52,7 @@
           :disabled="loading"
           class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 disabled:opacity-50 transition-colors"
         >
-          {{ loading ? 'Enviando...' : 'Publicar reseña' }}
+          {{ loading ? 'Enviando...' : 'Enviar reseña' }}
         </button>
       </div>
     </form>

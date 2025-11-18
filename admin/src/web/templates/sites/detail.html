@@ -71,6 +71,47 @@
                     </div>
                 </div>
   </div>
+{% if sitio.images_data and sitio.images_data|length > 0 %}
+<div class="mt-8">
+    <h2 class="text-lg font-bold text-gray-800 mb-3">Galería</h2>
+
+    <!-- Miniaturas -->
+    <div class="flex gap-3 overflow-x-auto pb-2">
+        {% for img in sitio.images_data %}
+        <div class="w-28 h-28 bg-gray-100 rounded overflow-hidden flex-shrink-0 cursor-pointer"
+             onclick="openGallery({{ loop.index0 }})">
+            <img src="{{ img.url }}" class="w-full h-full object-cover">
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endif %}
+<!-- Modal Gallery -->
+<div id="galleryModal"
+     class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center hidden z-50">
+
+    <!-- Botón cerrar -->
+    <button onclick="closeGallery()"
+            class="absolute top-4 right-4 text-white text-3xl font-bold">×</button>
+
+    <!-- Botón anterior -->
+    <button onclick="prevImage()"
+            class="absolute left-4 text-white text-4xl font-bold px-4">‹</button>
+
+    <!-- Imagen grande -->
+    <div class="max-w-4xl w-full px-4">
+        <img id="galleryImage"
+             src=""
+             class="w-full max-h-[80vh] object-contain rounded shadow-lg">
+        <p id="galleryTitle" class="mt-2 text-center text-white text-sm"></p>
+    </div>
+
+    <!-- Botón siguiente -->
+    <button onclick="nextImage()"
+            class="absolute right-4 text-white text-4xl font-bold px-4">›</button>
+
+</div>
 
   <!-- Mapa -->
   <div class="mt-6">
@@ -117,6 +158,41 @@ L.marker([lat, lng])
     .addTo(map)
     .bindPopup(popupContent)
     .openPopup();
+
+const images = {{ sitio.images_data | tojson }};
+let currentIndex = 0;
+
+function openGallery(index) {
+    currentIndex = index;
+    updateGalleryImage();
+    document.getElementById("galleryModal").classList.remove("hidden");
+}
+
+function closeGallery() {
+    document.getElementById("galleryModal").classList.add("hidden");
+}
+
+function updateGalleryImage() {
+    const img = images[currentIndex];
+    document.getElementById("galleryImage").src = img.url;
+    document.getElementById("galleryTitle").innerText = img.title || "";
+}
+
+function nextImage() {
+    currentIndex = (currentIndex + 1) % images.length;
+    updateGalleryImage();
+}
+
+function prevImage() {
+    currentIndex = (currentIndex - 1 + images.length) % images.length;
+    updateGalleryImage();
+}
+
+// cerrar con ESC
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeGallery();
+});
+
 
 </script>
 

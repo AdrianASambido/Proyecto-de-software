@@ -31,7 +31,6 @@
   </div>
 </template>
 
-
 <script setup>
 import GoogleLoginButton from './login.vue'
 
@@ -44,6 +43,7 @@ const emit = defineEmits(['update:modelValue', 'logged-in'])
 function onLoginSuccess(user) {
   emit('logged-in', user)
   emit('update:modelValue', false)
+   window.location.reload();
 }
 </script>
 
