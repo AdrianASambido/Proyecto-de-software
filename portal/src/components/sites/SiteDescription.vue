@@ -1,34 +1,28 @@
 <template>
-  <div class="mt-4 w-full max-w-5xl border rounded-md bg-white shadow-sm">
-    <!-- Botón desplegable -->
-    <button
-      @click="toggleShow"
-      class="w-full flex justify-between items-center px-4 py-2 text-left text-gray-700 font-medium hover:bg-gray-100 rounded-md focus:outline-none"
-    >
-      <span>{{ showFull ? 'Ver menos' : 'Ver más' }}</span>
-      <svg
-        :class="{'rotate-180': showFull, 'rotate-0': !showFull}"
-        class="w-5 h-5 transition-transform duration-300"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-      </svg>
-    </button>
-
-    <!-- Contenedor del contenido -->
-   <div class="py-3 text-gray-600 transition-opacity duration-300 space-y-3" :style="{ opacity: showFull ? 1 : 0 }">
-      <p>{{ descripcion_breve }}</p>
-      <p>{{ descripcion_completa }}</p>
+  <div class="mt-4 w-full max-w-5xl border rounded-md bg-white shadow-sm overflow-hidden">
+    <div class="px-4 py-3">
+      <div class="flex justify-between items-center">
+        <h3 class="text-lg font-semibold text-gray-800">Descripción</h3>
+        <button @click="toggleShow" class="text-sm text-blue-600 hover:underline">
+          {{ showFull ? 'Leer menos' : 'Leer más' }}
+        </button>
+      </div>
     </div>
 
+    <div class="px-4 pb-4">
+      <div class="text-gray-700 text-sm leading-relaxed" :style="{ maxHeight: containerMaxHeight, transition: 'max-height 300ms ease' }">
+        <p v-if="!showFull" class="break-words">{{ descripcion_breve }}</p>
+        <div v-else class="space-y-3">
+          <p>{{ descripcion_breve }}</p>
+          <p v-if="descripcion_completa">{{ descripcion_completa }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, nextTick } from 'vue'
+import { ref, computed } from 'vue'
 
 const props = defineProps({
   descripcion_completa: { type: String, required: true },
@@ -36,17 +30,9 @@ const props = defineProps({
 })
 
 const showFull = ref(false)
-const content = ref(null)
-const maxHeight = ref('0px')
+const containerMaxHeight = computed(() => (showFull.value ? '1000px' : '4.5rem'))
 
-const toggleShow = async () => {
+const toggleShow = () => {
   showFull.value = !showFull.value
-  await nextTick()
-  if (showFull.value && content.value) {
-    // altura real del contenido
-    maxHeight.value = content.value.scrollHeight + 'px'
-  } else {
-    maxHeight.value = '0px'
-  }
 }
 </script>

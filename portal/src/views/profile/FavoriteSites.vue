@@ -9,8 +9,8 @@
           class="px-4 py-2 bg-white hover:bg-gray-100 text-gray-700 rounded-lg font-medium shadow-sm border flex items-center gap-2 transition"
         >
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-        </svg>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
           Volver
         </RouterLink>
       </div>
@@ -35,28 +35,51 @@
           Explorar sitios
         </router-link>
       </div>
-        <div v-else>
-          
-          <div class="flex justify-end mb-4">
-            <button
-              @click="toggleSort"
-              class="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
-            >
-              Ordenar: {{ sortOrderLabel }}
-            </button>
-          </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <SiteCard v-for="site in sites" :key="site.id" :site="site" />
-          </div>
-
+      <div v-else>
+        <div class="flex justify-end mb-4">
+          <button
+            @click="toggleSort"
+            class="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+          >
+            Ordenar: {{ sortOrderLabel }}
+          </button>
         </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <SiteCard v-for="site in sites" :key="site.id" :site="site" />
+        </div>
+
+        <!-- PAGINACION -->
+        <div v-if="meta.total > meta.per_page" class="flex justify-center items-center gap-4 mt-8">
+          <button
+            @click="previousPage"
+            :disabled="currentPage === 1"
+            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Anterior
+          </button>
+
+          <span class="text-gray-600">
+            Página {{ currentPage }} de {{ totalPages }}
+          </span>
+
+          <button
+            @click="nextPage"
+            :disabled="currentPage >= totalPages"
+            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted,computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { toast } from 'vue-sonner'
 import api from '@/api/axios'
@@ -67,30 +90,27 @@ const loading = ref(true)
 const error = ref(null)
 const sortOrder = ref('fecha_desc') // desc = más recientes
 
+// --- PAGINACION ---
+const currentPage = ref(1)
+const perPage = ref(2) // sitios por página
+const meta = ref({ total: 0, per_page: 2 }) // debe coincidir con perPage
+const totalPages = computed(() => Math.ceil(meta.value.total / meta.value.per_page))
 
-onMounted(() => {
-  console.log('Componente montado')
-  loadFavoriteSites()
-})
-
-const sortOrderLabel = computed(() =>
-  sortOrder.value === 'fecha_desc' ? 'Más recientes' : 'Más antiguos'
-)
-const toggleSort = () => {
-  sortOrder.value = sortOrder.value === 'fecha_desc' ? 'fecha_asc' : 'fecha_desc'
-  loadFavoriteSites()
-}
-
-const loadFavoriteSites = async () => {
+// --- Carga de sitios ---
+const loadFavoriteSites = async (page = 1) => {
   loading.value = true
   error.value = null
   try {
-    const params = { order: sortOrder.value }
-   
+    const params = { 
+      order: sortOrder.value,
+      page: page,
+      per_page: perPage.value
+    }
     const { data } = await api.get('/me/favorites', { params })
     sites.value = data.data
+    meta.value = data.meta // meta: { total, per_page, page }
+    currentPage.value = page
   } catch (err) {
- 
     error.value = 'No se pudieron cargar tus sitios favoritos.'
     toast.error('Error al cargar los sitios favoritos')
   } finally {
@@ -98,9 +118,24 @@ const loadFavoriteSites = async () => {
   }
 }
 
+onMounted(() => loadFavoriteSites())
 
+// --- Orden ---
+const sortOrderLabel = computed(() =>
+  sortOrder.value === 'fecha_desc' ? 'Más recientes' : 'Más antiguos'
+)
+const toggleSort = () => {
+  sortOrder.value = sortOrder.value === 'fecha_desc' ? 'fecha_asc' : 'fecha_desc'
+  loadFavoriteSites(1)
+}
 
-
+// --- Funciones de paginación ---
+const previousPage = () => {
+  if (currentPage.value > 1) loadFavoriteSites(currentPage.value - 1)
+}
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) loadFavoriteSites(currentPage.value + 1)
+}
 </script>
 
 <style scoped>

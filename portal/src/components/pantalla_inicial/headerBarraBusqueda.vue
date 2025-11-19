@@ -32,9 +32,15 @@
 
 
       <!-- MOBILE MENU BUTTON -->
-      <button v-if="!isMaintenance" class="hamburger md:hidden" @click="mobileMenuOpen = !mobileMenuOpen" aria-label="Abrir menú">
-        ☰
-      </button>
+    <button 
+  v-if="!isMaintenance" 
+  class="hamburger md:hidden text-gray-800" 
+  @click="mobileMenuOpen = !mobileMenuOpen" 
+  aria-label="Abrir menú"
+>
+  ☰
+</button>
+
 
 
       <!-- MENU DESKTOP -->

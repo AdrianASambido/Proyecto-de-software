@@ -170,23 +170,16 @@ import ConfirmModal from '@/components/common/ConfirmModal.vue'
 import EditReviewModal from '@/components/common/EditReviewModal.vue'
 
 const { deleteReview, updateReview } = useReviews()
-const sortOrder = ref('desc') // desc = más recientes
+const sortOrder = ref('desc') 
 const sortOrderLabel = computed(() =>
   sortOrder.value === 'desc' ? 'Más recientes' : 'Más antiguas'
 )
 const toggleSort = () => {
   sortOrder.value = sortOrder.value === 'desc' ? 'asc' : 'desc'
-  sortReviews()
+  loadMyReviews(1)
 }
-const sortReviews = () => {
-  reviews.value.sort((a, b) => {
-    const dateA = new Date(a.created_at)
-    const dateB = new Date(b.created_at)
-    return sortOrder.value === 'asc'
-      ? dateA - dateB
-      : dateB - dateA
-  })
-}
+
+
 
 const reviews = ref([])
 const loading = ref(true)
@@ -199,24 +192,26 @@ const editLoading = ref(false)
 const currentPage = ref(1)
 const meta = ref({
   page: 1,
-  per_page: 25,
+  per_page: 2,
   total: 0
 })
 
 const totalPages = computed(() => Math.ceil(meta.value.total / meta.value.per_page))
-
 const loadMyReviews = async (page = 1) => {
   loading.value = true
   error.value = null
   try {
     const { data } = await api.get('/me/reviews', {
-      params: { page, per_page: 25 }
+      params: { 
+        page, 
+        per_page: meta.value.per_page, 
+        order: sortOrder.value === 'desc' ? 'fecha_desc' : 'fecha_asc'
+      }
     })
     
     reviews.value = data.data
     meta.value = data.meta
     currentPage.value = page
-    sortReviews()
 
   } catch (err) {
     console.error(err)
@@ -226,6 +221,7 @@ const loadMyReviews = async (page = 1) => {
     loading.value = false
   }
 }
+
 
 const previousPage = () => {
   if (currentPage.value > 1) {
