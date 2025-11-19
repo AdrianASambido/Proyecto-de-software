@@ -1,8 +1,21 @@
 <template>
   <div class="min-h-screen bg-gray-50 py-8">
     <div class="max-w-5xl mx-auto px-4">
-      <h1 class="text-3xl font-bold text-gray-900 mb-6">Mis Reseñas</h1>
 
+      <!-- 🔙 Botón Volver -->
+<div class="w-40 mb-6">
+        <RouterLink
+          to="/"
+          class="px-4 py-2 bg-white hover:bg-gray-100 text-gray-700 rounded-lg font-medium shadow-sm border flex items-center gap-2 transition"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+          Volver
+        </RouterLink>
+      </div>
+
+      <h1 class="text-3xl font-bold text-gray-900 mb-6">Mis Reseñas</h1>
       <div v-if="loading" class="text-center py-12">
         <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         <p class="mt-4 text-gray-600">Cargando reseñas...</p>

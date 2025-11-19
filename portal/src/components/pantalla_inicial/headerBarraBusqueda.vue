@@ -40,20 +40,9 @@
       <!-- MENU DESKTOP -->
       <div v-if="!isMaintenance" class="menu-desktop hidden md:flex items-center gap-6">
         <button
-    @click="goToSites" 
-    class="
-        /* ESTADO NORMAL: Fondo rojo (red-700) y texto blanco */
-        bg-red-700
-        text-white 
-        border border-red-700  /* Borde rojo para consistencia */
-        
-        /* ESTADO HOVER: Fondo rojo más oscuro (red-800) */
-        hover:bg-red-800 
-        hover:border-red-800  /* Oscurecemos el borde también */
-        
-        /* FORMATO */
-        px-3 py-3 rounded-md text-sm
-        transition-colors duration-200
+    @click="goToSites"
+    class="hidden md:block bg-red-700 text-white border border-red-700 hover:bg-red-800 hover:border-red-800
+        px-3 py-3 rounded-md text-sm transition-colors duration-200
         inline-flex items-center justify-center /* Alineación para la lupa */
     "
 >
@@ -62,21 +51,6 @@
     </svg>
 </button>
       
-      
-      
-      
-      
-        <!-- 
-        <button
-          @click="goToSites"
-          class="bg-transparent text-red-700 border border-red-700 hover:bg-transparent hover:text-gray-900 hover:border-gray-900 px-4 py-2 rounded-md text-sm transition-colors duration-200"
-        >
-          Buscar
-        </button>
-      -->
-      
-
-
         <div v-if="isLoggedIn" class="relative hidden md:block">
           <button @click="toggleMenu" class="desktop-btn flex items-center gap-2">
             <img v-if="user?.picture" :src="user.picture" class="w-8 h-8 rounded-full object-cover" />
