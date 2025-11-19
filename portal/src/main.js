@@ -27,7 +27,6 @@ axios.defaults.baseURL = import.meta.env.VITE_BASE_URL
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
 const app = createApp(App)
-
 app.use(router)
 app.use(createPinia())
 app.use(GoogleSignInPlugin, {

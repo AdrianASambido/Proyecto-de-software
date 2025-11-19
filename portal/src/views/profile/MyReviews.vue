@@ -104,7 +104,7 @@
               Ver sitio
             </router-link>
             <button
-              v-if="review.estado === 'pendiente'"
+              v-if="review.estado === 'pendiente' || review.estado === 'aprobada'"
               @click="confirmEdit(review)"
               class="text-green-600 hover:text-green-800 text-sm font-medium transition-colors"
             >
