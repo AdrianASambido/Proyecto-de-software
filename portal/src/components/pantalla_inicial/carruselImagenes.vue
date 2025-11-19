@@ -24,8 +24,6 @@
           class="carrusel-item"
         /> 
       </div>
-     <!-- <button @click="scrollLeft" class="carousel-control left-0"><</button>
-      <button @click="scrollRight" class="carousel-control right-0">></button> -->
     </div>
   </section>
 </template>
@@ -77,7 +75,6 @@ const internalItems = ref([]);
 
 const loadData = async () => {
   if (props.items !== null) {
-    // Si se pasan items como prop, no cargar
     return;
   }
   
