@@ -177,10 +177,13 @@ function prevGalleryImage() {
 }
 
 // Inicializar
+// Inicializar
 if (images.length > 0) {
-  document.getElementById('totalImages').innerText = images.length;
+  const totalEl = document.getElementById('totalImages');
+  if(totalEl) totalEl.innerText = images.length; // solo si existe
   updateMainGalleryDisplay();
 }
+
 </script>
 
 {% include "common/delete_modal.html" %}
