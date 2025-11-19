@@ -3,11 +3,14 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white shadow-xl rounded-lg overflow-hidden">
 
       <div class="relative h-96 md:h-full">
+
+      <div class="relative h-96 md:h-full">
         <heroCarrusel />
       </div>
       
       <div class="p-6 flex flex-col justify-center items-start">
         <h2 class="text-3xl font-extrabold text-red-700 mb-4"> 
+          Tu portal de sitios históricos
           Tu portal de sitios históricos
         </h2>
         <div class="text-justify text-gray-900 text-lg font-serif mb-4 leading-relaxed text-intro">
@@ -26,6 +29,7 @@
         ">
             Descubre más
         </router-link>
+        </router-link>
 
       </div>
     </div>
@@ -37,8 +41,13 @@ import heroCarrusel from './heroCarrusel.vue';
 
 </script>+
 
+</script>+
+
 <style scoped>
 
+.text-intro {
+  text-indent: 2em; 
+}
 .text-intro {
   text-indent: 2em; 
 }
