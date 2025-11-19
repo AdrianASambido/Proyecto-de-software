@@ -12,6 +12,7 @@ import CarruselImagenes from '@/components/pantalla_inicial/carruselImagenes.vue
     <HeroPrincipal />
     <div class="main-content">
       <hr class="section-divider" />
+      
       <!-- Carrusel principal -->
       <CarruselImagenes 
         title="Imágenes Destacadas"

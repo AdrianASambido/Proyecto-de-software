@@ -18,13 +18,14 @@ let intervalId;
 
 const fetchImages = async () => {
   try {
-    const response = await api.get('/sites?order=fecha_desc&per_page=6&include_cover=true');
-    const baseUrl = 'http://localhost5000';                             // 'https://admin-grupo01.proyecto2025.linti.unlp.edu.ar';
-    images.value = response.data.data.map(site => ({
-      id: site.id,
-      src: new URL(site.cover, baseUrl).href,
-      alt: site.nombre,
-    }));
+    const response = await api.get('/sites?per_page=6&include_cover=true');
+    images.value = response.data.data
+      .filter(site => site.cover_url)
+      .map(site => ({
+        id: site.id,
+        src: site.cover_url,
+        alt: site.nombre,
+      }));
   } catch (error) {
     console.error('Error fetching images:', error);
   }
