@@ -25,17 +25,15 @@
       @click="showLoginPopup = true"
       class="
             inline-flex items-center 
-            px-4 py-2 border border-portal-red          /* Borde rojo visible por defecto */
+            px-4 py-2 border border-portal-red        
             text-sm font-medium rounded-md shadow-sm 
-            bg-red-500                                 /* Fondo rojo visible por defecto 177, 0, 74 */
-            text-white                                  /* Texto blanco visible por defecto */
+            bg-red-500                                
+            text-white                                  
             
-            /* CAMBIO AL PASAR EL RATÓN (HOVER) */
-            hover:bg-transparent                        /* Se vuelve transparente al pasar el ratón */
-            hover:text-gray-900                         /* El texto se vuelve gris oscuro */
-            hover:border-gray-900                       /* El borde se vuelve gris oscuro */
+            hover:bg-transparent                        
+            hover:text-gray-900                         
+            hover:border-gray-900                      
             
-            /* Efecto de transición para suavizar el cambio */
             transition-colors duration-200 
             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-portal-red
         "
@@ -64,12 +62,12 @@ const { loading, error, fetchFavoritos } = useSites()
 const items = ref([])
 
 // Ruta para "Ver todos" con el filtro de favoritos aplicado
-const viewAllRoute = computed(() => {
-  if (!isAuthenticated.value) return null
-  return fetchFavoritos;
-})
-const showLoginPopup = ref(false)
+const viewAllRoute = {
+  path: '/sitios',
+  query: { favoritos: 'true' }
+}
 
+const showLoginPopup = ref(false)
 const onLoginSuccess = (user) => {
   showLoginPopup.value = false
   // después del login, recargamos los favoritos
@@ -101,4 +99,3 @@ onMounted(() => {
   }
 })
 </script>
-

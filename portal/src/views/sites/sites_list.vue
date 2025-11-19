@@ -153,16 +153,7 @@
 
             <!-- Mapa (si está activo) -->
             <div v-if="showMap" class="mb-4 h-64 rounded-lg overflow-hidden border border-gray-300">
-              <div id="search-map" class="w-full h-full"></div>
-              <div v-if="mapLocation" class="mt-2 p-2 bg-blue-50 rounded text-sm">
-                <p class="text-gray-700">Radio: {{ filters.radio || 5 }} km</p>
-                <button
-                  @click="clearMapLocation"
-                  class="mt-1 text-blue-600 hover:text-blue-800 text-xs"
-                >
-                  Limpiar ubicación
-                </button>
-              </div>
+              <Map @update-location="handleMapLocationUpdate" />
             </div>
 
             <!-- Orden -->
@@ -251,13 +242,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch, onUnmounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '@/api/axios'
 import SiteCard from '@/components/sites/SiteCard.vue'
 import { useAuth } from '@/composables/useAuth'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+import Map from '@/views/sites/Map.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -288,10 +278,6 @@ const filters = ref({
 
 const showFilters = ref(false)
 const showMap = ref(false)
-const mapLocation = ref(null)
-let map = null
-let marker = null
-let circle = null
 
 // Provincias argentinas
 const provincias = ref([
@@ -335,6 +321,14 @@ const activeFiltersCount = computed(() => {
   if (filters.value.latitud && filters.value.longitud) count++
   return count
 })
+
+// Manejar actualización de ubicación desde el mapa
+const handleMapLocationUpdate = (location) => {
+  filters.value.latitud = location.latitud
+  filters.value.longitud = location.longitud
+  filters.value.radio = location.radio
+  applyFilters()
+}
 
 // Debounce para búsqueda
 let searchTimeout = null
@@ -436,7 +430,6 @@ const clearFilters = () => {
     longitud: null,
     radio: 5
   }
-  clearMapLocation()
   applyFilters()
 }
 
@@ -470,86 +463,12 @@ const loadFiltersFromURL = () => {
   if (query.tags) filters.value.tags = query.tags.split(',').map(t => parseInt(t)).filter(t => !isNaN(t))
   if (query.favoritos === 'true') filters.value.favoritos = true
   if (query.order) filters.value.order = query.order
-  if (query.latitud && query.longitud) {
-    filters.value.latitud = parseFloat(query.latitud)
-    filters.value.longitud = parseFloat(query.longitud)
-    filters.value.radio = query.radio ? parseFloat(query.radio) : 5
-    mapLocation.value = {
-      lat: filters.value.latitud,
-      lng: filters.value.longitud
+    if (query.latitud && query.longitud) {
+      filters.value.latitud = parseFloat(query.latitud)
+      filters.value.longitud = parseFloat(query.longitud)
+      filters.value.radio = query.radio ? parseFloat(query.radio) : 5
     }
-  }
   if (query.page) currentPage.value = parseInt(query.page) || 1
-}
-
-// Inicializar mapa
-const initMap = () => {
-  if (!showMap.value || map) return
-
-  // Esperar a que el DOM esté listo
-  setTimeout(() => {
-    const mapElement = document.getElementById('search-map')
-    if (!mapElement) return
-
-    map = L.map('search-map').setView([-34.6037, -58.3816], 6) // Centro de Argentina
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map)
-
-    // Si hay ubicación guardada, mostrarla
-    if (mapLocation.value) {
-      updateMapLocation(mapLocation.value.lat, mapLocation.value.lng)
-    }
-
-    // Click en el mapa para buscar
-    map.on('click', (e) => {
-      const { lat, lng } = e.latlng
-      filters.value.latitud = lat
-      filters.value.longitud = lng
-      mapLocation.value = { lat, lng }
-      updateMapLocation(lat, lng)
-      applyFilters()
-    })
-  }, 100)
-}
-
-// Actualizar ubicación en el mapa
-const updateMapLocation = (lat, lng) => {
-  if (!map) return
-
-  // Remover marcador y círculo anteriores
-  if (marker) map.removeLayer(marker)
-  if (circle) map.removeLayer(circle)
-
-  // Agregar nuevo marcador
-  marker = L.marker([lat, lng]).addTo(map)
-  map.setView([lat, lng], 12)
-
-  // Agregar círculo de radio
-  const radiusKm = filters.value.radio || 5
-  circle = L.circle([lat, lng], {
-    radius: radiusKm * 1000, // convertir a metros
-    color: '#3B82F6',
-    fillColor: '#3B82F6',
-    fillOpacity: 0.2
-  }).addTo(map)
-}
-
-// Limpiar ubicación del mapa
-const clearMapLocation = () => {
-  filters.value.latitud = null
-  filters.value.longitud = null
-  mapLocation.value = null
-  if (marker) {
-    map.removeLayer(marker)
-    marker = null
-  }
-  if (circle) {
-    map.removeLayer(circle)
-    circle = null
-  }
-  applyFilters()
 }
 
 // Navegación de páginas
@@ -561,22 +480,6 @@ const goToPage = (page) => {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-// Watchers
-watch(showMap, (newVal) => {
-  if (newVal && !map) {
-    // Esperar un poco para que el DOM se actualice
-    setTimeout(() => {
-      initMap()
-    }, 200)
-  } else if (!newVal && map) {
-    // Limpiar el mapa cuando se oculta (opcional, para ahorrar memoria)
-    // map.remove()
-    // map = null
-    // marker = null
-    // circle = null
-  }
-})
-
 // Lifecycle
 onMounted(async () => {
   loadFiltersFromURL()
@@ -586,13 +489,6 @@ onMounted(async () => {
   // Mostrar filtros en desktop por defecto
   if (window.innerWidth >= 1024) {
     showFilters.value = true
-  }
-})
-
-onUnmounted(() => {
-  if (map) {
-    map.remove()
-    map = null
   }
 })
 </script>
