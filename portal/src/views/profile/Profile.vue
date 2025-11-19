@@ -1,6 +1,19 @@
 <template>
   <div class="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
+    <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg relative">
+      <!-- 🔙 Botón Volver -->
+      <div class="absolute top-4 right-4">
+        <RouterLink
+          to="/"
+          class="px-3 py-1.5 bg-white hover:bg-gray-100 text-gray-700 rounded-lg font-medium shadow-sm border flex items-center gap-1.5 transition text-sm"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Volver
+        </RouterLink>
+      </div>
+
       <div class="text-center">
         <h2 class="mt-2 text-3xl font-extrabold text-gray-900">
           Perfil de Usuario
@@ -34,13 +47,6 @@
             <p class="text-gray-900">{{ user.email }}</p>
           </div>
         </div>
-
-        <router-link
-          to="/"
-          class="group w-full flex justify-center py-2 px-4 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
-        >
-          Volver a la página principal
-        </router-link>
       </div>
 
       <div v-else>
@@ -52,6 +58,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { RouterLink } from 'vue-router'
 
 const user = ref(null)
 

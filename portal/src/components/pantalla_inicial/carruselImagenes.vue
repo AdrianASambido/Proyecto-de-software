@@ -1,5 +1,5 @@
 <template>
-  <section class="carrusel-container">
+  <section class="carrusel-container relative">
     <h2 class="text-3xl font-bold text-gray-800 mb-6 px-4">{{ title }}</h2>
     
     <div v-if="loading" class="text-center py-12">
@@ -15,13 +15,17 @@
       <p class="text-gray-600">No hay sitios destacados disponibles</p>
     </div>
 
-    <div v-else class="slide">
-      <baseCard 
-        v-for="item in items" 
-        :key="item.id"
-        :item="item"  
-        class="carrusel-item"
-      /> 
+    <div v-else class="relative">
+      <div ref="slide" class="slide">
+        <baseCard 
+          v-for="item in items" 
+          :key="item.id"
+          :item="item"  
+          class="carrusel-item"
+        /> 
+      </div>
+     <!-- <button @click="scrollLeft" class="carousel-control left-0"><</button>
+      <button @click="scrollRight" class="carousel-control right-0">></button> -->
     </div>
   </section>
 </template>
@@ -30,6 +34,20 @@
 import { ref, computed, onMounted } from 'vue';
 import baseCard from '../baseCard.vue';
 import { useSites } from '@/composables/useSites';
+
+const slide = ref(null);
+
+const scrollLeft = () => {
+  if (slide.value) {
+    slide.value.scrollBy({ left: -300, behavior: 'smooth' });
+  }
+};
+
+const scrollRight = () => {
+  if (slide.value) {
+    slide.value.scrollBy({ left: 300, behavior: 'smooth' });
+  }
+};
 
 const props = defineProps({
   // 'items' puede venir como prop o cargarse internamente
@@ -85,6 +103,25 @@ onMounted(() => {
   max-width: 1400px;
   margin: 2rem auto;
   padding: 1rem;
+}
+
+.carousel-control {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  padding: 1rem;
+  cursor: pointer;
+  z-index: 10;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
 }
 
 .slide {

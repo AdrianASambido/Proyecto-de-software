@@ -24,7 +24,6 @@ const viewAllRoute = {
   path: '/sitios',
   query: { order: 'mejor_puntuado' }
 }
-
 // Carga perezosa: solo se carga cuando el componente es visible
 let observer = null
 
@@ -34,24 +33,10 @@ const loadData = async () => {
   const data = await fetchMejorPuntuados()
   items.value = data
 }
-
 // Usar Intersection Observer para carga perezosa
 onMounted(() => {
   // Cargar inmediatamente (puedes cambiar esto para usar Intersection Observer si prefieres)
   loadData()
-  
-  // Alternativa: Carga cuando el componente entra en el viewport
-  // observer = new IntersectionObserver((entries) => {
-  //   if (entries[0].isIntersecting) {
-  //     loadData()
-  //     observer.disconnect()
-  //   }
-  // })
-  // 
-  // const sectionElement = document.querySelector('.seccion-mejor-puntuados')
-  // if (sectionElement) {
-  //   observer.observe(sectionElement)
-  // }
 })
 </script>
 
