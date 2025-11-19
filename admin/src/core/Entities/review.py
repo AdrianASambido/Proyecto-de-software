@@ -41,6 +41,23 @@ class Review(db.Model):
         return f"<Review {self.id} | Site: {self.site_id} | User: {self.user_id} | Rating: {self.calificacion}>"
 
     def to_dict(self):
+        user_info = None
+        if getattr(self, 'user', None):
+            try:
+                user_info = {
+                    "id": self.user.id,
+                    "nombre": getattr(self.user, 'nombre', None),
+                    "apellido": getattr(self.user, 'apellido', None),
+                    "username": getattr(self.user, 'username', None),
+                    "email": getattr(self.user, 'email', None),
+                    "full_name": "{} {}".format(
+                        getattr(self.user, 'nombre', '') or '',
+                        getattr(self.user, 'apellido', '') or ''
+                    ).strip()
+                }
+            except Exception:
+                user_info = None
+
         return {
             "id": self.id,
             "site_id": self.site_id,
@@ -51,4 +68,8 @@ class Review(db.Model):
             "motivo_rechazo": self.motivo_rechazo,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            # Compatibilidad: incluir datos del usuario anidados y alias comunes
+            "usuario": user_info,
+            "user": {"id": user_info.get('id') if user_info else None, "name": user_info.get('full_name') if user_info else None} if user_info else None,
+            "author_name": user_info.get('full_name') if user_info else None
         }

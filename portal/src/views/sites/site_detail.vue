@@ -1,7 +1,7 @@
 <template>
   
   <div class="min-h-screen bg-gray-50 flex flex-col items-center py-10 px-4 space-y-10">
-    <!-- 🔙 Botón Volver -->
+
     <div class="w-full max-w-5xl">
       <button
         @click="goBack"
@@ -14,31 +14,37 @@
       </button>
     </div>
 
-    <!-- 🏷️ Encabezado -->
+ 
     <div class="w-full max-w-5xl">
-     <SiteHeader v-if="site" :site="site" :user-id="userId" />
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+       
+        <div class="lg:col-span-4">
+          <div class="mb-4">
+            <SiteHeader v-if="site" :site="site" :user-id="userId" />
+          </div>
+        </div>
 
+
+        <div class="lg:col-span-8">
+          <SiteGallery v-if="site && site.imagenes?.length" :imagenes="site.imagenes" />
+        </div>
+      </div>
     </div>
 
-    <!-- 🖼️ Galería -->
-    <div class="w-full max-w-5xl">
-      <SiteGallery v-if="site && site.imagenes?.length" :imagenes="site.imagenes" />
-    </div>
 
-    <!-- 📝 Descripción + Mapa -->
-    <div class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-8">
-      <!-- Descripción -->
-      <div>
+    <div class="w-full max-w-5xl">
+      <div class="bg-white rounded-2xl shadow-md p-4 mt-6">
         <SiteDescription
           v-if="site"
           :descripcion_completa="site.descripcion_completa"
           :descripcion_breve="site.descripcion_breve"
         />
-
       </div>
+    </div>
 
-      <!-- Mapa -->
-      <div class="bg-white rounded-2xl shadow-md p-4 flex flex-col h-[350px] md:h-[400px]">
+
+    <div class="w-full max-w-5xl">
+      <div class="bg-white rounded-2xl shadow-md p-4 flex flex-col h-[260px] md:h-[320px]">
         <h2 class="text-2xl font-semibold text-gray-800 mb-3 flex items-center gap-2">
           <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -59,7 +65,7 @@
         </div>
       </div>
     </div>
-<!-- ✨ Reseñas -->
+
 <div class="w-full max-w-5xl">
   <SiteReviews v-if="site" :site-id="site.id" />
 </div>
@@ -88,13 +94,14 @@ const site = ref(null)
 const loading = ref(true)
 const error = ref(null)
 
-// 🔑 importar el hook
 const { currentUser, isAuthenticated } = useAuth()
 
-// ✅ userId computado correctamente
+
 const userId = computed(() => currentUser.value?.id ?? null)
 
 const goBack = () => router.back()
+
+// contact card removed per user request
 
 onMounted(async () => {
   try {
