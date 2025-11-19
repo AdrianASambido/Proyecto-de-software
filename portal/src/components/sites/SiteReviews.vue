@@ -45,7 +45,7 @@
           class="border border-gray-100 rounded-xl p-4 bg-gray-50 hover:bg-gray-100 transition"
         >
           <div class="flex justify-between items-center mb-2">
-            <span class="font-semibold text-gray-800">{{ r.usuario?.nombre || 'Usuario' }}</span>
+            <span class="font-semibold text-gray-800">{{ getReviewerName(r) }}</span>
             <div class="flex items-center gap-2">
               <span class="text-sm text-gray-400">{{ formatDate(r.created_at) }}</span>
               <button
@@ -240,6 +240,20 @@ const handleReviewSubmitted = () => {
 const formatDate = (dateStr) => {
   if (!dateStr) return ''
   return new Date(dateStr).toLocaleDateString()
+}
+
+const getReviewerName = (review) => {
+  
+  return (
+    review?.usuario?.nombre ||
+    review?.user?.nombre ||
+    review?.user?.name ||
+    review?.nombre ||
+    review?.author_name ||
+    review?.author?.name ||
+    review?.usuario_nombre ||
+    'Usuario'
+  )
 }
 
 onMounted(loadReviews)
