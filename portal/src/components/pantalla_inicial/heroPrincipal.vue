@@ -10,18 +10,16 @@
         <h2 class="text-3xl font-extrabold text-red-700 mb-4"> 
           Tu portal de sitios históricos
         </h2>
-        <p class="text-justify text-gray-900 text-xl font-serif mb-4 leading-relaxed text-intro">
-          <div class="text-justify text-gray-900 text-lg font-serif mb-4 leading-relaxed">
-    
-            <p>Donde encontrarás las estructuras más destacadas de nuestra historia, reliquias</p>
-    
-            <p class="ml-2"> arquitectónica que te llevarán a un paseo por el pasado.  Aquí podrás obtener </p>
-    
-            <p class="ml-4"> información  relevante de los sitios históricos, ver imágenes, elegir las  que </p>
-    
-            <p class="ml-6"> más te gusten, calificarlas, ver su ubicación y más.</p>
-          </div>
-        </p>
+        <div class="text-justify text-gray-900 text-lg font-serif mb-4 leading-relaxed text-intro">
+
+          <p>Donde encontrarás las estructuras más destacadas de nuestra historia, reliquias</p>
+
+          <p class="ml-2"> arquitectónica que te llevarán a un paseo por el pasado.  Aquí podrás obtener </p>
+
+          <p class="ml-4"> información  relevante de los sitios históricos, ver imágenes, elegir las  que </p>
+
+          <p class="ml-6"> más te gusten, calificarlas, ver su ubicación y más.</p>
+        </div>
         <router-link to="/sitios" class="inline-flex items-center px-4 py-2 border border-portal-red text-sm font-medium
             rounded-md shadow-sm bg-red-700 text-white hover:bg-transparent hover:text-gray-900
             hover:border-gray-900 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-portal-red
