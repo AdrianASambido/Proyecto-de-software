@@ -24,8 +24,8 @@
           class="carrusel-item"
         /> 
       </div>
-      <button @click="scrollLeft" class="carousel-control left-0"><</button>
-      <button @click="scrollRight" class="carousel-control right-0">></button>
+     <!-- <button @click="scrollLeft" class="carousel-control left-0"><</button>
+      <button @click="scrollRight" class="carousel-control right-0">></button> -->
     </div>
   </section>
 </template>

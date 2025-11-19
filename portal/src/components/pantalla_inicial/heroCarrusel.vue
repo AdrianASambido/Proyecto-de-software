@@ -19,7 +19,7 @@ let intervalId;
 const fetchImages = async () => {
   try {
     const response = await api.get('/sites?order=fecha_desc&per_page=6&include_cover=true');
-    const baseUrl = 'https://admin-grupo01.proyecto2025.linti.unlp.edu.ar';
+    const baseUrl = 'http://localhost5000';                             // 'https://admin-grupo01.proyecto2025.linti.unlp.edu.ar';
     images.value = response.data.data.map(site => ({
       id: site.id,
       src: new URL(site.cover, baseUrl).href,

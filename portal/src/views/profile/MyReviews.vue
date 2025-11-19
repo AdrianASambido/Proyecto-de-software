@@ -157,15 +157,6 @@
         @confirm="handleEdit"
         @cancel="showEditModal = false"
       />
-
-      <div class="mt-8 text-center">
-        <router-link
-          to="/"
-          class="inline-block px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
-        >
-          Volver a la página principal
-        </router-link>
-      </div>
     </div>
   </div>
 </template>
