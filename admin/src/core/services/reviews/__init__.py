@@ -202,7 +202,8 @@ def get_review_by_site(site_id: int, review_id: int):
 def update_review(site_id: int, review_id: int, user_id: int, calificacion: int, contenido: str):
     """
     Actualiza una reseña existente.
-    Solo permite editar reseñas en estado PENDIENTE que pertenezcan al usuario.
+    Permite editar reseñas en estado PENDIENTE o APROBADA que pertenezcan al usuario.
+    Al editar, la reseña vuelve a estado PENDIENTE para su revisión.
     """
     if not isinstance(calificacion, int) or calificacion < 1 or calificacion > 5:
         raise ValueError("La calificación debe ser un número entre 1 y 5")
@@ -220,8 +221,8 @@ def update_review(site_id: int, review_id: int, user_id: int, calificacion: int,
     if review.user_id != user_id:
         raise PermissionError("No tiene permisos para editar esta reseña")
 
-    if review.estado != ReviewStatus.PENDIENTE:
-        raise PermissionError("Solo se pueden editar reseñas en estado PENDIENTE")
+    if review.estado not in [ReviewStatus.PENDIENTE, ReviewStatus.APROBADA]:
+        raise PermissionError("Solo se pueden editar reseñas en estado PENDIENTE o APROBADA")
 
     review.calificacion = calificacion
     review.contenido = contenido.strip()

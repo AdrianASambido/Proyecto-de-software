@@ -51,7 +51,6 @@
             <div 
               v-if="menuOpen" 
               class="desktop-menu absolute right-0 mt-2 w-48 bg-white text-black rounded-lg shadow-lg overflow-hidden z-50 flex flex-col divide-y">
-
               <router-link to="/perfil" class="menu-item block px-4 py-3 hover:bg-gray-100" @click="toggleMenu">Perfil</router-link>
               <router-link to="/mis-resenas" class="menu-item block px-4 py-3 hover:bg-gray-100" @click="toggleMenu">Mis reseñas</router-link>
               <router-link to="/favoritos" class="menu-item block px-4 py-3 hover:bg-gray-100" @click="toggleMenu">Sitios favoritos</router-link>
