@@ -197,7 +197,7 @@ const editLoading = ref(false)
 const currentPage = ref(1)
 const meta = ref({
   page: 1,
-  per_page: 2,
+  per_page: 25,
   total: 0
 })
 
