@@ -26,22 +26,22 @@
                 />
               </svg>
             </template>
-</div>
+        </div>
 
            <span class="text-sm text-gray-600">
-  <template v-if="reviewsCount > 0">
-    {{ ratingValue.toFixed(1) }} · {{ reviewsCount }} reseñas
-  </template>
-  <template v-else>
-    0.0 · 0 reseñas
-  </template>
-</span>
+            <template v-if="reviewsCount > 0">
+              {{ ratingValue.toFixed(1) }} · {{ reviewsCount }} reseñas
+            </template>
+            <template v-else>
+              0.0 · 0 reseñas
+            </template>
+          </span>
 
           </div>
 
          
 
-            <!-- ubicación movida abajo en el bloque de metadatos para evitar duplicados -->
+            
         </div>
       </div>
 
@@ -216,7 +216,7 @@ const statusColor = (estado) => {
   }
 }
 
-// Computed: normalize rating and reviews count from various possible backend fields
+
 const ratingValue = computed(() => {
   const s = props.site || {}
   const keys = ['valoracion_promedio', 'valoracion', 'rating', 'average_rating', 'promedio_valoracion']

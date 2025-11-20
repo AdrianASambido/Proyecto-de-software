@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-gray-50 py-8">
     <div class="max-w-5xl mx-auto px-4">
 
-      <!-- 🔙 Botón Volver -->
+
       <div class="w-40 mb-6">
         <RouterLink
           to="/"
@@ -92,8 +92,8 @@ const sortOrder = ref('fecha_desc') // desc = más recientes
 
 // --- PAGINACION ---
 const currentPage = ref(1)
-const perPage = ref(2) // sitios por página
-const meta = ref({ total: 0, per_page: 2 }) // debe coincidir con perPage
+const perPage = ref(25) // sitios por página
+const meta = ref({ total: 0, per_page: 25 }) // debe coincidir con perPage
 const totalPages = computed(() => Math.ceil(meta.value.total / meta.value.per_page))
 
 // --- Carga de sitios ---
