@@ -20,7 +20,11 @@
         <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         <p class="mt-4 text-gray-600">Cargando reseñas...</p>
       </div>
-
+      <template v-if="system.loaded && !system.reviewsEnabled">
+  <div class="p-3 mb-4 bg-yellow-100 text-yellow-800 rounded-lg text-sm">
+    Las reseñas están temporalmente deshabilitadas.
+  </div>
+</template>
       <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
         {{ error }}
       </div>
@@ -168,25 +172,19 @@ import api from '@/api/axios'
 import { useReviews } from '@/composables/useReviews'
 import ConfirmModal from '@/components/common/ConfirmModal.vue'
 import EditReviewModal from '@/components/common/EditReviewModal.vue'
-
+import { useSystemStore } from '@/stores/system'
+const system = useSystemStore()
 const { deleteReview, updateReview } = useReviews()
-const sortOrder = ref('desc') // desc = más recientes
+const sortOrder = ref('desc') 
 const sortOrderLabel = computed(() =>
   sortOrder.value === 'desc' ? 'Más recientes' : 'Más antiguas'
 )
 const toggleSort = () => {
   sortOrder.value = sortOrder.value === 'desc' ? 'asc' : 'desc'
-  sortReviews()
+  loadMyReviews(1)
 }
-const sortReviews = () => {
-  reviews.value.sort((a, b) => {
-    const dateA = new Date(a.created_at)
-    const dateB = new Date(b.created_at)
-    return sortOrder.value === 'asc'
-      ? dateA - dateB
-      : dateB - dateA
-  })
-}
+
+
 
 const reviews = ref([])
 const loading = ref(true)
@@ -199,24 +197,26 @@ const editLoading = ref(false)
 const currentPage = ref(1)
 const meta = ref({
   page: 1,
-  per_page: 25,
+  per_page: 2,
   total: 0
 })
 
 const totalPages = computed(() => Math.ceil(meta.value.total / meta.value.per_page))
-
 const loadMyReviews = async (page = 1) => {
   loading.value = true
   error.value = null
   try {
     const { data } = await api.get('/me/reviews', {
-      params: { page, per_page: 25 }
+      params: { 
+        page, 
+        per_page: meta.value.per_page, 
+        order: sortOrder.value === 'desc' ? 'fecha_desc' : 'fecha_asc'
+      }
     })
     
     reviews.value = data.data
     meta.value = data.meta
     currentPage.value = page
-    sortReviews()
 
   } catch (err) {
     console.error(err)
@@ -226,6 +226,7 @@ const loadMyReviews = async (page = 1) => {
     loading.value = false
   }
 }
+
 
 const previousPage = () => {
   if (currentPage.value > 1) {
@@ -305,5 +306,15 @@ const formatDate = (dateStr) => {
   })
 }
 
-onMounted(loadMyReviews)
+onMounted(async () => {
+  await system.loadStatus()
+
+  if (!system.reviewsEnabled) {
+    loading.value = false
+    return
+  }
+
+  loadMyReviews()
+})
+
 </script>

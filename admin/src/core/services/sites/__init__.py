@@ -238,6 +238,9 @@ def filter_sites(filtros):
 from flask import current_app
 
 def get_site(site_id, include_images=False, include_cover=False):
+    """
+    Obtiene un sitio histórico por su ID, incluyendo imágenes y portada si se solicita.
+    """
     sitio = Site.query.get(site_id)
     if not sitio:
         return None
@@ -530,8 +533,6 @@ def add_site(site_data,user_id):
     )
     return nuevo_sitio
 
-def actualizar_historial(nuevo,accion,original=None):
-    pass
 
 def delete_site_image(site_id: int, image_id: int):
     """Elimina una imagen de un sitio. Si era portada, reasigna portada a la siguiente por orden."""

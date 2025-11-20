@@ -24,7 +24,7 @@ export const useSystemStore = defineStore('system', {
 
         // Redirigir si está en mantenimiento
         if (this.maintenance?.maintenance === true && router.currentRoute.value.path !== '/maintenance') {
-          router.push('/maintenance')
+          router.next('/maintenance')
         }
 
       } catch (err) {

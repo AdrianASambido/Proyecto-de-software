@@ -16,47 +16,48 @@
       </a>
 
       <!-- Ver historial -->
-       {% if has_permission('site_history') %}
+      {% if has_permission('site_history') %}
       <a href="{{ url_for('sites_history.index', sitio_id=sitio.id) }}"
          class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-white font-medium shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-1">
         📜 Historial
       </a>
-{% endif %} 
+      {% endif %}
+
       <!-- Editar -->
-        {% if has_permission('site_update') %}
+      {% if has_permission('site_update') %}
       <a href="{{ url_for('sites.modify', site_id=sitio.id) }}"
          class="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-white font-medium shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-1">
         ✏️ Editar
       </a>
-{% endif %} 
+      {% endif %}
+
       <!-- Eliminar -->
-       {% if has_permission('site_destroy') %}
-        <button onclick="openDeleteModal({ 
-      url: '{{ url_for('sites.delete', site_id=sitio.id) }}', 
-      title: 'Eliminar sitio',
-      message: '¿Estás seguro que quieres eliminar el sitio {{ sitio.nombre }}?'
-})"
-                class="inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-white font-medium shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1">
-          🗑️ Eliminar
-        </button>
+      {% if has_permission('site_destroy') %}
+      <button onclick="openDeleteModal({ 
+          url: '{{ url_for('sites.delete', site_id=sitio.id) }}', 
+          title: 'Eliminar sitio',
+          message: '¿Estás seguro que quieres eliminar el sitio {{ sitio.nombre }}?'
+      })"
+      class="inline-flex items-center justify-center rounded-md bg-red-600 px-4 py-2 text-white font-medium shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1">
+        🗑️ Eliminar
+      </button>
       {% endif %}
     </div>
   </div>
 
-
+  <!-- Contenido principal -->
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
+    <!-- Galería -->
     {% if sitio.images_data and sitio.images_data|length > 0 %}
     <div class="lg:col-span-1">
       <div class="bg-white rounded-lg shadow p-4 sm:p-6">
         <h2 class="text-lg font-bold text-gray-800 mb-4">Galería</h2>
         <div class="relative group flex justify-center">
-          <div class="aspect-square bg-gray-100 rounded overflow-hidden w-full transition-opacity duration-300">
-            <img id="mainGalleryImage"
-                 src="{{ image_url(sitio.cover_url) if sitio.cover_url else sitio.images_data[0].url }}"
-                 alt="Imagen galería"
-                 class="w-full h-full object-cover opacity-100 transition-opacity duration-300">
-          </div>
+          <!-- Imagen principal -->
+          <img id="mainGalleryImage" class="w-full h-64 sm:h-80 object-cover rounded-lg transition-opacity duration-500 opacity-100" src="" alt="Imagen sitio">
+
+          <!-- Botones de swipe -->
           {% if sitio.images_data|length > 1 %}
           <button onclick="prevGalleryImage()"
                   class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full w-8 h-8 flex items-center justify-center transition-opacity duration-200 opacity-0 group-hover:opacity-100">
@@ -66,8 +67,7 @@
                   class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white rounded-full w-8 h-8 flex items-center justify-center transition-opacity duration-200 opacity-0 group-hover:opacity-100">
             ›
           </button>
-          {% endif %}
-          {% if sitio.images_data|length > 1 %}
+          <!-- Contador -->
           <div class="text-center mt-3 text-sm text-gray-600 absolute bottom-[-2.5rem] left-1/2 transform -translate-x-1/2">
             <span id="currentImageIndex">1</span> / <span id="totalImages">{{ sitio.images_data|length }}</span>
           </div>
@@ -77,7 +77,7 @@
     </div>
     {% endif %}
 
-
+    <!-- Información del sitio -->
     <div class="lg:col-span-2">
       <div class="bg-white rounded-lg shadow p-4 sm:p-6 space-y-3 sm:space-y-4">
         <p><span class="font-semibold">Descripción breve:</span> {{ sitio.descripcion_breve }}</p>
@@ -89,6 +89,7 @@
         <p><span class="font-semibold">Año de inauguración:</span> {{ sitio.inauguracion }}</p>
         <p><span class="font-semibold">Visible:</span> {{ 'Sí' if sitio.visible else 'No' }}</p>
         <p><span class="font-semibold">Fecha de registro:</span> {{ sitio.created_at.strftime("%d/%m/%Y %H:%M") }}</p>
+
         <div class="grid grid-cols-1 gap-2 sm:grid-cols-12">
           <div class="sm:col-span-5 flex flex-col">
             <div class="font-semibold">Tags:</div>
@@ -108,111 +109,46 @@
       </div>
     </div>
   </div>
-{% if sitio.images_data and sitio.images_data|length > 0 %}
-<div class="mt-8">
-    <h2 class="text-lg font-bold text-gray-800 mb-3">Galería</h2>
 
-    <!-- Miniaturas -->
-    <div class="flex gap-3 overflow-x-auto pb-2">
-        {% for img in sitio.images_data %}
-        <div class="w-28 h-28 bg-gray-100 rounded overflow-hidden flex-shrink-0 cursor-pointer"
-             onclick="openGallery({{ loop.index0 }})">
-            <img src="{{ img.url }}" class="w-full h-full object-cover">
-        </div>
-        {% endfor %}
-    </div>
-</div>
-
-{% endif %}
-<!-- Modal Gallery -->
-<div id="galleryModal"
-     class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center hidden z-50">
-
-    <!-- Botón cerrar -->
-    <button onclick="closeGallery()"
-            class="absolute top-4 right-4 text-white text-3xl font-bold">×</button>
-
-    <!-- Botón anterior -->
-    <button onclick="prevImage()"
-            class="absolute left-4 text-white text-4xl font-bold px-4">‹</button>
-
-    <!-- Imagen grande -->
-    <div class="max-w-4xl w-full px-4">
-        <img id="galleryImage"
-             src=""
-             class="w-full max-h-[80vh] object-contain rounded shadow-lg">
-        <p id="galleryTitle" class="mt-2 text-center text-white text-sm"></p>
-    </div>
-
-    <!-- Botón siguiente -->
-    <button onclick="nextImage()"
-            class="absolute right-4 text-white text-4xl font-bold px-4">›</button>
-
-</div>
-
-  
-
-  <!-- Mapa (ancho completo) -->
+  <!-- Mapa -->
   <div class="mt-6 bg-white rounded-lg shadow p-4 sm:p-6">
     <h2 class="text-lg font-bold text-gray-800 mb-4">Ubicación</h2>
     <div id="map" class="w-full h-64 sm:h-80 rounded-lg border"></div>
   </div>
 </div>
 
-
-
-<link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    crossorigin=""
-/>
-<script
-    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    crossorigin=""
-></script>
+<!-- Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
 <script>
+// Mapa
 const lat = Number("{{ sitio.latitud or -34.6037 }}");
 const lng = Number("{{ sitio.longitud or -58.3816 }}");
-
 const map = L.map("map").setView([lat, lng], 5);
-
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
 }).addTo(map);
+L.marker([lat, lng]).addTo(map).bindPopup("{{ sitio.nombre }}").openPopup();
+let images = {{ sitio.images_data|tojson }} || [];
+images = images.filter(i => i && i.url); // solo válidas
 
-const coverUrl = "{{ image_url(sitio.cover_url) if sitio.cover_url else '' }}";
-const nombre = "{{ sitio.nombre }}";
-const ciudad = "{{ sitio.ciudad }}";
-const provincia = "{{ sitio.provincia }}";
+// Separar portada
+let portada = images.find(i => i.is_cover);
+let resto = images.filter(i => !i.is_cover);
 
-const popupContent = `
-    <div style="width:150px;">
-        ${coverUrl ? `<img src="${coverUrl}" alt="${nombre}" style="width:100%; height:auto; border-radius:4px; margin-bottom:4px;">` : ""}
-        <strong style="font-size:0.9rem;">${nombre}</strong><br>
-        <small style="font-size:0.8rem;">${ciudad}, ${provincia}</small>
-    </div>
-`;
+// Ordenar el resto por order ascendente
+resto.sort((a,b) => (a.order||0)-(b.order||0));
 
-L.marker([lat, lng])
-    .addTo(map)
-    .bindPopup(popupContent)
-    .openPopup();
+// Combinar portada + resto
+images = portada ? [portada, ...resto] : resto;
 
-let images = {{ sitio.images_data | tojson }} || [];
+// Mapear solo lo necesario para la galería
+images = images.map(i => ({ url: i.url, title: i.title||'' }));
 
-images = images.filter(i => i && i.url).map(i => ({ url: i.url, title: i.title || '' }));
-
-const coverUrlJS = "{{ image_url(sitio.cover_url) if sitio.cover_url else '' }}";
-if (coverUrlJS) {
-  if (!images.some(img => img.url === coverUrlJS)) {
-    images.unshift({ url: coverUrlJS, title: 'Portada' });
-  }
-}
 let currentIndex = 0;
 
-// Funciones para la galería del sidebar
+
 function updateMainGalleryDisplay() {
   const img = images[currentIndex];
   const el = document.getElementById("mainGalleryImage");
@@ -220,8 +156,8 @@ function updateMainGalleryDisplay() {
 
   el.classList.remove('opacity-100');
   el.classList.add('opacity-0');
-  el.onload = function () {
 
+  el.onload = function() {
     el.classList.remove('opacity-0');
     el.classList.add('opacity-100');
     const idx = document.getElementById("currentImageIndex");
@@ -231,29 +167,24 @@ function updateMainGalleryDisplay() {
 }
 
 function nextGalleryImage() {
-    currentIndex = (currentIndex + 1) % images.length;
-    updateMainGalleryDisplay();
-}
-
-function prevGalleryImage() {
-    currentIndex = (currentIndex - 1 + images.length) % images.length;
-    updateMainGalleryDisplay();
-}
-
-
-if (images && images.length > 0) {
-  const totalEl = document.getElementById('totalImages');
-  if (totalEl) totalEl.innerText = images.length;
-
+  currentIndex = (currentIndex + 1) % images.length;
   updateMainGalleryDisplay();
 }
 
+function prevGalleryImage() {
+  currentIndex = (currentIndex - 1 + images.length) % images.length;
+  updateMainGalleryDisplay();
+}
 
+// Inicializar
+// Inicializar
+if (images.length > 0) {
+  const totalEl = document.getElementById('totalImages');
+  if(totalEl) totalEl.innerText = images.length; // solo si existe
+  updateMainGalleryDisplay();
+}
 
 </script>
 
-
-
-<!-- Modal de eliminación -->
 {% include "common/delete_modal.html" %}
 {% endblock %}

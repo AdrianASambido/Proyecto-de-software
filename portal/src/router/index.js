@@ -5,7 +5,12 @@ import { useSystemStore } from '@/stores/system'  // <-- agregado
 
 const routes = [
   { path: '/', name: 'home', component: Home },
-  { path: '/sitios', name: 'sites-list', component: () => import('@/views/sites/sites_list.vue') },
+  { 
+    path: '/sitios',
+    name: 'sites-list',
+    component: () => import('@/views/sites/sites_list.vue'),
+    meta: { preserveScrollOnQuery: true }
+  },
   { path: '/sitio/:id', name: 'site-detail', component: SiteDetailView },
   { path: '/login', name: 'login', component: () => import('@/components/login_google/login.vue') },
   { path: '/map', name: 'map', component: () => import('@/views/MapView.vue')},
@@ -39,32 +44,40 @@ const router = createRouter({
   routes,
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) return savedPosition
+    if (to?.meta?.preserveScrollOnQuery && from?.name === to?.name) {
+      return false
+    }
     return { top: 0 }
   }
 })
-
 router.beforeEach(async (to, from, next) => {
   const system = useSystemStore()
 
-  // cargar estado de mantenimiento si aún no se cargó
-  if (!system.loaded) {
-    await system.loadStatus()
-  }
+ 
+  await system.loadStatus()
 
-
- if (system.maintenance?.maintenance === true) {
-  if (to.path !== '/maintenance') {
-    return next('/maintenance')
-  }
-}
-
-
+  const isMaintenance = system.maintenance?.maintenance === true
   const token = localStorage.getItem('token')
-  if (to.meta.requiresAuth && !token) {
-    return next('/login')
+
+  if (to.path === '/maintenance' && !isMaintenance) {
+    return next('/')
   }
+
+ 
+  if (isMaintenance) {
+
+    // cerrar sesión automáticamente
+    localStorage.removeItem('token')
+
+    if (to.path !== '/maintenance') {
+      return next('/maintenance')
+    }
+  }
+
+
 
   next()
 })
+
 
 export default router
