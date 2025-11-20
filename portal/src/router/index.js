@@ -42,29 +42,34 @@ const router = createRouter({
     return { top: 0 }
   }
 })
-
 router.beforeEach(async (to, from, next) => {
   const system = useSystemStore()
 
-  // cargar estado de mantenimiento si aún no se cargó
-  if (!system.loaded) {
-    await system.loadStatus()
-  }
+ 
+  await system.loadStatus()
 
-
- if (system.maintenance?.maintenance === true) {
-  if (to.path !== '/maintenance') {
-    return next('/maintenance')
-  }
-}
-
-
+  const isMaintenance = system.maintenance?.maintenance === true
   const token = localStorage.getItem('token')
-  if (to.meta.requiresAuth && !token) {
+
+  if (to.path === '/maintenance' && !isMaintenance) {
     return next('/')
   }
 
+ 
+  if (isMaintenance) {
+
+    // cerrar sesión automáticamente
+    localStorage.removeItem('token')
+
+    if (to.path !== '/maintenance') {
+      return next('/maintenance')
+    }
+  }
+
+
+
   next()
 })
+
 
 export default router

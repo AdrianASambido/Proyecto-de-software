@@ -10,6 +10,9 @@ from src.web.controllers.api.schemas.site import SiteSchema
 @api_bp.put("/sites/<int:site_id>/favorite")
 @jwt_required
 def favorite(site_id):
+    """
+    Marca un sitio como favorito para el usuario autenticado.
+    """
     user_id = get_current_user_from_jwt()
     user = get_user_by_id(user_id)
     if not user:
@@ -28,6 +31,9 @@ def favorite(site_id):
 @api_bp.delete("/sites/<int:site_id>/favorite")
 @jwt_required
 def unfavorite(site_id):
+    """
+    Remueve un sitio de los favoritos del usuario autenticado.
+    """
     user_id = get_current_user_from_jwt()
     user = get_user_by_id(user_id)
     if not user:
@@ -45,6 +51,9 @@ def unfavorite(site_id):
 
 @api_bp.get("/sites/<int:site_id>/favorite")
 def is_favorite(site_id):
+    """
+    Verifica si un sitio es favorito para un usuario específico.
+    """
     user_id = request.args.get("userId", type=int)
     user = get_user_by_id(user_id)
     if not user:
@@ -62,6 +71,9 @@ def is_favorite(site_id):
 @api_bp.get("/me/favorites")
 @jwt_required
 def get_favorites():
+    """
+    Lista los sitios favoritos del usuario autenticado con paginación.
+    """
     user_id = get_current_user_from_jwt()
     if not user_id:
         return jsonify({"error": "Token sin sub"}), 401

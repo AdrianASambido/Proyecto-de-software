@@ -7,6 +7,10 @@ from src.core.services.feature_flags import (
 )
 @api_bp.get("/system/maintenance")
 def is_in_maintenance():
+
+    """
+    Verifica si el portal está en modo de mantenimiento.
+    """
     maintenance = is_portal_maintenance_mode()
 
     return jsonify({
@@ -17,6 +21,9 @@ def is_in_maintenance():
 
 @api_bp.get("/system/reviews_enabled")
 def are_reviews_enabled():
+    """
+    Verifica si la funcionalidad de reseñas está habilitada.
+    """
     
     enabled = are_reviews_enabled_service()
 
