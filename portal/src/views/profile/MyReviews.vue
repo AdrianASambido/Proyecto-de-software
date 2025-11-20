@@ -20,7 +20,11 @@
         <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         <p class="mt-4 text-gray-600">Cargando reseñas...</p>
       </div>
-
+      <template v-if="system.loaded && !system.reviewsEnabled">
+  <div class="p-3 mb-4 bg-yellow-100 text-yellow-800 rounded-lg text-sm">
+    Las reseñas están temporalmente deshabilitadas.
+  </div>
+</template>
       <div v-else-if="error" class="bg-red-50 border border-red-200 rounded-lg p-4 text-red-700">
         {{ error }}
       </div>
@@ -168,7 +172,8 @@ import api from '@/api/axios'
 import { useReviews } from '@/composables/useReviews'
 import ConfirmModal from '@/components/common/ConfirmModal.vue'
 import EditReviewModal from '@/components/common/EditReviewModal.vue'
-
+import { useSystemStore } from '@/stores/system'
+const system = useSystemStore()
 const { deleteReview, updateReview } = useReviews()
 const sortOrder = ref('desc') 
 const sortOrderLabel = computed(() =>
@@ -301,5 +306,15 @@ const formatDate = (dateStr) => {
   })
 }
 
-onMounted(loadMyReviews)
+onMounted(async () => {
+  await system.loadStatus()
+
+  if (!system.reviewsEnabled) {
+    loading.value = false
+    return
+  }
+
+  loadMyReviews()
+})
+
 </script>

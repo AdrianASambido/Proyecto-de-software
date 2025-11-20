@@ -5,6 +5,22 @@ from src.core.services.feature_flags import (
     get_portal_maintenance_message
     ,are_reviews_enabled as are_reviews_enabled_service
 )
+from functools import wraps
+
+def reviews_enabled_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        enabled = are_reviews_enabled_service()
+
+        if not enabled:
+            return jsonify({
+                "error": "Las reseñas están deshabilitadas"
+            }), 403
+
+        return f(*args, **kwargs)
+
+    return decorated
+
 @api_bp.get("/system/maintenance")
 def is_in_maintenance():
 

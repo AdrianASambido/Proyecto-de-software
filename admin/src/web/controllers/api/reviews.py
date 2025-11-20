@@ -9,8 +9,10 @@ from src.core.services.reviews import (
     delete_review,
     update_review
 )
+from src.web.controllers.api.maintenance import reviews_enabled_required
 
 @api_bp.get("sites/<int:site_id>/reviews")
+@reviews_enabled_required
 def get_reviews_for_site(site_id):
     """
     Lista las reseñas APROBADAS de un sitio con paginación.
@@ -44,6 +46,7 @@ def get_reviews_for_site(site_id):
 
 
 @api_bp.post("sites/<int:site_id>/reviews")
+@reviews_enabled_required
 @jwt_required
 def add_review_to_site(site_id):
     try:
@@ -84,6 +87,7 @@ def add_review_to_site(site_id):
 
 
 @api_bp.get("sites/<int:site_id>/reviews/<int:review_id>")
+@reviews_enabled_required
 def get_review_by_id(site_id, review_id):
     """
     Obtiene una reseña específica de un sitio.
@@ -101,6 +105,7 @@ def get_review_by_id(site_id, review_id):
 
 
 @api_bp.delete("sites/<int:site_id>/reviews/<int:review_id>")
+@reviews_enabled_required
 @jwt_required
 def delete_review_endpoint(site_id, review_id):
     """
@@ -127,6 +132,7 @@ def delete_review_endpoint(site_id, review_id):
 
 
 @api_bp.put("sites/<int:site_id>/reviews/<int:review_id>")
+@reviews_enabled_required
 @jwt_required
 def update_review_endpoint(site_id, review_id):
     """
@@ -160,6 +166,7 @@ def update_review_endpoint(site_id, review_id):
 
 
 @api_bp.get("me/reviews")
+@reviews_enabled_required
 @jwt_required
 def get_my_reviews():
     """

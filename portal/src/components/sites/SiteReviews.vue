@@ -188,6 +188,7 @@ const loadReviews = async (page = 1) => {
   }
 }
 const goToPage = (page) => {
+  if (!system.reviewsEnabled) return
   if (page < 1 || page > totalPages.value) return
   loadReviews(page)
 }
@@ -256,5 +257,12 @@ const getReviewerName = (review) => {
   )
 }
 
-onMounted(loadReviews)
+onMounted(() => {
+  if (system.reviewsEnabled) {
+    loadReviews()
+  } else {
+    loading.value = false
+  }
+})
+
 </script>
