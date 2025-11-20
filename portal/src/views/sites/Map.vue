@@ -14,7 +14,7 @@
         name="OpenStreetMap"
       ></l-tile-layer>
 
-      <l-control position="topright">
+      <l-control :position="controlPosition">
         <button 
           v-if="showUpdateRadiusButton" 
           @click="updateSearchRadius"
@@ -48,6 +48,7 @@ export default {
       center: [-34.6037, -58.3816],
       radius: 0,
       radiusCenter: [-34.6037, -58.3816],
+      isDesktop: typeof window !== 'undefined' ? window.innerWidth >= 1024 : false
     };
   },
 
@@ -56,15 +57,28 @@ export default {
     this.radius = this.calculateNewRadius();
     this.radiusCenter = this.center;
     this.emitLocation();
+    window.addEventListener('resize', this.handleResize);
+  },
+
+  beforeUnmount() {
+    window.removeEventListener('resize', this.handleResize);
   },
 
   computed: {
     showUpdateRadiusButton() {
       return this.centerHasChanged() || this.radius !== this.calculateNewRadius();
+    },
+    controlPosition() {
+      return this.isDesktop ? 'topright' : 'bottomleft';
     }
   },
 
   methods: {
+    handleResize() {
+      if (typeof window === 'undefined') return;
+      this.isDesktop = window.innerWidth >= 1024;
+    },
+
     zoomUpdated(newZoom) {
       this.zoom = newZoom;
     },
@@ -76,6 +90,7 @@ export default {
     updateSearchRadius() {
       this.radius = this.calculateNewRadius();
       this.radiusCenter = this.center;
+      const preserveScroll = !this.isDesktop;
       this.emitLocation();
     },
 
@@ -115,6 +130,26 @@ export default {
 };
 </script>
 <style scoped>
-  .leaflet-container { height: 100%; width: 100%; }
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  z-index: 0;
+}
+
+:deep(.leaflet-top),
+:deep(.leaflet-bottom) {
+  z-index: 500;
+}
+
+:deep(.leaflet-bottom.leaflet-left .leaflet-control) {
+  margin-bottom: 0.75rem;
+  margin-left: 0.5rem;
+}
+
+:deep(.leaflet-top.leaflet-right .leaflet-control) {
+  margin-top: 0.75rem;
+  margin-right: 0.5rem;
+}
 </style>
 
