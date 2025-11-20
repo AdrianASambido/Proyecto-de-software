@@ -151,11 +151,6 @@
               </button>
             </div>
 
-            <!-- Mapa (si está activo) -->
-            <div v-if="showMap" class="mb-4 h-64 rounded-lg overflow-hidden border border-gray-300">
-              <Map @update-location="handleMapLocationUpdate" />
-            </div>
-
             <!-- Orden -->
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 mb-2">Ordenar por</label>
@@ -176,6 +171,19 @@
 
         <!-- Contenido principal -->
         <div class="flex-1">
+          <!-- Mapa principal -->
+          <div v-if="showMap" class="mb-6 bg-white rounded-lg shadow border border-gray-200 p-4">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-lg font-semibold text-gray-800">Búsqueda geográfica</h2>
+              <p class="text-sm text-gray-500">
+                Mueve el mapa o ajusta el zoom y luego presiona “Actualizar Radio de Búsqueda”.
+              </p>
+            </div>
+            <div class="h-[34rem] rounded-lg overflow-hidden border border-gray-300">
+              <Map @update-location="handleMapLocationUpdate" />
+            </div>
+          </div>
+
           <!-- Resultados -->
           <div v-if="loading" class="text-center py-12">
             <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -204,7 +212,7 @@
             </div>
 
             <!-- Sin resultados -->
-            <div v-else class="text-center py-12 bg-white rounded-lg shadow-md">
+            <div v-else-if="hasLoadedOnce" class="text-center py-12 bg-white rounded-lg shadow-md">
               <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -239,6 +247,7 @@
       </div>
     </div>
   </div>
+
 </template>
 
 <script setup>
@@ -261,6 +270,7 @@ const total = ref(0)
 const currentPage = ref(1)
 const perPage = 12
 const totalPages = computed(() => Math.ceil(total.value / perPage))
+const hasLoadedOnce = ref(false)
 
 // Filtros
 const filters = ref({
@@ -327,6 +337,7 @@ const handleMapLocationUpdate = (location) => {
   filters.value.latitud = location.latitud
   filters.value.longitud = location.longitud
   filters.value.radio = location.radio
+  showMap.value = true
   applyFilters()
 }
 
@@ -387,6 +398,7 @@ const loadSites = async () => {
     sites.value = data.data || []
     total.value = data.meta?.total || 0
     currentPage.value = data.meta?.page || 1
+    hasLoadedOnce.value = true
 
   } catch (err) {
     console.error('Error cargando sitios:', err)
@@ -430,6 +442,7 @@ const clearFilters = () => {
     longitud: null,
     radio: 5
   }
+  showMap.value = false
   applyFilters()
 }
 
@@ -469,6 +482,10 @@ const loadFiltersFromURL = () => {
       filters.value.radio = query.radio ? parseFloat(query.radio) : 5
     }
   if (query.page) currentPage.value = parseInt(query.page) || 1
+
+  if (filters.value.latitud && filters.value.longitud) {
+    showMap.value = true
+  }
 }
 
 // Navegación de páginas
