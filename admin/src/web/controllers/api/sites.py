@@ -7,6 +7,9 @@ from src.core.services.users import get_user_by_email
 
 @api_bp.get("/sites")
 def get_sites():
+    """
+    Lista los sitios con filtros y paginación.
+    """
     filtros = {k.lower(): v for k, v in request.args.to_dict(flat=True).items()}
    
 
@@ -37,6 +40,9 @@ def get_sites():
 
 @api_bp.get("/sites/<int:site_id>")
 def get_site_by_id(site_id):
+    """
+    Obtiene los detalles de un sitio por su ID.
+    """
     include_images = request.args.get("include_images", "false").lower() == "true"
     site = get_site(site_id, include_images=include_images)
 
