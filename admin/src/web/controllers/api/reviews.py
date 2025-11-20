@@ -48,9 +48,6 @@ def get_reviews_for_site(site_id):
 def add_review_to_site(site_id):
     try:
        
-       """
-        Agrega una nueva reseña a un sitio.
-        """
         data = request.get_json()
 
         if not data:
