@@ -58,7 +58,7 @@ onUnmounted(() => {
 .carousel-image {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: fill;
   position: absolute;
   clip-path: polygon(5% 0, 95% 0, 100% 100%, 0 100%);
 }

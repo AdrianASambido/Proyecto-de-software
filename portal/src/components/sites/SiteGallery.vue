@@ -19,7 +19,7 @@
     <img
       :src="img.url"
       :alt="img.description || 'Imagen del sitio'"
-      :class="['w-full h-full object-cover select-none gallery-img', { loaded: loaded[index] }]"
+      :class="['w-full h-full object-fill select-none gallery-img', { loaded: loaded[index] }]"
       loading="lazy"
       decoding="async"
       draggable="false"
@@ -249,7 +249,7 @@ onBeforeUnmount(() => {
     justify-content: center;
   }
   .gallery-img {
-    object-fit: cover;
+    object-fit: fill;
     width: 100%;
     height: 100%;
   }
