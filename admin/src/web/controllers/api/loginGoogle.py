@@ -11,7 +11,10 @@ from flask import current_app as app
 
 @api_bp.post("/login/google")
 def login_with_google():
-    # Verificar que la petición tenga Content-Type correcto
+    """
+    Inicia sesión o registra un usuario utilizando un token de Google.
+    """
+    
     if not request.is_json:
         return jsonify({"error": "Content-Type debe ser application/json"}), 400
     

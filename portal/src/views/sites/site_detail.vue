@@ -70,7 +70,7 @@
   <SiteReviews v-if="site" :site-id="site.id" />
 </div>
 
-    <!-- 🌀 Estado -->
+
     <div v-if="loading" class="text-gray-500">Cargando...</div>
     <div v-if="error" class="text-red-500">{{ error }}</div>
   </div>
@@ -101,7 +101,7 @@ const userId = computed(() => currentUser.value?.id ?? null)
 
 const goBack = () => router.back()
 
-// contact card removed per user request
+
 
 onMounted(async () => {
   try {

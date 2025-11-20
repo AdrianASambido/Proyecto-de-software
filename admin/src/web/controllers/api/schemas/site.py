@@ -4,6 +4,9 @@ from src.core.Entities.site import Site
 from src.core.services.sites import calculate_valoration,calculate_review_count
 
 class SiteSchema(SQLAlchemyAutoSchema):
+    """
+    Schema para sitios
+    """
     class Meta:
         model = Site  
         load_instance = True

@@ -47,7 +47,10 @@ def get_reviews_for_site(site_id):
 @jwt_required
 def add_review_to_site(site_id):
     try:
-        #current_user_id = get_jwt_identity()
+       
+       """
+        Agrega una nueva reseña a un sitio.
+        """
         data = request.get_json()
 
         if not data:
@@ -103,6 +106,9 @@ def get_review_by_id(site_id, review_id):
 @api_bp.delete("sites/<int:site_id>/reviews/<int:review_id>")
 @jwt_required
 def delete_review_endpoint(site_id, review_id):
+    """
+    Elimina una reseña específica de un sitio.
+    """
     try:
         user_id = get_current_user_from_jwt()
         review = get_review_by_site(site_id, review_id)
@@ -126,6 +132,9 @@ def delete_review_endpoint(site_id, review_id):
 @api_bp.put("sites/<int:site_id>/reviews/<int:review_id>")
 @jwt_required
 def update_review_endpoint(site_id, review_id):
+    """
+    Actualiza una reseña específica de un sitio.
+    """
     try:
         user_id = get_current_user_from_jwt()
         data = request.get_json()
@@ -156,6 +165,9 @@ def update_review_endpoint(site_id, review_id):
 @api_bp.get("me/reviews")
 @jwt_required
 def get_my_reviews():
+    """
+    Lista las reseñas del usuario autenticado con paginación.
+    """
     try:
         user_id = get_current_user_from_jwt()
         page = int(request.args.get("page", 1))

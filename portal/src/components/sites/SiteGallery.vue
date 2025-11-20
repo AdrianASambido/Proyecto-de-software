@@ -107,17 +107,17 @@ onBeforeUnmount(() => {
 
 
 <style scoped>
-/* Asegura que el Swiper y las slides llenen completamente el contenedor */
+
 .swiper,
 .swiper-slide {
   width: 100%;
   height: 100%;
 }
 
-/* Mejora los botones de navegación */
+
 .swiper-button-prev,
 .swiper-button-next {
-  color: #374151; /* gris sobrio */
+  color: #374151;
   background: rgba(255,255,255,0.85);
   border-radius: 9999px;
   width: 2.5rem;
@@ -135,7 +135,7 @@ onBeforeUnmount(() => {
   opacity: 1;
 }
 
-/* Paginación estética */
+
 .swiper-pagination-bullet {
   background: white;
   opacity: 0.7;
@@ -145,13 +145,13 @@ onBeforeUnmount(() => {
   opacity: 1;
 }
 
-/* Ocultar controles por defecto de Swiper (usamos los nuestros) */
+
 .swiper-button-prev,
 .swiper-button-next {
   display: none !important;
 }
 
-/* Estilos de los controles personalizados */
+
 .gallery-nav-prev,
 .gallery-nav-next {
   position: absolute;
@@ -161,7 +161,7 @@ onBeforeUnmount(() => {
   height: 3rem;
   border-radius: 9999px;
   background: rgba(255,255,255,0.85);
-  color: #111827; /* gris oscuro */
+  color: #111827;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -178,10 +178,10 @@ onBeforeUnmount(() => {
   box-shadow: 0 12px 36px rgba(17,24,39,0.12);
   opacity: 1;
   background: rgba(17,24,39,0.06);
-  color: #0f172a; /* slightly darker on hover */
+  color: #0f172a; 
 }
 
-/* Focus styles for accessibility */
+
 .gallery-nav-prev:focus,
 .gallery-nav-next:focus {
   outline: 3px solid rgba(59,130,246,0.12);
@@ -189,26 +189,39 @@ onBeforeUnmount(() => {
   opacity: 1;
 }
 
-/* Reducir tamaño de icono en pantallas pequeñas */
 @media (max-width: 640px) {
   .gallery-nav-prev,
   .gallery-nav-next {
-    width: 2.25rem;
-    height: 2.25rem;
-    left: 0.35rem;
-    right: 0.35rem;
-    transform: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    transform: translateY(-50%); 
+    padding: 0.2rem;
+  }
+
+  .gallery-nav-prev {
+    left: 0.5rem;
+  }
+
+  .gallery-nav-next {
+    right: 0.5rem;
+  }
+
+
+  .gallery-nav-prev svg,
+  .gallery-nav-next svg {
+    width: 16px;
+    height: 16px;
   }
 }
 
-/* Mejora de accesibilidad: foco visible */
+
 .gallery-nav-prev:focus,
 .gallery-nav-next:focus {
   outline: 2px solid rgba(59,130,246,0.15);
   outline-offset: 2px;
 }
 
-/* Fade-in for images to avoid abrupt blurry flashes */
+
 .gallery-img {
   opacity: 0;
   transition: opacity 320ms ease-in-out, transform 320ms ease-in-out;
@@ -219,21 +232,18 @@ onBeforeUnmount(() => {
   transform: scale(1);
 }
 
-/* Slide container: use fixed aspect ratio on small screens, but allow natural height on desktop
-   so large images aren't cropped. On desktop make images use object-contain and limit max-height. */
+
   .gallery-slide-container {
     aspect-ratio: 16/9;
     overflow: hidden;
   }
 
   @media (min-width: 768px) {
-  /* On desktop enforce a uniform slide height so all images appear consistent
-     while keeping the image contained (no cropping). Images will be centered
-     with letterboxing if their aspect ratio differs. */
+
   .gallery-slide-container {
     aspect-ratio: auto;
-    height: 420px; /* increased desktop height for larger, friendlier images */
-    padding-top: 0; /* remove forced ratio spacing */
+    height: 420px;
+    padding-top: 0; 
     display: flex;
     align-items: center;
     justify-content: center;
