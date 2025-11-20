@@ -25,15 +25,17 @@
       @click="showLoginPopup = true"
       class="
             inline-flex items-center 
-            px-4 py-2 border border-portal-red        
+            px-4 py-2 border border-portal-red          /* Borde rojo visible por defecto */
             text-sm font-medium rounded-md shadow-sm 
-            bg-red-500                                
-            text-white                                  
+            bg-red-500                                 /* Fondo rojo visible por defecto 177, 0, 74 */
+            text-white                                  /* Texto blanco visible por defecto */
             
-            hover:bg-transparent                        
-            hover:text-gray-900                         
-            hover:border-gray-900                      
+            /* CAMBIO AL PASAR EL RATÓN (HOVER) */
+            hover:bg-transparent                        /* Se vuelve transparente al pasar el ratón */
+            hover:text-gray-900                         /* El texto se vuelve gris oscuro */
+            hover:border-gray-900                       /* El borde se vuelve gris oscuro */
             
+            /* Efecto de transición para suavizar el cambio */
             transition-colors duration-200 
             focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-portal-red
         "
@@ -99,3 +101,4 @@ onMounted(() => {
   }
 })
 </script>
+
