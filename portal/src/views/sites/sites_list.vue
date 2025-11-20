@@ -172,14 +172,17 @@
         <!-- Contenido principal -->
         <div class="flex-1">
           <!-- Mapa principal -->
-          <div v-if="showMap" class="mb-6 bg-white rounded-lg shadow border border-gray-200 p-4">
-            <div class="flex items-center justify-between mb-4">
+          <div
+            v-if="showMap"
+            class="mb-6 bg-white rounded-lg shadow border border-gray-200 p-4 space-y-4 relative z-0"
+          >
+            <div class="space-y-2 sm:flex sm:items-center sm:justify-between sm:space-y-0">
               <h2 class="text-lg font-semibold text-gray-800">Búsqueda geográfica</h2>
-              <p class="text-sm text-gray-500">
+              <p class="text-sm text-gray-500 sm:text-right">
                 Mueve el mapa o ajusta el zoom y luego presiona “Actualizar Radio de Búsqueda”.
               </p>
             </div>
-            <div class="h-[34rem] rounded-lg overflow-hidden border border-gray-300">
+            <div class="rounded-lg overflow-hidden border border-gray-300 h-64 sm:h-80 lg:h-[34rem]">
               <Map @update-location="handleMapLocationUpdate" />
             </div>
           </div>
