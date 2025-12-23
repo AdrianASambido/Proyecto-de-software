@@ -4,6 +4,7 @@ import Home from '../home.vue'
 import { useSystemStore } from '@/stores/system'  // <-- agregado
 
 
+//este arreglo contiene las rutas de la aplicación
 const routes = [
   { path: '/', name: 'home', component: Home },
   { 

@@ -2,11 +2,11 @@
 {% from "common/filters_sidebar.html" import render_filters_sidebar, render_filter_button %}
 {% from "common/order_selector.html" import render_order_selector %}
 
-{% block table_title %}Lista de Usuarios{% endblock %}
+{% block table_title %}Lista de Usuarios{% endblock %} 
 {% block add_url %}{{ url_for('users.add_user') }}{% endblock %}
 {% block add_label %}Agregar Usuario{% endblock %}
 
-{% block table_filters %}
+{% block table_filters %}<!-- Filtros personalizados para la tabla de usuarios -->
     {%set active_filters_count = (
     (request.args.get('busqueda') or
      request.args.get('activo') or
@@ -14,8 +14,8 @@
      and 1 or 0
     )%}
 
-    <div class="flex items-center gap-3">
-        {{ render_filter_button(active_filters_count, reset_url=url_for('users.index')) }}
+    <div class="flex items-center gap-3"><!-- Contenedor flex para los filtros y el selector de orden -->
+        {{ render_filter_button(active_filters_count, reset_url=url_for('users.index')) }} 
 
         {% set order_options = [
             {'value': 'fecha_desc', 'label': 'Fecha de creación (más recientes)'},
@@ -38,7 +38,7 @@
 
 {%endblock%}
 
-{%block table_rows%}
+{%block table_rows%} <!-- Usamos un diseño de tarjetas en lugar de filas de tabla -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     {% for user in items %}
         <div class="bg-white shadow-md rounded-lg p-4">
@@ -93,7 +93,7 @@
     {% endfor %}
 {%endblock%}
 
-{%block table_pagination%}
+{%block table_pagination%}<!-- Paginación personalizada para la tabla de usuarios -->
     {% if pagination %}
         <div class="mt-6 flex items-center justify-center gap-2">
         {% if pagination.has_prev %}
