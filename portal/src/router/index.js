@@ -3,6 +3,7 @@ import SiteDetailView from '@/views/sites/site_detail.vue'
 import Home from '../home.vue'
 import { useSystemStore } from '@/stores/system'  // <-- agregado
 
+
 const routes = [
   { path: '/', name: 'home', component: Home },
   { 
