@@ -39,6 +39,9 @@ testpaths = ["tests"]
 [tool.poetry]
 packages = [{include = "web", from = "src"}]
 
+[tool.poetry.scripts]
+start = "main:main"
+dev = "main:main"
 
 [tool.poetry.group.dev.dependencies]
 black = "^25.1.0"
