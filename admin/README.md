@@ -2,6 +2,16 @@
 
 Esto es un proyecto web flask
 
+- ## Para correr la parte privada
+
+- si se está en grupo1 moverse a la carpeta admin
+
+- cd admin
+
+- cualquiera de estos dos comandos - poetry run start / poetru run dev
+
+- Si falta alguna dependencia poetry install
+
 ## Usuarios
 
 Usuarios :
