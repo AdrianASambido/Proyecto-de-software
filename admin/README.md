@@ -8,7 +8,7 @@ Esto es un proyecto web flask
 
 - cd admin
 
-- cualquiera de estos dos comandos - poetry run start / poetru run dev
+- cualquiera de estos dos comandos - poetry run start / poetry run dev
 
 - Si falta alguna dependencia poetry install
 
