@@ -114,11 +114,11 @@ def create_app(env="development", static_folder="../../static"):  # ../../static
     
     
     #comandos para el CLI
-    @app.cli.command(name="resetdb")
+    @app.cli.command(name="resetdb") #correrlo como "poetry run flask --app src.web resetdb"
     def resetdb():
         database.reset_db()
 
-    @app.cli.command(name="seeddb")#correrlo como "flask --app src.web seeddb"
+    @app.cli.command(name="seeddb")#correrlo como "poetry run flask --app src.web seeddb"
     def seeddb():
         seeds.seeds_db()
 
